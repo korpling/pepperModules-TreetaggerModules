@@ -183,7 +183,6 @@
 	                <Bundle-SymbolicName>${project.groupId}.${project.artifactId};singleton:=true</Bundle-SymbolicName>
 	                <Bundle-Version>${project.version}</Bundle-Version>
 	                <Bundle-RequiredExecutionEnvironment>JavaSE-1.6</Bundle-RequiredExecutionEnvironment>
-	                <!-- <Include-Resource>src/main/resources/=src/main/resources/</Include-Resource> -->
 	            	<Service-Component>OSGI-INF/${component.descriptor.name}</Service-Component>
 	           </instructions>
 			</configuration>
