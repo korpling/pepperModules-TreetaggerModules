@@ -208,6 +208,7 @@
 	                <Bundle-Version>${project.version}</Bundle-Version>
 	                <Bundle-RequiredExecutionEnvironment>JavaSE-1.6</Bundle-RequiredExecutionEnvironment>
 	            	<Service-Component>OSGI-INF/${component.descriptor.name}</Service-Component>
+	            	<Include-Resource>{maven-resources}, LICENSE, NOTICE</Include-Resource>
 	           </instructions>
 			</configuration>
 		</plugin>      
