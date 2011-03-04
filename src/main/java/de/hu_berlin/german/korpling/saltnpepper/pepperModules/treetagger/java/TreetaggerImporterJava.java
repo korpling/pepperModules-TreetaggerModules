@@ -17,8 +17,10 @@
  */
 package de.hu_berlin.german.korpling.saltnpepper.pepperModules.treetagger.java;
 
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Map;
+import java.util.Properties;
 
 import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.Service;
@@ -32,12 +34,9 @@ import org.eclipse.emf.ecore.xmi.impl.XMIResourceFactoryImpl;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.log.LogService;
 
-import de.hu_berlin.german.korpling.saltnpepper.misc.treetagger.Annotation;
 import de.hu_berlin.german.korpling.saltnpepper.misc.treetagger.Document;
-import de.hu_berlin.german.korpling.saltnpepper.misc.treetagger.LemmaAnnotation;
-import de.hu_berlin.german.korpling.saltnpepper.misc.treetagger.POSAnnotation;
-import de.hu_berlin.german.korpling.saltnpepper.misc.treetagger.Token;
 import de.hu_berlin.german.korpling.saltnpepper.misc.treetagger.resources.TabResourceFactory;
+import de.hu_berlin.german.korpling.saltnpepper.misc.treetagger.resources.TabResource;
 import de.hu_berlin.german.korpling.saltnpepper.pepper.pepperExceptions.PepperModuleException;
 import de.hu_berlin.german.korpling.saltnpepper.pepper.pepperModules.FormatDefinition;
 import de.hu_berlin.german.korpling.saltnpepper.pepper.pepperModules.PepperImporter;
@@ -45,25 +44,31 @@ import de.hu_berlin.german.korpling.saltnpepper.pepper.pepperModules.PepperInter
 import de.hu_berlin.german.korpling.saltnpepper.pepper.pepperModules.RETURNING_MODE;
 import de.hu_berlin.german.korpling.saltnpepper.pepper.pepperModules.impl.PepperImporterImpl;
 import de.hu_berlin.german.korpling.saltnpepper.pepperModules.treetagger.exceptions.TreetaggerImporterException;
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.SaltCommonFactory;
+import de.hu_berlin.german.korpling.saltnpepper.pepperModules.treetagger.mapper.Treetagger2SaltMapper;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sCorpusStructure.SCorpusGraph;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sCorpusStructure.SDocument;
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.STextualDS;
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.STextualRelation;
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SToken;
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SAnnotation;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SElementId;
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltSemantics.SaltSemanticsFactory;
 
 @Component(name="TreetaggerImporterJavaComponent", factory="PepperImporterComponentFactory")
 @Service(value=PepperImporter.class)
 public class TreetaggerImporterJava extends PepperImporterImpl implements PepperImporter
 {
-	//TODO there shall be a possibility to read from Property-file
-	/**
-	 * Specifies the seperator, which has to be set between to the texts of two token.
-	 */
-	private String sepreator= " ";
+
+	//---------------------------------------------------------------------------------------
+	private void log(int logLevel, String logText) {
+		if (this.getLogService()!=null) {
+			this.getLogService().log(logLevel, logText);
+		}
+	}
+
+	@SuppressWarnings("unused")
+	private void logError  (String logText) { this.log(LogService.LOG_ERROR,   logText); }
+	private void logWarning(String logText) { this.log(LogService.LOG_WARNING, logText); }
+	@SuppressWarnings("unused")
+	private void logInfo   (String logText) { this.log(LogService.LOG_INFO,    logText); }
+	private void logDebug  (String logText) { this.log(LogService.LOG_DEBUG,   logText); }
+
+	//---------------------------------------------------------------------------------------
 	
 	public TreetaggerImporterJava()
 	{
@@ -74,8 +79,7 @@ public class TreetaggerImporterJava extends PepperImporterImpl implements Pepper
 				(this.getSymbolicName().equalsIgnoreCase("")))
 			this.setSymbolicName("de.hu_berlin.german.korpling.saltnpepper.pepperModules.TreetaggerModules");
 		this.init();
-		if (this.getLogService()!= null)
-			this.getLogService().log(LogService.LOG_DEBUG,this.getName()+" is created...");
+		logDebug(this.getName()+" is created...");
 	}
 
 	protected void init()
@@ -123,7 +127,7 @@ public class TreetaggerImporterJava extends PepperImporterImpl implements Pepper
 			try {
 				this.documentResourceTable= this.createCorpusStructure(this.getCorpusDefinition().getCorpusPath(), null, null);
 			} catch (IOException e) {
-				throw new PepperModuleException(this.name+": Cannot start with importing corpus, because saome exception occurs: ",e);
+				throw new PepperModuleException(this.name+": Cannot start with importing corpus, because some exception occurs: ",e);
 			}
 		}	
 	}
@@ -139,10 +143,11 @@ public class TreetaggerImporterJava extends PepperImporterImpl implements Pepper
 				URI uri= this.documentResourceTable.get(sElementId);
 				if (uri== null)
 					throw new TreetaggerImporterException("Cannot import document '"+sElementId+"', because no corresponding uri was found.");
-				
 				Document tDocument= null;
 				tDocument= this.loadFromFile(uri);
-				this.createSDocument(tDocument, this.getSCorpusGraph().getSDocument(sElementId));
+				//TODO: Factory!
+				Treetagger2SaltMapper mapper = new Treetagger2SaltMapper();
+				mapper.convert(tDocument,this.getSCorpusGraph().getSDocument(sElementId));
 			}
 		}
 	}
@@ -158,15 +163,30 @@ public class TreetaggerImporterJava extends PepperImporterImpl implements Pepper
 			// Register XML resource factory
 			resourceSet.getResourceFactoryRegistry().getExtensionToFactoryMap().put("treetagger",new XMIResourceFactoryImpl());
 			resourceSet.getResourceFactoryRegistry().getExtensionToFactoryMap().put("tab",new TabResourceFactory());
-	
 			Resource resource= null;
 			try {
 				//load resource 
 				resource = resourceSet.createResource(uri);
-				
+
 				if (resource== null)
 					throw new TreetaggerImporterException("Cannot load The resource is null.");
-			
+				
+				//set logService for TabResource loading
+				((TabResource)resource).setLogService(this.getLogService());
+
+				//set properties for TabResource loading
+				if (this.getSpecialParams()!=null) {
+					try {
+						Properties properties = new Properties();
+						properties.load(new FileInputStream(this.getSpecialParams().toFileString()));
+						((TabResource)resource).setProperties(properties);
+					} catch (IOException e) {
+						logWarning("invalid property file name for importing of treetagger data - using defaults");
+					}
+				}
+				else {
+					logWarning("no property file for importing of treetagger data - using defaults");
+				}
 				resource.load(null);
 			} 
 			catch (IOException e) 
@@ -179,98 +199,12 @@ public class TreetaggerImporterJava extends PepperImporterImpl implements Pepper
 		return(retVal);
 	}
 	
-// ============================ start Mapping ============================
-	//TODO put all mappings in other class
-	private void createSDocument(Document tDocument, SDocument sDocument)
-	{
-		sDocument.setSDocumentGraph(SaltCommonFactory.eINSTANCE.createSDocumentGraph());
-		sDocument.getSDocumentGraph().setSName(tDocument.getName()+"_graph");
-//		STextualDS sText= 
-		this.createSTextualDS(tDocument.getTokens(), sDocument);
-//		sDocument.getSDocumentGraph().addSNode(sText);	
-	}
-	
-	private STextualDS createSTextualDS(EList<Token> tTokens, SDocument sDocument)
-	{
-		//creating and adding STextualDS
-		STextualDS sText= SaltCommonFactory.eINSTANCE.createSTextualDS();
-		sDocument.getSDocumentGraph().addSNode(sText);
-		
-		String text= null;
-		int start= 0;
-		int end= 0; 
-		for (Token tToken: tTokens)
-		{
-			if (text== null)
-			{
-				start= 0;
-				end= tToken.getText().length();
-				text= tToken.getText();
-			}
-			else 
-			{
-				start= text.length() + sepreator.length();
-				end= start + tToken.getText().length();				
-				text= text+ this.sepreator + tToken.getText();
-			}
-			//creating and adding token
-			SToken sToken= this.createSToken(tToken);
-			sDocument.getSDocumentGraph().addSNode(sToken);
-			
-			STextualRelation sTextRel= this.createSTextualRelation(sToken, sText, start, end);
-			sDocument.getSDocumentGraph().addSRelation(sTextRel);
-		}	
-		sText.setSText(text);
-		return(sText);
-	}
-	
-	
-	private SToken createSToken(Token tToken)
-	{
-		SToken retVal= null;
-		retVal= SaltCommonFactory.eINSTANCE.createSToken();
-		for (Annotation tAnnotation: tToken.getAnnotations())
-		{
-			retVal.addSAnnotation(this.createSAnnotation(tAnnotation));
-		}	
-		return(retVal);
-	}
-	
-	private SAnnotation createSAnnotation(Annotation tAnnotation)
-	{
-		SAnnotation retVal= null;
-		if (tAnnotation instanceof POSAnnotation)
-			retVal= SaltSemanticsFactory.eINSTANCE.createSPOSAnnotation();
-		else if (tAnnotation instanceof LemmaAnnotation)
-			retVal= SaltSemanticsFactory.eINSTANCE.createSLemmaAnnotation();
-		else 
-		{
-			retVal= SaltCommonFactory.eINSTANCE.createSAnnotation();
-			retVal.setSName(tAnnotation.getName());
-		}
-		retVal.setSValue(tAnnotation.getValue());
-		return(retVal);
-	}
-	
-	private STextualRelation createSTextualRelation(SToken sToken, STextualDS sText, int start, int end)
-	{
-		STextualRelation retVal= null;
-		retVal= SaltCommonFactory.eINSTANCE.createSTextualRelation();
-		retVal.setSTextualDS(sText);
-		retVal.setSToken(sToken);
-		retVal.setSStart(start);
-		retVal.setSEnd(end);
-		return(retVal);
-	}
-// ============================ end Mapping ============================
-	
 	protected void activate(ComponentContext componentContext) 
 	{
 		this.setSymbolicName(componentContext.getBundleContext().getBundle().getSymbolicName());
 	}
 
 	protected void deactivate(ComponentContext componentContext) {
-		if (this.getLogService()!= null)
-			this.getLogService().log(LogService.LOG_DEBUG,this.getName()+" is deactivated...");
+		logDebug(this.getName()+" is deactivated...");
 	}
 }
