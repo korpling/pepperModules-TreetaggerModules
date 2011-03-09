@@ -19,6 +19,7 @@ package de.hu_berlin.german.korpling.saltnpepper.pepperModules.treetagger.java;
 
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
@@ -36,7 +37,6 @@ import org.osgi.service.log.LogService;
 
 import de.hu_berlin.german.korpling.saltnpepper.misc.treetagger.Document;
 import de.hu_berlin.german.korpling.saltnpepper.misc.treetagger.resources.TabResourceFactory;
-import de.hu_berlin.german.korpling.saltnpepper.misc.treetagger.resources.TabResource;
 import de.hu_berlin.german.korpling.saltnpepper.pepper.pepperExceptions.PepperModuleException;
 import de.hu_berlin.german.korpling.saltnpepper.pepper.pepperModules.FormatDefinition;
 import de.hu_berlin.german.korpling.saltnpepper.pepper.pepperModules.PepperImporter;
@@ -68,6 +68,16 @@ public class TreetaggerImporterJava extends PepperImporterImpl implements Pepper
 	private void logInfo   (String logText) { this.log(LogService.LOG_INFO,    logText); }
 	private void logDebug  (String logText) { this.log(LogService.LOG_DEBUG,   logText); }
 
+	//---------------------------------------------------------------------------------------
+	private Properties properties = null;
+	
+	public Properties getProperties() {
+		return this.properties;
+	}
+	
+	public void setProperties(Properties properties) {
+		this.properties = properties;
+	}
 	//---------------------------------------------------------------------------------------
 	
 	public TreetaggerImporterJava()
@@ -143,15 +153,34 @@ public class TreetaggerImporterJava extends PepperImporterImpl implements Pepper
 				URI uri= this.documentResourceTable.get(sElementId);
 				if (uri== null)
 					throw new TreetaggerImporterException("Cannot import document '"+sElementId+"', because no corresponding uri was found.");
-				Document tDocument= null;
-				tDocument= this.loadFromFile(uri);
+				
+				
+				if (this.getSpecialParams()!=null) {
+					String propertyFileName = this.getSpecialParams().toFileString();
+					try {
+						this.setProperties(new Properties());
+						this.getProperties().load(new FileInputStream(propertyFileName));
+					} catch (IOException e) {
+						logWarning(String.format("couldn´t load properties file '%s'. using default values.",propertyFileName));
+					}
+				}
+
+				Document tDocument = this.loadFromFile(uri);
 				//TODO: Factory!
-				Treetagger2SaltMapper mapper = new Treetagger2SaltMapper();
-				mapper.convert(tDocument,this.getSCorpusGraph().getSDocument(sElementId));
+				if (tDocument==null) {
+					//TODO: take document out of the process
+				}
+				else {
+					Treetagger2SaltMapper mapper = new Treetagger2SaltMapper();
+					mapper.setProperties(this.getProperties());
+					mapper.setLogService(this.getLogService());
+					mapper.convert(tDocument,this.getSCorpusGraph().getSDocument(sElementId));
+				}
 			}
 		}
 	}
 
+	@SuppressWarnings("unchecked")
 	private Document loadFromFile(URI uri)
 	{
 		Document retVal= null;
@@ -171,30 +200,23 @@ public class TreetaggerImporterJava extends PepperImporterImpl implements Pepper
 				if (resource== null)
 					throw new TreetaggerImporterException("Cannot load The resource is null.");
 				
-				//set logService for TabResource loading
-				((TabResource)resource).setLogService(this.getLogService());
+				@SuppressWarnings("rawtypes")
+				//options map for resource.load
+				Map options = new HashMap();
+				//put logService for TabResource loading into options
+				options.put("LOGSERVICE", this.getLogService());
+				//put properties for TabResource loading into options
+				options.put("PROPERTIES", this.getProperties());
 
-				//set properties for TabResource loading
-				if (this.getSpecialParams()!=null) {
-					try {
-						Properties properties = new Properties();
-						properties.load(new FileInputStream(this.getSpecialParams().toFileString()));
-						((TabResource)resource).setProperties(properties);
-					} catch (IOException e) {
-						logWarning("invalid property file name for importing of treetagger data - using defaults");
-					}
-				}
-				else {
-					logWarning("no property file for importing of treetagger data - using defaults");
-				}
-				resource.load(null);
+				resource.load(options);
 			} 
 			catch (IOException e) 
 			{	throw new TreetaggerImporterException("Cannot load resource '"+uri+"'.");	}
 			catch (NullPointerException e) 
 			{	throw new TreetaggerImporterException("Cannot load resource '"+uri+"'.");	}
-			
-			retVal= (Document) resource.getContents().get(0);
+			if (resource.getContents().size()>0) {
+				retVal= (Document) resource.getContents().get(0);
+			}
 		}
 		return(retVal);
 	}
