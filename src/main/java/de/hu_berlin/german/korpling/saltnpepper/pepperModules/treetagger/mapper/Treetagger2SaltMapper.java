@@ -4,6 +4,7 @@ import java.util.Hashtable;
 import java.util.Properties;
 
 import org.eclipse.emf.common.util.EList;
+import org.osgi.service.log.LogService;
 
 import de.hu_berlin.german.korpling.saltnpepper.misc.treetagger.Annotation;
 import de.hu_berlin.german.korpling.saltnpepper.misc.treetagger.Document;
@@ -28,12 +29,38 @@ import de.hu_berlin.german.korpling.saltnpepper.salt.saltSemantics.SaltSemantics
  */
 public class Treetagger2SaltMapper {
 	
-	private String defaultSeparator = " ";
-	//TODO: default = false
-	private String defaultAnnotateUnannotatedSpans = "true";
+	private String separator = " ";
+	private String defaultAnnotateUnannotatedSpans = "false";
 	
+
+	//----------------------------------------------------------
+	private LogService logService = null;
+	
+	public LogService getLogService() {
+		return logService;
+	}
+
+	public void setLogService(LogService logService) {
+		this.logService = logService;
+	}
+
+	private void log(int logLevel, String logText) {
+		if (this.getLogService()!=null) {
+			this.getLogService().log(logLevel, "<Treetagger2SaltMapper>: " + logText);
+		}
+	}
+	
+	@SuppressWarnings("unused")
+	private void logError  (String logText) { this.log(LogService.LOG_ERROR,   logText); }
+	@SuppressWarnings("unused")
+	private void logWarning(String logText) { this.log(LogService.LOG_WARNING, logText); }
+	@SuppressWarnings("unused")
+	private void logInfo   (String logText) { this.log(LogService.LOG_INFO,    logText); }
+	@SuppressWarnings("unused")
+	private void logDebug  (String logText) { this.log(LogService.LOG_DEBUG,   logText); }
+
 	//---------------------------------------------------------------------------------------------
-	private Properties properties = new Properties();
+	private Properties properties = null;
 	
 	public Properties getProperties() {
 		return properties;
@@ -45,6 +72,9 @@ public class Treetagger2SaltMapper {
 	//---------------------------------------------------------------------------------------------
 
 	public void convert(Document tDocument, SDocument sDocument) {
+		if (this.getProperties()==null) {
+			this.setProperties(new Properties());
+		}
 		sDocument.setSDocumentGraph(SaltCommonFactory.eINSTANCE.createSDocumentGraph());
 		sDocument.getSDocumentGraph().setSName(tDocument.getName()+"_graph");
 		sDocument.setSName(tDocument.getName());
@@ -64,10 +94,9 @@ public class Treetagger2SaltMapper {
 	
 	private STextualDS createSTextualDS(EList<Token> tTokens, SDocument sDocument)
 	{
-		String separator = properties.getProperty("treetagger2saltmapper.separator", defaultSeparator);
-		String annotateUnannotatedSpansString = properties.getProperty("treetagger2saltmapper.annotateUnannotatedSpans",defaultAnnotateUnannotatedSpans);
+		String annotateUnannotatedSpansString = properties.getProperty("treetagger.annotateUnannotatedSpans",defaultAnnotateUnannotatedSpans);
 		boolean annotateUnannotatedSpans;
-		if (annotateUnannotatedSpansString.equalsIgnoreCase("true")) {
+		if (annotateUnannotatedSpansString.trim().equalsIgnoreCase("true")) {
 			annotateUnannotatedSpans = true;
 		} 
 		else {
