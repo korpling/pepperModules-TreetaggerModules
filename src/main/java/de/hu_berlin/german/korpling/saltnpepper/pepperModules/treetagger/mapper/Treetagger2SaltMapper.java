@@ -30,9 +30,10 @@ import de.hu_berlin.german.korpling.saltnpepper.salt.saltSemantics.SaltSemantics
 public class Treetagger2SaltMapper {
 	
 	private String separator = " ";
-	private String defaultAnnotateUnannotatedSpans = "false";
 	
-
+	private static final String propertyAnnotateUnannotatedSpans = "treetagger.input.annotateUnannotatedSpans";
+	private static final String defaultAnnotateUnannotatedSpans = "false";
+	
 	//----------------------------------------------------------
 	private LogService logService = null;
 	
@@ -94,14 +95,8 @@ public class Treetagger2SaltMapper {
 	
 	private STextualDS createSTextualDS(EList<Token> tTokens, SDocument sDocument)
 	{
-		String annotateUnannotatedSpansString = properties.getProperty("treetagger.annotateUnannotatedSpans",defaultAnnotateUnannotatedSpans);
-		boolean annotateUnannotatedSpans;
-		if (annotateUnannotatedSpansString.trim().equalsIgnoreCase("true")) {
-			annotateUnannotatedSpans = true;
-		} 
-		else {
-			annotateUnannotatedSpans = false;
-		}
+		boolean annotateUnannotatedSpans = 
+		  properties.getProperty(propertyAnnotateUnannotatedSpans,defaultAnnotateUnannotatedSpans).trim().equalsIgnoreCase("true");
 		
 		//creating and adding STextualDS
 		STextualDS sText= SaltCommonFactory.eINSTANCE.createSTextualDS();
@@ -139,6 +134,7 @@ public class Treetagger2SaltMapper {
 					sSpan = SaltCommonFactory.eINSTANCE.createSSpan();
 					spanTable.put(tSpan, sSpan);
 					sSpan.setGraph(sDocument.getSDocumentGraph());
+					sSpan.setSName(tSpan.getName());
 					EList<Annotation> tAnnotations = tSpan.getAnnotations();
 					if ((tAnnotations.size()==0)&&(annotateUnannotatedSpans)) {
 						SAnnotation anno = SaltCommonFactory.eINSTANCE.createSAnnotation();

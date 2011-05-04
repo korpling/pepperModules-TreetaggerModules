@@ -21,6 +21,8 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Properties;
 
 import org.apache.felix.scr.annotations.Component;
@@ -35,12 +37,9 @@ import org.eclipse.emf.ecore.xmi.impl.XMIResourceFactoryImpl;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.log.LogService;
 
-import de.hu_berlin.german.korpling.saltnpepper.misc.treetagger.Annotation;
 import de.hu_berlin.german.korpling.saltnpepper.misc.treetagger.Document;
-import de.hu_berlin.german.korpling.saltnpepper.misc.treetagger.LemmaAnnotation;
-import de.hu_berlin.german.korpling.saltnpepper.misc.treetagger.POSAnnotation;
-import de.hu_berlin.german.korpling.saltnpepper.misc.treetagger.Token;
 import de.hu_berlin.german.korpling.saltnpepper.misc.treetagger.TreetaggerFactory;
+import de.hu_berlin.german.korpling.saltnpepper.misc.treetagger.resources.TabResource;
 import de.hu_berlin.german.korpling.saltnpepper.misc.treetagger.resources.TabResourceFactory;
 import de.hu_berlin.german.korpling.saltnpepper.pepper.pepperExceptions.PepperConvertException;
 import de.hu_berlin.german.korpling.saltnpepper.pepper.pepperExceptions.PepperModuleException;
@@ -48,15 +47,15 @@ import de.hu_berlin.german.korpling.saltnpepper.pepper.pepperModules.FormatDefin
 import de.hu_berlin.german.korpling.saltnpepper.pepper.pepperModules.PepperExporter;
 import de.hu_berlin.german.korpling.saltnpepper.pepper.pepperModules.PepperInterfaceFactory;
 import de.hu_berlin.german.korpling.saltnpepper.pepper.pepperModules.impl.PepperExporterImpl;
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.modules.SAccessorModule;
+import de.hu_berlin.german.korpling.saltnpepper.pepperModules.treetagger.mapper.Salt2TreetaggerMapper;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sCorpusStructure.SDocument;
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SToken;
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SAnnotation;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SElementId;
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltSemantics.modules.STypeOfChecker;
 
 @Component(name="TreetaggerExporterJavaComponent", factory="PepperExporterComponentFactory")
 @Service(value=PepperExporter.class)
+
+//TODO: multiple documents in one file
+
 public class TreetaggerExporterJava extends PepperExporterImpl implements PepperExporter
 {
 	public TreetaggerExporterJava()
@@ -124,16 +123,6 @@ public class TreetaggerExporterJava extends PepperExporterImpl implements Pepper
 	private String PROP_EXPORT_ANNOS= "treetagger.exportAnnotations";
 	
 	/**
-	 * Keyword for SALTSEMANTICS.SPOSAnnotation.
-	 */
-	private String KW_SALTSEMANTICS_SPOS= "SALTSEMANTICS.SPOSAnnotation";
-	
-	/**
-	 * Keyword for SALTSEMANTICS.SLemmaAnnotation.
-	 */
-	private String KW_SALTSEMANTICS_SLEMMA= "SALTSEMANTICS.SLemmaAnnotation";
-	
-	/**
 	 * Extension for export file. default= tab.
 	 */
 	private String fileExtension= "tab";
@@ -183,8 +172,14 @@ public class TreetaggerExporterJava extends PepperExporterImpl implements Pepper
 			this.createFolderStructure(sElementId);
 			if (((SDocument)sElementId.getSIdentifiableElement()).getSDocumentGraph()!= null)
 			{
-				Document tDocument= createDocument(((SDocument)sElementId.getSIdentifiableElement()));
-				
+				SDocument sDocument = (SDocument)sElementId.getSIdentifiableElement();
+				Document tDocument = TreetaggerFactory.eINSTANCE.createDocument();
+
+				Salt2TreetaggerMapper mapper = new Salt2TreetaggerMapper();
+				mapper.setProperties(this.getProps());
+				mapper.setLogService(this.getLogService());
+
+				mapper.map(sDocument,tDocument);
 				//create uri to save
 				URI uri= URI.createFileURI(this.getCorpusDefinition().getCorpusPath().toFileString()+ "/" + sElementId.getSId()+ "/" + tDocument.getName()+ "."+fileExtension);
 				try {
@@ -196,110 +191,7 @@ public class TreetaggerExporterJava extends PepperExporterImpl implements Pepper
 		}
 	}
 	
-	private Document createDocument(SDocument sDocument)
-	{
-		Document tDocument= TreetaggerFactory.eINSTANCE.createDocument();
-		tDocument.setName(sDocument.getSName());
-		
-		//create tokens
-		for (SToken sToken: sDocument.getSDocumentGraph().getSTokens())
-		{
-			Token tToken= this.createToken(sToken, sDocument);
-			tDocument.getTokens().add(tToken);
-		}
-		return(tDocument);
-	}
-	
-	private Token createToken(SToken sToken, SDocument sDocument)
-	{
-		Token tToken= TreetaggerFactory.eINSTANCE.createToken();
-		
-		//Accessor-module to have better access to salt. 
-		SAccessorModule sAccessor= new SAccessorModule();
-		tToken.setText(sAccessor.getOverlappedText(sDocument, sToken));
-		
-		//adding annotations
-		for (SAnnotation sAnno: sToken.getSAnnotations())
-		{
-			Annotation tAnno= this.createAnnotation(sAnno, sDocument);
-			if (tAnno== null);
-			else if (tAnno instanceof POSAnnotation)
-				tToken.setPosAnnotation((POSAnnotation)tAnno);
-			else if (tAnno instanceof LemmaAnnotation)
-				tToken.setLemmaAnnotation((LemmaAnnotation)tAnno);
-			else tToken.getAnnotations().add(tAnno);
-		}	
-		return(tToken);
-	}
-	
-	private Annotation createAnnotation(SAnnotation sAnno, SDocument sDocument)
-	{
-		Annotation tAnnotation= null;
-		
-		if (this.exportAnnoNames!= null)
-		{//check if only special annotations shall be exported
-			if (exportAnnoNames.contains(KW_SALTSEMANTICS_SPOS))
-			{
-				if (STypeOfChecker.isOfTypeSPOSAnnotation(sAnno))
-				{
-					tAnnotation= TreetaggerFactory.eINSTANCE.createPOSAnnotation();
-					if (sAnno.getSValue()!= null)
-						tAnnotation.setValue(sAnno.getSValue().toString());
-				}
-			}
-			if (exportAnnoNames.contains(KW_SALTSEMANTICS_SLEMMA))
-			{
-				if (STypeOfChecker.isOfTypeSLemmaAnnotation(sAnno))
-				{
-					tAnnotation= TreetaggerFactory.eINSTANCE.createLemmaAnnotation();
-					if (sAnno.getSValue()!= null)
-						tAnnotation.setValue(sAnno.getSValue().toString());
-				}
-			}
-			if (	(sAnno.getSName() != null) &&
-					(exportAnnoNames.contains(sAnno.getSName())))
-			{	
-				tAnnotation= TreetaggerFactory.eINSTANCE.createLemmaAnnotation();
-				if (sAnno.getSValue()!= null)
-					tAnnotation.setValue(sAnno.getSValue().toString());
-			}
-				
-		}
-		else
-		{//export everything
-			tAnnotation= TreetaggerFactory.eINSTANCE.createAnnotation();
-			if (sAnno.getSValue()!= null)
-				tAnnotation.setValue(sAnno.getSValue().toString());
-		}
-		
-//		//TODO changing for ISOCat
-//		// if annotation is pos annotation
-//		if (sAnno.getSName().equalsIgnoreCase("pos"))
-//		{
-//			tAnnotation= TreetaggerFactory.eINSTANCE.createPOSAnnotation();
-//			if (sAnno.getSValue()!= null)
-//				tAnnotation.setValue(sAnno.getSValue().toString());
-//		}	
-//		// if annotation is lemma annotation
-//		else if (sAnno.getSName().equalsIgnoreCase("lemma"))
-//		{
-//			tAnnotation= TreetaggerFactory.eINSTANCE.createLemmaAnnotation();
-//			if (sAnno.getSValue()!= null)	
-//				tAnnotation.setValue(sAnno.getSValue().toString());
-//		}	
-//		// if annotation is any annotation
-//		else 
-//		{
-//			tAnnotation= TreetaggerFactory.eINSTANCE.createAnnotation();
-//			if (sAnno.getSValue()!= null)
-//				tAnnotation.setValue(sAnno.getSValue().toString());
-//		}	
-//		if (sAnno.getSValue()!= null)
-//			System.out.println(sAnno.getSName()+ " has a null value");
-		
-		return(tAnnotation);
-	}
-	
+	@SuppressWarnings("unchecked")
 	private void saveToFile(URI uri, Document tDocument) throws IOException
 	{
 		// create resource set and resource 
@@ -307,15 +199,23 @@ public class TreetaggerExporterJava extends PepperExporterImpl implements Pepper
 
 		// Register XML resource factory
 		resourceSet.getResourceFactoryRegistry().getExtensionToFactoryMap().put("treetagger",new XMIResourceFactoryImpl());
-		resourceSet.getResourceFactoryRegistry().getExtensionToFactoryMap().put("tab",new TabResourceFactory());
+		resourceSet.getResourceFactoryRegistry().getExtensionToFactoryMap().put(fileExtension,new TabResourceFactory());
 		//load resource 
 		Resource resource = resourceSet.createResource(uri);
 		
 		if (resource== null)
-			throw new PepperConvertException("Cannot load treetagger file, the resource '"+uri+"'is null.");
+			throw new PepperConvertException("Cannot save treetagger file, the resource '"+uri+"'is null.");
 		
 		resource.getContents().add(tDocument);
-		
-		resource.save(null);
+
+		@SuppressWarnings("rawtypes")
+		//options map for resource.load
+		Map options = new HashMap();
+		//put logService for TabResource loading into options
+		options.put(TabResource.logServiceKey, this.getLogService());
+		//put properties for TabResource loading into options
+		options.put(TabResource.propertiesKey, this.getProps());
+
+		resource.save(options);
 	}
 }

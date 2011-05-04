@@ -36,6 +36,8 @@ import org.osgi.service.component.ComponentContext;
 import org.osgi.service.log.LogService;
 
 import de.hu_berlin.german.korpling.saltnpepper.misc.treetagger.Document;
+import de.hu_berlin.german.korpling.saltnpepper.misc.treetagger.TreetaggerFactory;
+import de.hu_berlin.german.korpling.saltnpepper.misc.treetagger.resources.TabResource;
 import de.hu_berlin.german.korpling.saltnpepper.misc.treetagger.resources.TabResourceFactory;
 import de.hu_berlin.german.korpling.saltnpepper.pepper.pepperExceptions.PepperModuleException;
 import de.hu_berlin.german.korpling.saltnpepper.pepper.pepperModules.FormatDefinition;
@@ -51,13 +53,16 @@ import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SElementId;
 
 @Component(name="TreetaggerImporterJavaComponent", factory="PepperImporterComponentFactory")
 @Service(value=PepperImporter.class)
+
+//TODO: multiple documents in one file
+
 public class TreetaggerImporterJava extends PepperImporterImpl implements PepperImporter
 {
 
 	//---------------------------------------------------------------------------------------
 	private void log(int logLevel, String logText) {
 		if (this.getLogService()!=null) {
-			this.getLogService().log(logLevel, logText);
+			this.getLogService().log(logLevel, "<TreetaggerImporterJava>: " + logText);
 		}
 	}
 
@@ -166,7 +171,6 @@ public class TreetaggerImporterJava extends PepperImporterImpl implements Pepper
 				}
 
 				Document tDocument = this.loadFromFile(uri);
-				//TODO: Factory!
 				if (tDocument==null) {
 					//TODO: take document out of the process
 				}
@@ -204,9 +208,9 @@ public class TreetaggerImporterJava extends PepperImporterImpl implements Pepper
 				//options map for resource.load
 				Map options = new HashMap();
 				//put logService for TabResource loading into options
-				options.put("LOGSERVICE", this.getLogService());
+				options.put(TabResource.logServiceKey, this.getLogService());
 				//put properties for TabResource loading into options
-				options.put("PROPERTIES", this.getProperties());
+				options.put(TabResource.propertiesKey, this.getProperties());
 
 				resource.load(options);
 			} 
