@@ -79,7 +79,7 @@ public class Salt2TreetaggerMapper {
 		this.addTokens(sDocument.getSDocumentGraph(), tDocument);
 	}
 
-	private void addDocumentAnnotations(EList<SMetaAnnotation> sMetaAnnotations, Document tDocument) {
+	protected void addDocumentAnnotations(EList<SMetaAnnotation> sMetaAnnotations, Document tDocument) {
 		for (int i=0;i<sMetaAnnotations.size();i++) {
 			SMetaAnnotation sAnno = sMetaAnnotations.get(i);
 			Annotation tAnno = TreetaggerFactory.eINSTANCE.createAnnotation();
@@ -89,7 +89,7 @@ public class Salt2TreetaggerMapper {
 		}
 	}
 	
-	private void addTokens(SDocumentGraph sDocumentGraph, Document tDocument) {
+	protected void addTokens(SDocumentGraph sDocumentGraph, Document tDocument) {
 		Hashtable<SToken,ArrayList<SSpan>> token2SpansTable = new Hashtable<SToken,ArrayList<SSpan>>();
 		for (int i=0;i<sDocumentGraph.getSSpanningRelations().size();i++) {
 			SToken sToken = sDocumentGraph.getSSpanningRelations().get(i).getSToken();
@@ -122,7 +122,7 @@ public class Salt2TreetaggerMapper {
 		}
 	}
 	
-	private void addTokenAnnotations(SToken sToken, Token tToken) {
+	protected void addTokenAnnotations(SToken sToken, Token tToken) {
 		for (int i=0;i<sToken.getSAnnotations().size();i++) {
 			SAnnotation sAnno = sToken.getSAnnotations().get(i);
 			Annotation tAnno = null;
@@ -137,16 +137,18 @@ public class Salt2TreetaggerMapper {
 				switch (SALT_SEMANTIC_NAMES.getSaltSemanticName(sAnno)) {
 					case POS:   tAnno = TreetaggerFactory.eINSTANCE.createPOSAnnotation();   break;
 					case LEMMA: tAnno = TreetaggerFactory.eINSTANCE.createLemmaAnnotation(); break;
-					default:    tAnno = TreetaggerFactory.eINSTANCE.createAnnotation();
+					default:    tAnno = TreetaggerFactory.eINSTANCE.createAnyAnnotation();   
 				}
-				tAnno.setName(sAnno.getSName());
 			}
+			//setting the name will only affect instances of AnyAnnotation.
+			//POSAnnotations get the name "pos", LemmaAnnotations get the name "lemma" 
+			tAnno.setName(sAnno.getSName());
 			tAnno.setValue(sAnno.getSValueSTEXT());
 			tToken.getAnnotations().add(tAnno);
 		}
 	}
 
-	private Span createSpan(SSpan sSpan) {
+	protected Span createSpan(SSpan sSpan) {
 		Span retVal = TreetaggerFactory.eINSTANCE.createSpan();
 		retVal.setName(sSpan.getSName());
 		for (int i=0;i<sSpan.getSAnnotations().size();i++) {
