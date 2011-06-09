@@ -1,8 +1,4 @@
-/**
- * 
- */
 package de.hu_berlin.german.korpling.saltnpepper.pepperModules.treetagger.tests;
-
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -17,7 +13,6 @@ import junit.framework.TestCase;
 import org.eclipse.emf.common.util.EList;
 
 import de.hu_berlin.german.korpling.saltnpepper.misc.treetagger.Annotation;
-import de.hu_berlin.german.korpling.saltnpepper.misc.treetagger.AnyAnnotation;
 import de.hu_berlin.german.korpling.saltnpepper.misc.treetagger.Document;
 import de.hu_berlin.german.korpling.saltnpepper.misc.treetagger.LemmaAnnotation;
 import de.hu_berlin.german.korpling.saltnpepper.misc.treetagger.POSAnnotation;
@@ -40,7 +35,6 @@ import de.hu_berlin.german.korpling.saltnpepper.salt.saltSemantics.SPOSAnnotatio
 
 /**
  * @author hildebax
- *
  */
 public class PublicSalt2TreetaggerMapperTest extends TestCase {
 
@@ -317,9 +311,6 @@ public class PublicSalt2TreetaggerMapperTest extends TestCase {
 		return sDocument;
 	}
 	
-	
-	
-	
 	/**
 	 * Test method for {@link de.hu_berlin.german.korpling.saltnpepper.pepperModules.treetagger.tests.PublicSalt2TreetaggerMapper#addDocumentAnnotations(org.eclipse.emf.common.util.EList, de.hu_berlin.german.korpling.saltnpepper.misc.treetagger.Document)}.
 	 */
@@ -363,21 +354,21 @@ public class PublicSalt2TreetaggerMapperTest extends TestCase {
 			token2spansTable.get(sTok).add(spanRel.getSSpan());
 		}
 		
+		Hashtable<SToken, STextualRelation> token2textrelTable = new Hashtable<SToken, STextualRelation>();
+		for (STextualRelation textRel : sDocGraph.getSTextualRelations()) {
+			token2textrelTable.put(textRel.getSToken(), textRel);
+		}
+		
 		for (int tokIndex=0; tokIndex<sDocGraph.getSTokens().size(); tokIndex++) {
 			SToken sTok = sDocGraph.getSTokens().get(tokIndex);
-			Token  tTok  = tDoc.getTokens().get(tokIndex);
+			Token  tTok = tDoc.getTokens().get(tokIndex);
+			STextualRelation textRel = token2textrelTable.get(sTok); 
 			
-			
-			
-		//this is not correct yet. order of textrels is "wrong"
-//			//compare tokens
-//			for (STextualRelation sTextRel : sDocGraph.getSTextualRelations()) {
-//				int start = sTextRel.getSStart();
-//				int end   = sTextRel.getSEnd();
-//				String sText = sTextRel.getSTextualDS().getSText().substring(start, end);
-//				String tText = tTok.getText();
-//				assertEquals(sText,tText);
-//			}
+			int start = textRel.getSStart();
+			int end   = textRel.getSEnd();
+			String sText = textRel.getSTextualDS().getSText().substring(start, end);
+			String tText = tTok.getText();
+			assertEquals(sText,tText);
 
 			//compare spans
 			this.compareSpans(token2spansTable.get(sTok), tTok.getSpans());
@@ -388,7 +379,7 @@ public class PublicSalt2TreetaggerMapperTest extends TestCase {
 	}
 
 	/**
-	 * 
+	 * This is called by testAddTokens
 	 * @param sSpans
 	 * @param tSpans
 	 */
@@ -402,7 +393,7 @@ public class PublicSalt2TreetaggerMapperTest extends TestCase {
 	}
 	
 	/**
-	 * 
+	 * This is called by testAddTokens and compareSpans
 	 * @param sAnnos
 	 * @param tAnnos
 	 */
@@ -430,20 +421,6 @@ public class PublicSalt2TreetaggerMapperTest extends TestCase {
 	}
 	
 	/**
-	 * Test method for {@link de.hu_berlin.german.korpling.saltnpepper.pepperModules.treetagger.tests.PublicSalt2TreetaggerMapper#addTokenAnnotations(de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SToken, de.hu_berlin.german.korpling.saltnpepper.misc.treetagger.Token)}.
-	 */
-	public final void testAddTokenAnnotations() {
-		// TODO
-	}
-
-	/**
-	 * Test method for {@link de.hu_berlin.german.korpling.saltnpepper.pepperModules.treetagger.tests.PublicSalt2TreetaggerMapper#createSpan(de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SSpan)}.
-	 */
-	public final void testCreateSpan() {
-		// TODO
-	}
-
-	/**
 	 * Test method for {@link de.hu_berlin.german.korpling.saltnpepper.pepperModules.treetagger.mapper.Salt2TreetaggerMapper#map(de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sCorpusStructure.SDocument, de.hu_berlin.german.korpling.saltnpepper.misc.treetagger.Document)}.
 	 */
 	public final void testMap() {
@@ -451,36 +428,12 @@ public class PublicSalt2TreetaggerMapperTest extends TestCase {
 		SDocument sDoc = this.createSDocument();
 		this.getFixture().map(sDoc, tDoc);
 		
-		ArrayList<Span> spanList = new ArrayList<Span>();
+		assertEquals(sDoc.getSName(),tDoc.getName());
 		
-		for (Token tok : tDoc.getTokens()) {
-			for (Span span : spanList) {
-				if (!tok.getSpans().contains(span)) {
-					System.out.println("</" + span.getName() + ">");
-				}
-			}
-			for (int i=spanList.size()-1; i>=0; i--) {
-				if (!tok.getSpans().contains(spanList.get(i))) {
-					spanList.remove(i);
-				}
-			}
-
-			for (Span span : tok.getSpans()) {
-				if (!spanList.contains(span)) {
-					System.out.print("<" + span.getName());
-					for (Annotation anno : span.getAnnotations()) {
-						System.out.print(" " + anno.getName()+"="+anno.getValue());
-					}
-					System.out.println(">");
-					spanList.add(span);
-				}
-			}
-			System.out.println(tok.getText() + "\t" + tok.getPosAnnotation().getValue() + "\t" + tok.getLemmaAnnotation().getValue());
-		}
-		for (Span span : spanList) {
-			System.out.println("</" + span.getName() + ">");
-		}
-		
+		this.testAddDocumentAnnotations();
+		this.testAddTokens();
 	}
 
 }
+
+

@@ -36,7 +36,6 @@ import org.osgi.service.component.ComponentContext;
 import org.osgi.service.log.LogService;
 
 import de.hu_berlin.german.korpling.saltnpepper.misc.treetagger.Document;
-import de.hu_berlin.german.korpling.saltnpepper.misc.treetagger.TreetaggerFactory;
 import de.hu_berlin.german.korpling.saltnpepper.misc.treetagger.resources.TabResource;
 import de.hu_berlin.german.korpling.saltnpepper.misc.treetagger.resources.TabResourceFactory;
 import de.hu_berlin.german.korpling.saltnpepper.pepper.pepperExceptions.PepperModuleException;
@@ -178,7 +177,7 @@ public class TreetaggerImporterJava extends PepperImporterImpl implements Pepper
 					Treetagger2SaltMapper mapper = new Treetagger2SaltMapper();
 					mapper.setProperties(this.getProperties());
 					mapper.setLogService(this.getLogService());
-					mapper.convert(tDocument,this.getSCorpusGraph().getSDocument(sElementId));
+					mapper.map(tDocument,this.getSCorpusGraph().getSDocument(sElementId));
 				}
 			}
 		}
@@ -195,7 +194,9 @@ public class TreetaggerImporterJava extends PepperImporterImpl implements Pepper
 	
 			// Register XML resource factory
 			resourceSet.getResourceFactoryRegistry().getExtensionToFactoryMap().put("treetagger",new XMIResourceFactoryImpl());
-			resourceSet.getResourceFactoryRegistry().getExtensionToFactoryMap().put("tab",new TabResourceFactory());
+			TabResourceFactory tabResourceFactory = new TabResourceFactory();
+			resourceSet.getResourceFactoryRegistry().getExtensionToFactoryMap().put("tab",tabResourceFactory);
+			resourceSet.getResourceFactoryRegistry().getExtensionToFactoryMap().put("tt",tabResourceFactory);
 			Resource resource= null;
 			try {
 				//load resource 

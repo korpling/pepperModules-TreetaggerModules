@@ -26,7 +26,7 @@ public class TreetaggerImporterException extends PepperModuleException
 	 * 
 	 */
 	private static final long serialVersionUID = -3401782824448250143L;
-	private static String prefixStr= "This Exception was throwed by TreetaggerImporter, an import module for pepper. The reason is: ";
+	private static String prefixStr= "This Exception was thrown by TreetaggerImporter, an import module for pepper. The reason is: ";
 	
 	public TreetaggerImporterException()
 	{ super(); }

@@ -23,8 +23,8 @@ import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SAnnotation;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SMetaAnnotation;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltSemantics.SaltSemanticsFactory;
 
-
 /**
+ * This class is for mapping Treetagger to Salt
  * @author hildebax
  */
 public class Treetagger2SaltMapper {
@@ -33,6 +33,9 @@ public class Treetagger2SaltMapper {
 	
 	private static final String propertyAnnotateUnannotatedSpans = "treetagger.input.annotateUnannotatedSpans";
 	private static final String defaultAnnotateUnannotatedSpans = "false";
+	
+	private static final String propertyAnnotateAllSpansWithSpanName = "treetagger.input.annotateAllSpansWithSpanName";
+	private static final String defaultAnnotateAllSpansWithSpanName = "false";
 	
 	//----------------------------------------------------------
 	private LogService logService = null;
@@ -72,7 +75,7 @@ public class Treetagger2SaltMapper {
 	}
 	//---------------------------------------------------------------------------------------------
 
-	public void convert(Document tDocument, SDocument sDocument) {
+	public void map(Document tDocument, SDocument sDocument) {
 		if (this.getProperties()==null) {
 			this.setProperties(new Properties());
 		}
@@ -83,7 +86,7 @@ public class Treetagger2SaltMapper {
 		this.createSTextualDS(tDocument.getTokens(), sDocument);
 	}
 	
-	private void addSMetaAnnotation(EList<Annotation> tAnnotations, SDocument sDocument) {
+	protected void addSMetaAnnotation(EList<Annotation> tAnnotations, SDocument sDocument) {
 		for (int i=0;i<tAnnotations.size();i++) {
 			Annotation tAnno = tAnnotations.get(i);
 			SMetaAnnotation sMetaAnnotation = SaltCommonFactory.eINSTANCE.createSMetaAnnotation();
@@ -93,10 +96,13 @@ public class Treetagger2SaltMapper {
 		}
 	}
 	
-	private STextualDS createSTextualDS(EList<Token> tTokens, SDocument sDocument)
+	protected STextualDS createSTextualDS(EList<Token> tTokens, SDocument sDocument)
 	{
 		boolean annotateUnannotatedSpans = 
 		  properties.getProperty(propertyAnnotateUnannotatedSpans,defaultAnnotateUnannotatedSpans).trim().equalsIgnoreCase("true");
+		
+		boolean annotateAllSpansWithSpanName = 
+		  properties.getProperty(propertyAnnotateAllSpansWithSpanName,defaultAnnotateAllSpansWithSpanName).trim().equalsIgnoreCase("true");	
 		
 		//creating and adding STextualDS
 		STextualDS sText= SaltCommonFactory.eINSTANCE.createSTextualDS();
@@ -136,17 +142,15 @@ public class Treetagger2SaltMapper {
 					sSpan.setGraph(sDocument.getSDocumentGraph());
 					sSpan.setSName(tSpan.getName());
 					EList<Annotation> tAnnotations = tSpan.getAnnotations();
-					if ((tAnnotations.size()==0)&&(annotateUnannotatedSpans)) {
+					if ((annotateAllSpansWithSpanName)||((tAnnotations.size()==0)&&(annotateUnannotatedSpans))) {
 						SAnnotation anno = SaltCommonFactory.eINSTANCE.createSAnnotation();
 						anno.setName(tSpan.getName().toLowerCase());
 						anno.setValue(tSpan.getName().toLowerCase());
 						sSpan.addSAnnotation(anno);
 					} 
-					else {
-						for (int j=0;j<tAnnotations.size();j++) {
-							SAnnotation anno = this.createSAnnotation(tSpan.getAnnotations().get(j));
-							sSpan.addSAnnotation(anno);
-						}
+					for (int j=0;j<tAnnotations.size();j++) {
+						SAnnotation anno = this.createSAnnotation(tSpan.getAnnotations().get(j));
+						sSpan.addSAnnotation(anno);
 					}
 				} 
 				else {
@@ -165,7 +169,7 @@ public class Treetagger2SaltMapper {
 		return(sText);
 	}
 
-	private SToken createSToken(Token tToken)
+	protected SToken createSToken(Token tToken)
 	{
 		SToken retVal= null;
 		retVal= SaltCommonFactory.eINSTANCE.createSToken();
@@ -176,7 +180,7 @@ public class Treetagger2SaltMapper {
 		return(retVal);
 	}
 	
-	private SAnnotation createSAnnotation(Annotation tAnnotation)
+	protected SAnnotation createSAnnotation(Annotation tAnnotation)
 	{
 		SAnnotation retVal= null;
 		if (tAnnotation instanceof POSAnnotation)
@@ -192,7 +196,7 @@ public class Treetagger2SaltMapper {
 		return(retVal);
 	}
 	
-	private STextualRelation createSTextualRelation(SToken sToken, STextualDS sText, int start, int end)
+	protected STextualRelation createSTextualRelation(SToken sToken, STextualDS sText, int start, int end)
 	{
 		STextualRelation retVal= null;
 		retVal= SaltCommonFactory.eINSTANCE.createSTextualRelation();
