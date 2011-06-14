@@ -3,6 +3,7 @@ package de.hu_berlin.german.korpling.saltnpepper.pepperModules.treetagger.tests;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.Hashtable;
 import java.util.List;
 import java.util.Properties;
 
@@ -25,9 +26,12 @@ import de.hu_berlin.german.korpling.saltnpepper.salt.SaltFactory;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sCorpusStructure.SDocument;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SDocumentGraph;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SDocumentStructurePackage;
+import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.STextualRelation;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SToken;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SAnnotation;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SMetaAnnotation;
+import de.hu_berlin.german.korpling.saltnpepper.salt.saltSemantics.SLemmaAnnotation;
+import de.hu_berlin.german.korpling.saltnpepper.salt.saltSemantics.SPOSAnnotation;
 
 public class PublicTreetagger2SaltMapperTest extends TestCase {
 
@@ -57,6 +61,10 @@ public class PublicTreetagger2SaltMapperTest extends TestCase {
 		super.tearDown();
 	}
 
+	/**
+	 * Creates a test Document for mapping
+	 * @return a Document with Tokens {Is,this,example,more,complicated,than,it,appears,to,be}, POS/Lemma annotations, and two spans  
+	 */
 	protected Document createDocument() {
 		//create the Document
 		Document tDocument = TreetaggerFactory.eINSTANCE.createDocument();
@@ -107,6 +115,9 @@ public class PublicTreetagger2SaltMapperTest extends TestCase {
 		return tDocument;
 	}
 	
+	/**
+	 * auxilliary method to save the data to file
+	 */
 	@SuppressWarnings("unused")
 	private void saveDocument() {
 		Document tDoc = this.createDocument();
@@ -125,7 +136,7 @@ public class PublicTreetagger2SaltMapperTest extends TestCase {
 	}
 	
 	/**
-	 * 
+	 * Compares the names of the documents and calls the method for further comparions
 	 */
 	public final void testConvert() {
 		Document  tDoc = this.createDocument();
@@ -139,15 +150,16 @@ public class PublicTreetagger2SaltMapperTest extends TestCase {
 		this.testCreateSTextualDS();
 	}
 
+	/**
+	 * compares the document (=meta) annotations
+	 */
 	public final void testAddSMetaAnnotation() {
 		Document  tDoc = this.createDocument();
 		SDocument sDoc = SaltFactory.eINSTANCE.createSDocument();
 		sDoc.setSDocumentGraph(SaltFactory.eINSTANCE.createSDocumentGraph());
-		
 		assertTrue(sDoc.getSMetaAnnotations().isEmpty());
-		
 		this.getFixture().addSMetaAnnotation(tDoc.getAnnotations(), sDoc);
-		
+		assertEquals(tDoc.getAnnotations().size(), sDoc.getSMetaAnnotations().size());
 		for (int i=0;i<tDoc.getAnnotations().size();i++) {
 			Annotation      tAnno = tDoc.getAnnotations().get(i);
 			SMetaAnnotation sAnno = sDoc.getSMetaAnnotations().get(i);
@@ -156,52 +168,60 @@ public class PublicTreetagger2SaltMapperTest extends TestCase {
 		}
 	}
 
+	/**
+	 * compares the texts of the documents and calls the token comparison method 
+	 */
 	public final void testCreateSTextualDS() {
 		Document  tDoc = this.createDocument();
 		SDocument sDoc = SaltFactory.eINSTANCE.createSDocument();
 		sDoc.setSDocumentGraph(SaltFactory.eINSTANCE.createSDocumentGraph());
-
 		this.getFixture().createSTextualDS(tDoc.getTokens(), sDoc);
-
 		SDocumentGraph sDocGraph = sDoc.getSDocumentGraph();
-
 		assertEquals(exampleText, sDocGraph.getSTextualDSs().get(0).getSText());
-		
 		this.compareTokens(tDoc.getTokens(), sDocGraph);
 	}
 	
 	/**
-	 * 
+	 * compares the texts of tokens and calls the method for the comparison of the token annotations	 
 	 * @param tTokens
-	 * @param sTokens
+	 * @param sDocGraph
 	 */
 	private void compareTokens(List<Token> tTokens, SDocumentGraph sDocGraph) {
 		List<SToken> sTokens = sDocGraph.getSTokens();
+		assertEquals(tTokens.size(), sTokens.size());
+		Hashtable<SToken,String> sTokenTextTable = new Hashtable<SToken, String>();
+		for (STextualRelation sTextRel : sDocGraph.getSTextualRelations()) {
+			sTokenTextTable.put(sTextRel.getSToken(), sTextRel.getSTextualDS().getSText().substring(sTextRel.getSStart(), sTextRel.getSEnd()));
+		}
 		for (int index=0; index<tTokens.size(); index++) {
 			Token  tTok = tTokens.get(index);
 			SToken sTok = sTokens.get(index);
-
-		//TODO
-		
+			assertEquals(tTok.getText(), sTokenTextTable.get(sTok));
+			this.compareAnnotations(tTok.getAnnotations(), sTok.getSAnnotations());
 		}
-
 	}
 	
 	/**
-	 * TODO
+	 * compares annotations for equivalency
 	 * @param tAnnos
 	 * @param sAnnos
 	 */
 	private void compareAnnotations(List<Annotation> tAnnos, List<SAnnotation> sAnnos) {
-		for (int index=0;index<tAnnos.size();index++) {
+		assertEquals(tAnnos.size(), sAnnos.size());
+		for (int annoIndex=0;annoIndex<tAnnos.size();annoIndex++) {
+			Annotation  tAnno = tAnnos.get(annoIndex);
+			SAnnotation sAnno = sAnnos.get(annoIndex);
 			
+			if (tAnno instanceof POSAnnotation)
+				assertTrue(sAnno instanceof SPOSAnnotation);
+			else if (tAnno instanceof LemmaAnnotation)
+				assertTrue(sAnno instanceof SLemmaAnnotation);
+			else {
+				assertFalse((sAnno instanceof SPOSAnnotation)||(sAnno instanceof SLemmaAnnotation));
+				assertEquals(tAnno.getName(),  sAnno.getSName());
+			}
+			assertEquals(tAnno.getValue(), sAnno.getSValueSTEXT());
 		}
 	}
-	
-	
-	
-	
-	
-	
 	
 }
