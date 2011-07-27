@@ -33,6 +33,11 @@ import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SMetaAnnotation;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltSemantics.SLemmaAnnotation;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltSemantics.SPOSAnnotation;
 
+/**
+ * TestCase for mapping Treetagger to Salt
+ * @author hildebax
+ *
+ */
 public class PublicTreetagger2SaltMapperTest extends TestCase {
 
 	private String propertyFilename = "src/test/resources/treetagger2saltMapperTest.properties";

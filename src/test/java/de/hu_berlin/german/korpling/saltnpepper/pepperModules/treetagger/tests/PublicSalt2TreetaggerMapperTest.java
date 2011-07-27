@@ -34,6 +34,7 @@ import de.hu_berlin.german.korpling.saltnpepper.salt.saltSemantics.SLemmaAnnotat
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltSemantics.SPOSAnnotation;
 
 /**
+ * TestCase for mapping from Salt to Treetagger
  * @author hildebax
  */
 public class PublicSalt2TreetaggerMapperTest extends TestCase {

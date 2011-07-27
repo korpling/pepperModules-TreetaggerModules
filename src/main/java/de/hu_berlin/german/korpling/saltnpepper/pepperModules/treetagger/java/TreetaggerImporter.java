@@ -50,11 +50,13 @@ import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sCorpusStructure
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sCorpusStructure.SDocument;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SElementId;
 
+/**
+ * This class imports data from Treetagger format to Salt
+ * @author hildebax
+ *
+ */
 @Component(name="TreetaggerImporterComponent", factory="PepperImporterComponentFactory")
 @Service(value=PepperImporter.class)
-
-//TODO: multiple documents in one file
-
 public class TreetaggerImporter extends PepperImporterImpl implements PepperImporter
 {
 
@@ -75,10 +77,18 @@ public class TreetaggerImporter extends PepperImporterImpl implements PepperImpo
 	//---------------------------------------------------------------------------------------
 	private Properties properties = null;
 	
+	/**
+	 * Getter for Properties
+	 * @return the Properties
+	 */
 	public Properties getProperties() {
 		return this.properties;
 	}
-	
+
+	/**
+	 * Setter for Properties
+	 * @param properties the Properties
+	 */
 	public void setProperties(Properties properties) {
 		this.properties = properties;
 	}
@@ -146,6 +156,9 @@ public class TreetaggerImporter extends PepperImporterImpl implements PepperImpo
 		}	
 	}
 	
+	/**
+	 * Starts the conversion of the element corresponding to the ID 
+	 */
 	@Override
 	public void start(SElementId sElementId) throws PepperModuleException 
 	{

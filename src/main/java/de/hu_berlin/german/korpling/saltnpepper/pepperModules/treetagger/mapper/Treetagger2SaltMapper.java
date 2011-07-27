@@ -40,10 +40,18 @@ public class Treetagger2SaltMapper {
 	//----------------------------------------------------------
 	private LogService logService = null;
 	
+	/**
+	 * Getter for LogService
+	 * @return the LogService
+	 */
 	public LogService getLogService() {
 		return logService;
 	}
 
+	/**
+	 * Setter for LogService
+	 * @param logService the LogService
+	 */
 	public void setLogService(LogService logService) {
 		this.logService = logService;
 	}
@@ -66,15 +74,28 @@ public class Treetagger2SaltMapper {
 	//---------------------------------------------------------------------------------------------
 	private Properties properties = null;
 	
+	/**
+	 * Getter for Properties
+	 * @return the Properties
+	 */
 	public Properties getProperties() {
 		return properties;
 	}
 
+	/**
+	 * Setter for Properties
+	 * @param properties the Properties
+	 */
 	public void setProperties(Properties properties) {
 		this.properties = properties;
 	}
 	//---------------------------------------------------------------------------------------------
 
+	/**
+	 * The method maps a Treetagger document to a Salt document
+	 * @param tDocument the Treetagger document 
+	 * @param sDocument the Salt document
+	 */
 	public void map(Document tDocument, SDocument sDocument) {
 		if (this.getProperties()==null) {
 			this.setProperties(new Properties());
@@ -86,6 +107,9 @@ public class Treetagger2SaltMapper {
 		this.createSTextualDS(tDocument.getTokens(), sDocument);
 	}
 	
+	/*
+	 * auxiliary method 
+	 */
 	protected void addSMetaAnnotation(EList<Annotation> tAnnotations, SDocument sDocument) {
 		for (int i=0;i<tAnnotations.size();i++) {
 			Annotation tAnno = tAnnotations.get(i);
@@ -95,7 +119,10 @@ public class Treetagger2SaltMapper {
 			sDocument.addSMetaAnnotation(sMetaAnnotation);
 		}
 	}
-	
+
+	/*
+	 * auxiliary method 
+	 */
 	protected STextualDS createSTextualDS(EList<Token> tTokens, SDocument sDocument)
 	{
 		boolean annotateUnannotatedSpans = 
@@ -128,6 +155,7 @@ public class Treetagger2SaltMapper {
 				end= start + tToken.getText().length();				
 				text= text+ separator + tToken.getText();
 			}
+			
 			//creating and adding token
 			SToken sToken= this.createSToken(tToken);
 			sDocument.getSDocumentGraph().addSNode(sToken);
@@ -169,10 +197,12 @@ public class Treetagger2SaltMapper {
 		return(sText);
 	}
 
+	/*
+	 * auxiliary method 
+	 */
 	protected SToken createSToken(Token tToken)
 	{
-		SToken retVal= null;
-		retVal= SaltCommonFactory.eINSTANCE.createSToken();
+		SToken retVal= SaltCommonFactory.eINSTANCE.createSToken();
 		for (Annotation tAnnotation: tToken.getAnnotations())
 		{
 			retVal.addSAnnotation(this.createSAnnotation(tAnnotation));
@@ -180,6 +210,9 @@ public class Treetagger2SaltMapper {
 		return(retVal);
 	}
 	
+	/*
+	 * auxiliary method 
+	 */
 	protected SAnnotation createSAnnotation(Annotation tAnnotation)
 	{
 		SAnnotation retVal= null;
@@ -196,6 +229,9 @@ public class Treetagger2SaltMapper {
 		return(retVal);
 	}
 	
+	/*
+	 * auxiliary method 
+	 */
 	protected STextualRelation createSTextualRelation(SToken sToken, STextualDS sText, int start, int end)
 	{
 		STextualRelation retVal= null;
