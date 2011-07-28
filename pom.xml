@@ -26,6 +26,11 @@
       <artifactId>junit</artifactId>
       <version>3.8.1</version>
     </dependency>
+    <dependency>
+      <groupId>com.artofsolving</groupId>
+      <artifactId>jodconverter</artifactId>
+      <version>2.2.1</version>
+    </dependency>    
   </dependencies>        
    <scm>
         <developerConnection>scm:svn:https://korpling.german.hu-berlin.de/svn/saltnpepper/PepperModules/TreetaggerModules/trunk</developerConnection>
@@ -43,6 +48,29 @@
       		<goals>deploy assembly:single</goals>
         </configuration>
       </plugin>
+
+     <plugin>
+        <groupId>com.artofsolving</groupId>
+        <artifactId>jodconverter-maven-plugin</artifactId>
+        <version>2.2.1</version>
+         <configuration>
+           <sourceDirectory>${basedir}/src/odt</sourceDirectory>
+           <outputDirectory>${basedir}/doc/manual</outputDirectory>
+           <include>**/*.odt</include>
+           <outputFormat>pdf</outputFormat>
+         </configuration>
+         <executions>
+           <execution>
+             <id>convert </id>
+             <phase>site</phase>
+             <goals>
+               <goal>convert</goal>
+             </goals>
+           </execution>
+         </executions>
+      </plugin>	
+	
+	
 	</plugins>
   </build>
   
