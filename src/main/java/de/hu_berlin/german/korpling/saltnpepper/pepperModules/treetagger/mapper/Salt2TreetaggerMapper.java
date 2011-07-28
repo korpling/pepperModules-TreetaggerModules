@@ -3,7 +3,6 @@ package de.hu_berlin.german.korpling.saltnpepper.pepperModules.treetagger.mapper
 import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.Properties;
-import java.util.Random;
 
 import org.eclipse.emf.common.util.EList;
 import org.osgi.service.log.LogService;
