@@ -131,9 +131,9 @@ public class TreetaggerExporter extends PepperExporterImpl implements PepperExpo
 	private String PROP_EXPORT_ANNOS= "treetagger.exportAnnotations";
 	
 	/**
-	 * Extension for export file. default= tab.
+	 * Extension for export file. default= tt.
 	 */
-	private String fileExtension= "tab";
+	private String fileExtension= "tt";
 	
 	/**
 	 * List of annotation names to export. 
