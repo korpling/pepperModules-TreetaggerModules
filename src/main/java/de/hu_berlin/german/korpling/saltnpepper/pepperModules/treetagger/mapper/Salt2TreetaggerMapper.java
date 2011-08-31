@@ -73,7 +73,6 @@ public class Salt2TreetaggerMapper {
 	
 	@SuppressWarnings("unused")
 	private void logError  (String logText) { this.log(LogService.LOG_ERROR,   logText); }
-	@SuppressWarnings("unused")
 	private void logWarning(String logText) { this.log(LogService.LOG_WARNING, logText); }
 	@SuppressWarnings("unused")
 	private void logInfo   (String logText) { this.log(LogService.LOG_INFO,    logText); }
@@ -103,6 +102,9 @@ public class Salt2TreetaggerMapper {
 	}
 	//---------------------------------------------------------------------------------------------
 	
+	private int numOfSTokensWithMultiplePOSAnnos = 0; 
+	private int numOfSTokensWithMultipleLemmaAnnos = 0;	
+	
 	/**
 	 * This method maps a Salt document to a Treetagger document  
 	 * @param sDocument the Salt document 
@@ -115,6 +117,17 @@ public class Salt2TreetaggerMapper {
 		tDocument.setName(sDocument.getSName());
 		this.addDocumentAnnotations(sDocument.getSMetaAnnotations(), tDocument);
 		this.addTokens(sDocument.getSDocumentGraph(), tDocument);
+		
+		if (this.numOfSTokensWithMultiplePOSAnnos>0) {
+			logWarning("There were "+this.numOfSTokensWithMultiplePOSAnnos+" tokens with more than one POS annotation in the document. The first one found for each token was used for it´s POS annotation; the remainder was used for ordinary annotations.");
+			
+			System.out.println("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++" + numOfSTokensWithMultiplePOSAnnos);
+			
+			
+		}
+		if (this.numOfSTokensWithMultipleLemmaAnnos>0) {
+			logWarning("There were "+this.numOfSTokensWithMultipleLemmaAnnos+" tokens with more than one lemma annotation in the document. The first one found for each token was used for it´s lemma annotation; the remainder was used for ordinary annotations.");
+		}
 	}
 
 	/*
@@ -170,15 +183,37 @@ public class Salt2TreetaggerMapper {
 	 * auxiliary method 
 	 */
 	protected void addTokenAnnotations(SToken sToken, Token tToken) {
+		boolean donePOSAnno = false;
+		ArrayList<SAnnotation> possiblePOSAnnos = new ArrayList<SAnnotation>();
+		
+		boolean doneLemmaAnno = false;
+		ArrayList<SAnnotation> possibleLemmaAnnos = new ArrayList<SAnnotation>();
+		
 		for (int i=0;i<sToken.getSAnnotations().size();i++) {
 			SAnnotation sAnno = sToken.getSAnnotations().get(i);
 			Annotation tAnno = null;
+	
 			if (sAnno instanceof SPOSAnnotation) {
-				tAnno = TreetaggerFactory.eINSTANCE.createPOSAnnotation();
+				if (!donePOSAnno) {
+					tAnno = TreetaggerFactory.eINSTANCE.createPOSAnnotation();
+					donePOSAnno=true;
+				}
+				else {
+					this.numOfSTokensWithMultiplePOSAnnos++;
+					tAnno = TreetaggerFactory.eINSTANCE.createAnyAnnotation(); 
+				} 
 			}
 			else if (sAnno instanceof SLemmaAnnotation) {
-				tAnno = TreetaggerFactory.eINSTANCE.createLemmaAnnotation();
+				if (!doneLemmaAnno)	{
+					tAnno = TreetaggerFactory.eINSTANCE.createLemmaAnnotation();
+					doneLemmaAnno=true;
+				} 
+				else {
+					this.numOfSTokensWithMultipleLemmaAnnos++;
+					tAnno = TreetaggerFactory.eINSTANCE.createAnyAnnotation();
+				}
 			}
+			
 			else {
 				//try to set the right type of Annotation by SALT_SEMANTICS
 				SALT_SEMANTIC_NAMES currentName = SALT_SEMANTIC_NAMES.getSaltSemanticName(sAnno); 
@@ -186,13 +221,52 @@ public class Salt2TreetaggerMapper {
 					tAnno = TreetaggerFactory.eINSTANCE.createAnyAnnotation();
 				}
 				else switch (currentName) {
-					case POS:   tAnno = TreetaggerFactory.eINSTANCE.createPOSAnnotation();   break;
-					case LEMMA: tAnno = TreetaggerFactory.eINSTANCE.createLemmaAnnotation(); break;
-					default:    tAnno = TreetaggerFactory.eINSTANCE.createAnyAnnotation();  
+					case POS:
+						if (!donePOSAnno)	possiblePOSAnnos.add(sAnno);
+						else				tAnno = TreetaggerFactory.eINSTANCE.createAnyAnnotation(); 											
+						break;
+					case LEMMA:
+						if (doneLemmaAnno)	possibleLemmaAnnos.add(sAnno);
+						else				tAnno = TreetaggerFactory.eINSTANCE.createLemmaAnnotation();
+						break;
 				}
 			}
-			//setting the name will only affect instances of AnyAnnotation.
-			//POSAnnotations get the name "pos", LemmaAnnotations get the name "lemma" 
+
+			if (tAnno!=null) {
+				//setting the name will only affect instances of AnyAnnotation: POSAnnotations get the name "pos", LemmaAnnotations get the name "lemma" 
+				tAnno.setName(sAnno.getSName());
+				tAnno.setValue(sAnno.getSValueSTEXT());
+				tToken.getAnnotations().add(tAnno);
+			}
+		}
+		
+		for (int i=0;i<possiblePOSAnnos.size();i++) {
+			SAnnotation sAnno = possiblePOSAnnos.get(i);
+			Annotation tAnno = null; 
+			if (!donePOSAnno) {
+				tAnno = TreetaggerFactory.eINSTANCE.createPOSAnnotation();	
+				donePOSAnno=true;
+			}
+			else {
+				tAnno = TreetaggerFactory.eINSTANCE.createAnnotation();								
+			}
+			//setting the name will only affect instances of AnyAnnotation: POSAnnotations get the name "pos", LemmaAnnotations get the name "lemma" 
+			tAnno.setName(sAnno.getSName());
+			tAnno.setValue(sAnno.getSValueSTEXT());
+			tToken.getAnnotations().add(tAnno);
+		}
+		
+		for (int i=0;i<possibleLemmaAnnos.size();i++) {
+			SAnnotation sAnno = possibleLemmaAnnos.get(i);
+			Annotation tAnno = null; 
+			if (!donePOSAnno) {
+				tAnno = TreetaggerFactory.eINSTANCE.createLemmaAnnotation();	
+				doneLemmaAnno=true;
+			}
+			else {
+				tAnno = TreetaggerFactory.eINSTANCE.createAnnotation();								
+			}
+			//setting the name will only affect instances of AnyAnnotation: POSAnnotations get the name "pos", LemmaAnnotations get the name "lemma" 
 			tAnno.setName(sAnno.getSName());
 			tAnno.setValue(sAnno.getSValueSTEXT());
 			tToken.getAnnotations().add(tAnno);
