@@ -15,7 +15,7 @@
  *
  *
  */
-package de.hu_berlin.german.korpling.saltnpepper.pepperModules.treetagger.java;
+package de.hu_berlin.german.korpling.saltnpepper.pepperModules.treetagger;
 
 import java.io.FileInputStream;
 import java.io.IOException;
