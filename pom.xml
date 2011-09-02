@@ -7,7 +7,7 @@
   <repositories>
     <repository>
       <id>SaltNPepper Repository</id>
-            <url>https://korpling.german.hu-berlin.de/~annis/maven2/saltnpepper/</url>
+      <url>https://korpling.german.hu-berlin.de/~annis/maven2/saltnpepper/</url>
     </repository>
   </repositories>
   <parent>
