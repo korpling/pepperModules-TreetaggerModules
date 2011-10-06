@@ -21,8 +21,8 @@
   </scm>
     <dependencies>
     <dependency>
-      <groupId>de.hu_berlin.german.korpling.saltnpepper.misc</groupId>
-      <artifactId>TreetaggerModel</artifactId>
+      <groupId>de.hu_berlin.german.korpling.saltnpepper</groupId>
+      <artifactId>misc-TreetaggerModel</artifactId>
       <version>[1.2.0,)</version>
     </dependency>
     <dependency>
