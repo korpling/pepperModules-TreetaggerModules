@@ -101,6 +101,7 @@
         </executions>
       </plugin>
       
+      <!-- TODO: delete this when upgrading to pepper 1.1.3 -->
       <plugin>
 		<groupId>org.jasig.maven</groupId>
   		<artifactId>maven-notice-plugin</artifactId>
@@ -112,7 +113,6 @@
     	</licenseMapping>
   		</configuration>
 	  </plugin>
-      
       
     </plugins>
   </build>
