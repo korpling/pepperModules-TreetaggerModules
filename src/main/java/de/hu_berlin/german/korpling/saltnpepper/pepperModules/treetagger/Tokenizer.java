@@ -30,7 +30,7 @@ import org.osgi.service.component.ComponentContext;
 import org.osgi.service.log.LogService;
 
 import de.hu_berlin.german.korpling.saltnpepper.misc.treetagger.tokenizer.TTTokenizer;
-import de.hu_berlin.german.korpling.saltnpepper.misc.treetagger.tokenizer.TTTokenizer.TTLanguages;
+import de.hu_berlin.german.korpling.saltnpepper.misc.treetagger.tokenizer.TTTokenizer.TT_LANGUAGES;
 import de.hu_berlin.german.korpling.saltnpepper.misc.treetagger.tokenizer.Token;
 import de.hu_berlin.german.korpling.saltnpepper.pepper.pepperExceptions.PepperModuleException;
 import de.hu_berlin.german.korpling.saltnpepper.pepper.pepperModules.PepperManipulator;
@@ -88,19 +88,19 @@ public class Tokenizer extends PepperManipulatorImpl
 		return(abbreviationFolder);
 	}
 	
-	private TTLanguages language= null;
+	private TT_LANGUAGES language= null;
 	/**
 	 * Returns the language of the STextualDS given by a property file.
 	 * @return
 	 */
-	private synchronized TTTokenizer.TTLanguages getLanguage()
+	private synchronized TTTokenizer.TT_LANGUAGES getLanguage()
 	{
 		if (language== null)
 		{
 			if (this.getSpecialParams()!= null)
 			{
 				//default case
-				language= TTLanguages.en;
+				language= TT_LANGUAGES.en;
 				Properties props= new Properties();
 				{//load properties
 					InputStream in= null;
@@ -128,7 +128,7 @@ public class Tokenizer extends PepperManipulatorImpl
 				String prop= props.getProperty(PROP_TOKENIZER_LANGUAGE).trim();
 				if (prop!= null)
 				{
-					this.language= TTLanguages.valueOf(prop);
+					this.language= TT_LANGUAGES.valueOf(prop);
 				}
 			}
 		}
@@ -158,7 +158,7 @@ public class Tokenizer extends PepperManipulatorImpl
 						if (sText!= null)
 						{
 							TTTokenizer tokenizer= new TTTokenizer();
-							tokenizer.setAbbriviationFolder(this.getAbbriviationFolder());
+							tokenizer.setAbbreviationFolder(this.getAbbriviationFolder());
 							tokenizer.setLngLang(this.getLanguage());
 							for (Token token: tokenizer.tokenizeToToken(sText.getSText()))
 							{
