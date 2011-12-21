@@ -100,7 +100,7 @@ public class Tokenizer extends PepperManipulatorImpl
 			if (this.getSpecialParams()!= null)
 			{
 				//default case
-				language= TT_LANGUAGES.en;
+				language= TT_LANGUAGES.EN;
 				Properties props= new Properties();
 				{//load properties
 					InputStream in= null;
