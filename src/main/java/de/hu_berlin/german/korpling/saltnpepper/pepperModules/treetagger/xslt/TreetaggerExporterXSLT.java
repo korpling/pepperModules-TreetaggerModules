@@ -51,7 +51,7 @@ public class TreetaggerExporterXSLT extends PepperXSLTExporterImpl implements Pe
 		this.name= "TreetaggerExporterXSLT";
 		//for testing the symbolic name has to be set without osgi
 		if (	(this.getSymbolicName()==  null) ||
-				(this.getSymbolicName().equalsIgnoreCase("")))
+				(this.getSymbolicName().isEmpty()))
 			this.setSymbolicName("de.hu_berlin.german.korpling.saltnpepper.pepperModules.TreetaggerModules");
 		if (this.getLogService()!= null)
 			this.getLogService().log(LogService.LOG_DEBUG,this.getName()+" is created...");

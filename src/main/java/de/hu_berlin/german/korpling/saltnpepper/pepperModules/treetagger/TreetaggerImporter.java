@@ -100,7 +100,7 @@ public class TreetaggerImporter extends PepperImporterImpl implements PepperImpo
 		this.name= "TreetaggerImporter";
 		//for testing the symbolic name has to be set without osgi
 		if (	(this.getSymbolicName()==  null) ||
-				(this.getSymbolicName().equalsIgnoreCase("")))
+				(this.getSymbolicName().isEmpty()))
 			this.setSymbolicName("de.hu_berlin.german.korpling.saltnpepper.pepperModules-treeTaggerModules");
 		this.init();
 		logDebug(this.getName()+" is created...");
