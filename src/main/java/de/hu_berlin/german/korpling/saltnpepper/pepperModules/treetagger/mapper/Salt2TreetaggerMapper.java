@@ -226,8 +226,8 @@ public class Salt2TreetaggerMapper {
 						else				tAnno = TreetaggerFactory.eINSTANCE.createAnyAnnotation(); 											
 						break;
 					case LEMMA:
-						if (doneLemmaAnno)	possibleLemmaAnnos.add(sAnno);
-						else				tAnno = TreetaggerFactory.eINSTANCE.createLemmaAnnotation();
+						if (!doneLemmaAnno)	possibleLemmaAnnos.add(sAnno);
+						else				tAnno = TreetaggerFactory.eINSTANCE.createAnyAnnotation();
 						break;
 				}
 			}
@@ -259,7 +259,7 @@ public class Salt2TreetaggerMapper {
 		for (int i=0;i<possibleLemmaAnnos.size();i++) {
 			SAnnotation sAnno = possibleLemmaAnnos.get(i);
 			Annotation tAnno = null; 
-			if (!donePOSAnno) {
+			if (!doneLemmaAnno) {
 				tAnno = TreetaggerFactory.eINSTANCE.createLemmaAnnotation();	
 				doneLemmaAnno=true;
 			}
