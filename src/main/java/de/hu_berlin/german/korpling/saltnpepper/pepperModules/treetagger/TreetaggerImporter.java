@@ -229,9 +229,9 @@ public class TreetaggerImporter extends PepperImporterImpl implements PepperImpo
 				resource.load(options);
 			} 
 			catch (IOException e) 
-			{	throw new TreetaggerImporterException("Cannot load resource '"+uri+"'.");	}
+			{	throw new TreetaggerImporterException("Cannot load resource '"+uri+"'.",e);	}
 			catch (NullPointerException e) 
-			{	throw new TreetaggerImporterException("Cannot load resource '"+uri+"'.");	}
+			{	throw new TreetaggerImporterException("Cannot load resource '"+uri+"'.",e);	}
 			if (resource.getContents().size()>0) {
 				retVal= (Document) resource.getContents().get(0);
 			}
