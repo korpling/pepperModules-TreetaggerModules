@@ -123,7 +123,6 @@
         </executions>
       </plugin>
       
-      <!-- TODO: delete this when upgrading to pepper 1.1.3 -->
       <plugin>
 		<groupId>org.jasig.maven</groupId>
   		<artifactId>maven-notice-plugin</artifactId>
@@ -132,9 +131,11 @@
     	<noticeTemplate>https://source.jasig.org/licenses/NOTICE.template</noticeTemplate>
     	<licenseMapping>
     		<param>https://source.jasig.org/licenses/license-mappings.xml</param>
+    		<param>${basedir}/src/etc/license-mappings.xml</param>
     	</licenseMapping>
   		</configuration>
 	  </plugin>
+      
       
     </plugins>
   </build>
