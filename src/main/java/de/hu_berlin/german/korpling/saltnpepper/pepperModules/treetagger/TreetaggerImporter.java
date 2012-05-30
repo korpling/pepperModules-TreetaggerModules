@@ -25,23 +25,18 @@ import java.util.Properties;
 
 import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.Service;
-import org.eclipse.emf.common.util.BasicEList;
-import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.resource.ResourceSet;
 import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
 import org.eclipse.emf.ecore.xmi.impl.XMIResourceFactoryImpl;
-import org.osgi.service.component.ComponentContext;
 import org.osgi.service.log.LogService;
 
 import de.hu_berlin.german.korpling.saltnpepper.misc.treetagger.Document;
 import de.hu_berlin.german.korpling.saltnpepper.misc.treetagger.resources.TabResource;
 import de.hu_berlin.german.korpling.saltnpepper.misc.treetagger.resources.TabResourceFactory;
 import de.hu_berlin.german.korpling.saltnpepper.pepper.pepperExceptions.PepperModuleException;
-import de.hu_berlin.german.korpling.saltnpepper.pepper.pepperModules.FormatDefinition;
 import de.hu_berlin.german.korpling.saltnpepper.pepper.pepperModules.PepperImporter;
-import de.hu_berlin.german.korpling.saltnpepper.pepper.pepperModules.PepperInterfaceFactory;
 import de.hu_berlin.german.korpling.saltnpepper.pepper.pepperModules.RETURNING_MODE;
 import de.hu_berlin.german.korpling.saltnpepper.pepper.pepperModules.impl.PepperImporterImpl;
 import de.hu_berlin.german.korpling.saltnpepper.pepperModules.treetagger.exceptions.TreetaggerImporterException;
@@ -97,33 +92,13 @@ public class TreetaggerImporter extends PepperImporterImpl implements PepperImpo
 	public TreetaggerImporter()
 	{
 		super();
+		//setting name of module
 		this.name= "TreetaggerImporter";
-		//for testing the symbolic name has to be set without osgi
-		if (	(this.getSymbolicName()==  null) ||
-				(this.getSymbolicName().isEmpty()))
-			this.setSymbolicName("de.hu_berlin.german.korpling.saltnpepper.pepperModules-treeTaggerModules");
-		this.init();
-		logDebug(this.getName()+" is created...");
-	}
-
-	protected void init()
-	{
-		this.supportedFormats= new BasicEList<FormatDefinition>();
-		FormatDefinition formatDef= PepperInterfaceFactory.eINSTANCE.createFormatDefinition();
-		formatDef.setFormatName("treetagger");
-		formatDef.setFormatVersion("1.0");
-		this.supportedFormats.add(formatDef);
+		//set list of formats supported by this module
+		this.addSupportedFormat("treetagger", "1.0", null);
 	}
 	
-	private EList<FormatDefinition> supportedFormats= null;
-	
-	@Override
-	public EList<FormatDefinition> getSupportedFormats() 
-	{
-		return(this.supportedFormats);
-	}
-
-	/**
+		/**
 	 * Stores relation between documents and their resource 
 	 */
 	private Map<SElementId, URI> documentResourceTable= null;
@@ -237,14 +212,5 @@ public class TreetaggerImporter extends PepperImporterImpl implements PepperImpo
 			}
 		}
 		return(retVal);
-	}
-	
-	protected void activate(ComponentContext componentContext) 
-	{
-		this.setSymbolicName(componentContext.getBundleContext().getBundle().getSymbolicName());
-	}
-
-	protected void deactivate(ComponentContext componentContext) {
-		logDebug(this.getName()+" is deactivated...");
 	}
 }

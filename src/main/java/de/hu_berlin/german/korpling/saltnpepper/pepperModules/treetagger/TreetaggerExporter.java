@@ -44,9 +44,7 @@ import de.hu_berlin.german.korpling.saltnpepper.misc.treetagger.resources.TabRes
 import de.hu_berlin.german.korpling.saltnpepper.misc.treetagger.resources.TabResourceFactory;
 import de.hu_berlin.german.korpling.saltnpepper.pepper.pepperExceptions.PepperConvertException;
 import de.hu_berlin.german.korpling.saltnpepper.pepper.pepperExceptions.PepperModuleException;
-import de.hu_berlin.german.korpling.saltnpepper.pepper.pepperModules.FormatDefinition;
 import de.hu_berlin.german.korpling.saltnpepper.pepper.pepperModules.PepperExporter;
-import de.hu_berlin.german.korpling.saltnpepper.pepper.pepperModules.PepperInterfaceFactory;
 import de.hu_berlin.german.korpling.saltnpepper.pepper.pepperModules.impl.PepperExporterImpl;
 import de.hu_berlin.german.korpling.saltnpepper.pepperModules.treetagger.mapper.Salt2TreetaggerMapper;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sCorpusStructure.SDocument;
@@ -64,23 +62,10 @@ public class TreetaggerExporter extends PepperExporterImpl implements PepperExpo
 	public TreetaggerExporter()
 	{
 		super();
+		//setting name of module
 		this.name= "TreetaggerExporter";
-		//for testing the symbolic name has to be set without osgi
-		if (	(this.getSymbolicName()==  null) ||
-				(this.getSymbolicName().isEmpty()))
-			this.setSymbolicName("de.hu_berlin.german.korpling.saltnpepper.pepperModules-treeTaggerModules");
-		if (this.getLogService()!= null)
-			this.getLogService().log(LogService.LOG_DEBUG,this.getName()+" is created...");
-		this.init();
-	}
-
-	protected void init()
-	{
-		this.supportedFormats= new BasicEList<FormatDefinition>();
-		FormatDefinition formatDef= PepperInterfaceFactory.eINSTANCE.createFormatDefinition();
-		formatDef.setFormatName("treetagger");
-		formatDef.setFormatVersion("1.0");
-		this.supportedFormats.add(formatDef);
+		//set list of formats supported by this module
+		this.addSupportedFormat("treetagger", "1.0", null);
 	}
 	
 	protected void activate(ComponentContext componentContext) 
@@ -90,20 +75,6 @@ public class TreetaggerExporter extends PepperExporterImpl implements PepperExpo
 			this.getLogService().log(LogService.LOG_DEBUG,this.getName()+" is activated...");
 	}
 
-	/**
-	 * Wird von der Service Component Runtime vor der Deaktivierung der Komponente
-	 * aufgerufen und gibt noch eine Abschiedsbotschaft aus
-	 * 
-	 * @param componentContext
-	 *          Der Kontext der Komponente
-	 */
-	protected void deactivate(ComponentContext componentContext) 
-	{
-		if (this.getLogService()!= null)
-			this.getLogService().log(LogService.LOG_DEBUG,this.getName()+" is deactivated...");
-
-	}
-	
 	private Properties props= null;
 
 	/**
