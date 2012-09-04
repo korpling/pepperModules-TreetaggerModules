@@ -67,25 +67,26 @@ public class TreetaggerImporter extends PepperImporterImpl implements PepperImpo
 	private void logWarning(String logText) { this.log(LogService.LOG_WARNING, logText); }
 	@SuppressWarnings("unused")
 	private void logInfo   (String logText) { this.log(LogService.LOG_INFO,    logText); }
+	@SuppressWarnings("unused")
 	private void logDebug  (String logText) { this.log(LogService.LOG_DEBUG,   logText); }
 
 	//---------------------------------------------------------------------------------------
-	private Properties properties = null;
+	private Properties conversionProperties = null;
 	
 	/**
 	 * Getter for Properties
 	 * @return the Properties
 	 */
-	public Properties getProperties() {
-		return this.properties;
+	public Properties getConversionProperties() {
+		return this.conversionProperties;
 	}
 
 	/**
 	 * Setter for Properties
 	 * @param properties the Properties
 	 */
-	public void setProperties(Properties properties) {
-		this.properties = properties;
+	public void setConversionProperties(Properties properties) {
+		this.conversionProperties = properties;
 	}
 	//---------------------------------------------------------------------------------------
 	
@@ -109,7 +110,7 @@ public class TreetaggerImporter extends PepperImporterImpl implements PepperImpo
 	{
 		this.setSCorpusGraph(corpusGraph);
 		if (this.getSCorpusGraph()== null)
-			throw new PepperModuleException(this.name+": Cannot start with importing corpus, because salt project isn�t set.");
+			throw new PepperModuleException(this.name+": Cannot start with importing corpus, because salt project isn?t set.");
 		
 		if (this.getCorpusDefinition()== null)
 			throw new PepperModuleException(this.name+": Cannot start with importing corpus, because no corpus definition to import is given.");
@@ -150,8 +151,8 @@ public class TreetaggerImporter extends PepperImporterImpl implements PepperImpo
 				if (this.getSpecialParams()!=null) {
 					String propertyFileName = this.getSpecialParams().toFileString();
 					try {
-						this.setProperties(new Properties());
-						this.getProperties().load(new FileInputStream(propertyFileName));
+						this.setConversionProperties(new Properties());
+						this.getConversionProperties().load(new FileInputStream(propertyFileName));
 					} catch (IOException e) {
 						logWarning(String.format("couldn´t load properties file '%s'. using default values.",propertyFileName));
 					}
@@ -163,7 +164,7 @@ public class TreetaggerImporter extends PepperImporterImpl implements PepperImpo
 				}
 				else {
 					Treetagger2SaltMapper mapper = new Treetagger2SaltMapper();
-					mapper.setProperties(this.getProperties());
+					mapper.setProperties(this.getConversionProperties());
 					mapper.setLogService(this.getLogService());
 					mapper.map(tDocument,this.getSCorpusGraph().getSDocument(sElementId));
 				}
