@@ -132,6 +132,7 @@ public class TreetaggerImporter extends PepperImporterImpl implements PepperImpo
 		}	
 	}
 	
+	
 	/**
 	 * Starts the conversion of the element corresponding to the ID 
 	 */
@@ -200,7 +201,7 @@ public class TreetaggerImporter extends PepperImporterImpl implements PepperImpo
 				//put logService for TabResource loading into options
 				options.put(TabResource.logServiceKey, this.getLogService());
 				//put properties for TabResource loading into options
-				options.put(TabResource.propertiesKey, this.getProperties());
+				options.put(TabResource.propertiesKey, this.getConversionProperties());
 
 				resource.load(options);
 			} 
