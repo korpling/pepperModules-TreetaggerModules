@@ -43,7 +43,7 @@ public class TreetaggerExporterXSLT extends PepperXSLTExporterImpl implements Pe
 	{
 		super();
 		//setting name of module
-		this.name= "TreetaggerExporter";
+		this.name= "TreetaggerExporterXSLT";
 		//set list of formats supported by this module
 		this.addSupportedFormat("treetagger", "1.0", null);
 	}
