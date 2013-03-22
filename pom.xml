@@ -27,11 +27,11 @@
   <parent>
     <groupId>de.hu_berlin.german.korpling.saltnpepper</groupId>
     <artifactId>pepper-parentModule</artifactId>
-    <version>1.1.4</version>
+    <version>1.1.5-SNAPSHOT</version>
   </parent>
   <scm>
     <developerConnection>scm:svn:https://korpling.german.hu-berlin.de/svn/saltnpepper/PepperModules/TreetaggerModules/trunk</developerConnection>
-    <url>scm:svn:https://korpling.german.hu-berlin.de/svn/saltnpepper/pepper/tags/pepper-1.1.3/pepper-parentModule/pepperModules-TreetaggerModules</url>
+    <url>scm:svn:https://korpling.german.hu-berlin.de/svn/saltnpepper/PepperModules/TreetaggerModules</url>
   </scm>
   <distributionManagement>
     <repository>
@@ -47,25 +47,13 @@
       <artifactId>misc-TreetaggerModel</artifactId>
       <version>[1.2.0,)</version>
     </dependency>
-    <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-      <version>3.8.1</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>com.artofsolving</groupId>
-      <artifactId>jodconverter</artifactId>
-      <version>2.2.1</version>
-      <scope>test</scope>
-    </dependency>
   </dependencies>
   <build>
     <plugins>
       <!-- start: Plugin for automatic releasing -->
       <plugin>
         <artifactId>maven-release-plugin</artifactId>
-        <version>2.1</version>
+        <version>${maven-release-plugin.version}</version>
         <configuration>
           <tagBase>
            https://korpling.german.hu-berlin.de/svn/saltnpepper/PepperModules/TreetaggerModules/tags/
@@ -78,7 +66,7 @@
       <plugin>
         <groupId>org.apache.felix</groupId>
         <artifactId>maven-bundle-plugin</artifactId>
-        <version>2.1.0</version>
+        <version>${maven-bundle-plugin.version}</version>
         <extensions>true</extensions>
         <executions>
           <execution>
@@ -89,55 +77,20 @@
           </execution>
         </executions>
         <configuration>
-          <manifestLocation>${basedir}/META-INF</manifestLocation>
-          <source>1.6</source>
-          <target>1.6</target>
+          <manifestLocation>${META-INF}</manifestLocation>
+          <source>${java.version}</source>
+          <target>${java.version}</target>
           <instructions>
             <Bundle-Name>${project.artifactId}</Bundle-Name>
             <Bundle-SymbolicName>${project.groupId}.${project.artifactId};singleton:=true</Bundle-SymbolicName>
             <Bundle-Version>${project.version}</Bundle-Version>
-            <Bundle-RequiredExecutionEnvironment>JavaSE-1.6</Bundle-RequiredExecutionEnvironment>
-            <Service-Component>OSGI-INF/${component.descriptor.name}</Service-Component>
+            <Bundle-RequiredExecutionEnvironment>JavaSE-${java.version}</Bundle-RequiredExecutionEnvironment>
+            <Service-Component>${allServiceComponents}</Service-Component>
             <Include-Resource>{maven-resources}, LICENSE, NOTICE</Include-Resource>
           </instructions>
         </configuration>
       </plugin>
       <!-- end: creation of bundle jar -->
-      <plugin>
-        <groupId>com.artofsolving</groupId>
-        <artifactId>jodconverter-maven-plugin</artifactId>
-        <version>2.2.1</version>
-        <configuration>
-          <sourceDirectory>${basedir}/src/odt</sourceDirectory>
-          <outputDirectory>${basedir}/doc/manual</outputDirectory>
-          <include>**/*.odt</include>
-          <outputFormat>pdf</outputFormat>
-        </configuration>
-        <executions>
-          <execution>
-            <id>convert </id>
-            <phase>site</phase>
-            <goals>
-              <goal>convert</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
-      
-      <plugin>
-		<groupId>org.jasig.maven</groupId>
-  		<artifactId>maven-notice-plugin</artifactId>
-  		<version>1.0.4</version>
-  		<configuration>
-    	<noticeTemplate>https://source.jasig.org/licenses/NOTICE.template</noticeTemplate>
-    	<licenseMapping>
-    		<param>https://source.jasig.org/licenses/license-mappings.xml</param>
-    		<param>${basedir}/src/etc/license-mappings.xml</param>
-    	</licenseMapping>
-  		</configuration>
-	  </plugin>
-      
-      
     </plugins>
   </build>
 </project>

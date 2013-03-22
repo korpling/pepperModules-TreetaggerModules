@@ -19,11 +19,10 @@ package de.hu_berlin.german.korpling.saltnpepper.pepperModules.treetagger.xslt;
 
 import java.io.File;
 
-import org.apache.felix.scr.annotations.Component;
-import org.apache.felix.scr.annotations.Service;
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.xmi.impl.XMIResourceFactoryImpl;
+import org.osgi.service.component.annotations.Component;
 
 import de.hu_berlin.german.korpling.saltnpepper.misc.treetagger.resources.TabResourceFactory;
 import de.hu_berlin.german.korpling.saltnpepper.pepper.pepperExceptions.PepperModuleException;
@@ -38,7 +37,6 @@ import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructu
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SElementId;
 
 @Component(name="TreetaggerExporterXSLTComponent", factory="PepperExporterComponentFactory")
-@Service(value=PepperExporter.class)
 public class TreetaggerExporterXSLT extends PepperXSLTExporterImpl implements PepperXSLTExporter
 {
 	public TreetaggerExporterXSLT()
