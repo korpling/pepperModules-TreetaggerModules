@@ -39,6 +39,7 @@ import de.hu_berlin.german.korpling.saltnpepper.misc.treetagger.Span;
 import de.hu_berlin.german.korpling.saltnpepper.misc.treetagger.Token;
 import de.hu_berlin.german.korpling.saltnpepper.misc.treetagger.TreetaggerFactory;
 import de.hu_berlin.german.korpling.saltnpepper.misc.treetagger.resources.TabResourceFactory;
+import de.hu_berlin.german.korpling.saltnpepper.pepperModules.treetagger.TreetaggerImporterProperties;
 import de.hu_berlin.german.korpling.saltnpepper.salt.SaltFactory;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sCorpusStructure.SDocument;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SDocumentGraph;
@@ -73,10 +74,13 @@ public class PublicTreetagger2SaltMapperTest extends TestCase {
 	
 	public void setUp() {
 		this.setFixture(new PublicTreetagger2SaltMapper());
-		Properties properties = new Properties();
-		try { properties.load(new InputStreamReader(new FileInputStream(propertyFilename)));}
-		catch (IOException e) {}
-		this.getFixture().setProperties(properties);
+		TreetaggerImporterProperties props= new TreetaggerImporterProperties();
+		props.addProperties(URI.createFileURI(propertyFilename));
+		getFixture().setProperties(props);
+//		Properties properties = new Properties();
+//		try { properties.load(new InputStreamReader(new FileInputStream(propertyFilename)));}
+//		catch (IOException e) {}
+//		this.getFixture().setProperties(properties);
 	}
 
 	protected void tearDown() throws Exception {
@@ -165,7 +169,9 @@ public class PublicTreetagger2SaltMapperTest extends TestCase {
 		SDocument sDoc = SaltFactory.eINSTANCE.createSDocument();
 		sDoc.setSDocumentGraph(SaltFactory.eINSTANCE.createSDocumentGraph());
 		
-		this.getFixture().map(tDoc,sDoc);
+		this.getFixture().setTTDocument(tDoc);
+		this.getFixture().setSDocument(sDoc);
+		this.getFixture().mapSDocument();
 		assertEquals(tDoc.getName(), sDoc.getSName());
 		assertEquals(tDoc.getName() + "_graph", sDoc.getSDocumentGraph().getSName());
 		this.testAddSMetaAnnotation();

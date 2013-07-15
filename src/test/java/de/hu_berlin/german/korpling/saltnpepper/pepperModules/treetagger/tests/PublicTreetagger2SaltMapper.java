@@ -32,7 +32,9 @@ import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SAnnotation;
 public class PublicTreetagger2SaltMapper extends Treetagger2SaltMapper {
 
 	public void convert(Document tDocument, SDocument sDocument) {
-		super.map(tDocument, sDocument);
+		super.setTTDocument(tDocument);
+		super.setSDocument(sDocument);
+		super.mapSDocument();
 	}
 	
 	public void addSMetaAnnotation(EList<Annotation> tAnnotations, SDocument sDocument) {
