@@ -18,40 +18,23 @@
 package de.hu_berlin.german.korpling.saltnpepper.pepperModules.treetagger;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Properties;
 
-import org.eclipse.emf.common.util.BasicEList;
-import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.common.util.URI;
-import org.eclipse.emf.ecore.resource.Resource;
-import org.eclipse.emf.ecore.resource.ResourceSet;
-import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
-import org.eclipse.emf.ecore.xmi.impl.XMIResourceFactoryImpl;
-import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Component;
-import org.osgi.service.log.LogService;
 
-import de.hu_berlin.german.korpling.saltnpepper.misc.treetagger.Document;
-import de.hu_berlin.german.korpling.saltnpepper.misc.treetagger.TreetaggerFactory;
-import de.hu_berlin.german.korpling.saltnpepper.misc.treetagger.resources.TabResource;
-import de.hu_berlin.german.korpling.saltnpepper.misc.treetagger.resources.TabResourceFactory;
-import de.hu_berlin.german.korpling.saltnpepper.pepper.pepperExceptions.PepperConvertException;
-import de.hu_berlin.german.korpling.saltnpepper.pepper.pepperExceptions.PepperModuleException;
+import de.hu_berlin.german.korpling.saltnpepper.pepper.pepperExceptions.PepperFWException;
 import de.hu_berlin.german.korpling.saltnpepper.pepper.pepperModules.PepperExporter;
+import de.hu_berlin.german.korpling.saltnpepper.pepper.pepperModules.PepperMapper;
 import de.hu_berlin.german.korpling.saltnpepper.pepper.pepperModules.impl.PepperExporterImpl;
 import de.hu_berlin.german.korpling.saltnpepper.pepperModules.treetagger.mapper.Salt2TreetaggerMapper;
+import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sCorpusStructure.SCorpusGraph;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sCorpusStructure.SDocument;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SElementId;
 
 /**
  * This class exports data from Salt to Treetagger format
  * @author hildebax
+ * @author Florian Zipser
  *
  */
 @Component(name="TreetaggerExporterComponent", factory="PepperExporterComponentFactory")
@@ -64,159 +47,44 @@ public class TreetaggerExporter extends PepperExporterImpl implements PepperExpo
 		this.name= "TreetaggerExporter";
 		//set list of formats supported by this module
 		this.addSupportedFormat("treetagger", "1.0", null);
+		this.setProperties(new TreetaggerExporterProperties());
 	}
 	
-	protected void activate(ComponentContext componentContext) 
-	{
-		this.setSymbolicName(componentContext.getBundleContext().getBundle().getSymbolicName());
-		if (this.getLogService()!= null)
-			this.getLogService().log(LogService.LOG_DEBUG,this.getName()+" is activated...");
-	}
-
-	private Properties props= null;
-
-	/**
-	 * Setter for Properties
-	 * @param props the Properties
-	 */
-	public void setProps(Properties props) {
-		this.props = props;
-	}
-
-	/**
-	 * Getter for Properties
-	 * @return the Properties
-	 */
-	public Properties getProps() {
-		return props;
-	}
-	
-	/**
-	 * Keyword for property
-	 */
-	private String PROP_FILE_EXTENSION= "treetagger.fileExtension";
-	/**
-	 * Keyword for property
-	 */
-	private String PROP_EXPORT_ANNOS= "treetagger.exportAnnotations";
-	
-	/**
-	 * Keyword for property
-	 */
-	private String  PROP_FLATTEN = "treetagger.output.flatten";
-	
-	/**
-	 * Extension for export file. default= tt.
-	 */
-	private String fileExtension= "tt";
-	
-	/**
-	 * List of annotation names to export. 
-	 */
-	private EList<String> exportAnnoNames= null;
-	
-	/**
-	 * starts the conversion of the element corresponding to the ID   
-	 */
 	@Override
-	public void start(SElementId sElementId) throws PepperModuleException 
+	public void exportCorpusStructure(SCorpusGraph sCorpusGraph)
 	{
-		if (	(sElementId!= null) &&
-				(sElementId.getSIdentifiableElement()!= null) &&
-				(sElementId.getSIdentifiableElement() instanceof SDocument))
-		{	
-			{//load props, if exists
-				if (this.getSpecialParams()!= null)
-				{
-					this.setProps(new Properties());
-					try {
-						this.getProps().load(new InputStreamReader(new FileInputStream(this.getSpecialParams().toFileString())));
-					} catch (FileNotFoundException e) {
-						
-					} catch (IOException e) {
-						throw new PepperModuleException("Cannot start converting, because can not read the given file for special parameters: "+ this.getSpecialParams());
-					}
-				}
-			}
-			{//create file extension, if it is given by prop
-				if (	(this.getProps()!= null) &&
-						(this.getProps().getProperty(PROP_FILE_EXTENSION)!= null))
-					this.fileExtension= this.getProps().getProperty(PROP_FILE_EXTENSION);
-			}
-			{//create list of annotations to export
-				if (	(this.getProps()!= null) &&
-						(this.getProps().getProperty(PROP_EXPORT_ANNOS)!= null))
-				{
-					this.exportAnnoNames= new BasicEList<String>();
-					String[]exportAnnos= this.getProps().getProperty(PROP_EXPORT_ANNOS).split(",");
-					for (String exportAnno: exportAnnos)
-					{
-						this.exportAnnoNames.add(exportAnno.trim());
-					}
-				}
-			}
-			//set "flatten output"
-			boolean flattenOutput = false;
-			if (	(this.getProps()!= null) &&
-					(this.getProps().getProperty(PROP_FLATTEN)!= null))
-				flattenOutput = this.getProps().getProperty(PROP_FLATTEN).equalsIgnoreCase("true");
-			
-			if (((SDocument)sElementId.getSIdentifiableElement()).getSDocumentGraph()!= null)
+		if (sCorpusGraph== null)
+			throw new PepperFWException("No SCorpusGraph was passed for exportCorpusStructure(SCorpusGraph corpusGraph). This might be a bug of the pepper framework.");
+		else 
+		{
+			for (SDocument sDocument: sCorpusGraph.getSDocuments())
 			{
-				SDocument sDocument = (SDocument)sElementId.getSIdentifiableElement();
-				Document tDocument = TreetaggerFactory.eINSTANCE.createDocument();
-
-				Salt2TreetaggerMapper mapper = new Salt2TreetaggerMapper();
-				mapper.setProperties(this.getProps());
-				mapper.setLogService(this.getLogService());
-
-				mapper.map(sDocument,tDocument);
-				
 				String corpusPath = this.getCorpusDefinition().getCorpusPath().toFileString();
-				String docPath    = sElementId.getSElementPath().toString();
-				String docName    = tDocument.getName()+ "." + fileExtension;
+				String docPath    = sDocument.getSElementPath().toString();
+				String docName    = sDocument.getSName()+ "." + ((TreetaggerExporterProperties)getProperties()).getFileEnding();
 
 				File path = null;
-				if (flattenOutput) { path = new File(corpusPath);           }
+				if (((TreetaggerExporterProperties)getProperties()).isFlatten()) { path = new File(corpusPath);           }
 				else               { path = new File(corpusPath + docPath); }
 				
 				path.mkdirs();
-				URI uri = URI.createFileURI(path.toString() + '/' + docName);				
-				
-				try {
-					this.saveToFile(uri, tDocument);
-				} catch (IOException e) {
-					throw new PepperConvertException("Cannot write document with id: '"+sElementId.getSElementPath().lastSegment()+"' into uri: '"+uri+"'.", e);
-				}
-			}	
+				URI uri = URI.createFileURI(path.toString() + '/' + docName);	
+				this.getSElementId2ResourceTable().put(sDocument.getSElementId(), uri);
+			}
 		}
 	}
 	
-	@SuppressWarnings("unchecked")
-	private void saveToFile(URI uri, Document tDocument) throws IOException
+	
+	/**
+	 * Creates a mapper of type {@link PAULA2SaltMapper}.
+	 * {@inheritDoc PepperModule#createPepperMapper(SElementId)}
+	 */
+	@Override
+	public PepperMapper createPepperMapper(SElementId sElementId)
 	{
-		// create resource set and resource 
-		ResourceSet resourceSet = new ResourceSetImpl();
-
-		// Register XML resource factory
-		resourceSet.getResourceFactoryRegistry().getExtensionToFactoryMap().put("treetagger",new XMIResourceFactoryImpl());
-		resourceSet.getResourceFactoryRegistry().getExtensionToFactoryMap().put(fileExtension,new TabResourceFactory());
-		//load resource 
-		Resource resource = resourceSet.createResource(uri);
-		
-		if (resource== null)
-			throw new PepperConvertException("Cannot save treetagger file, the resource '"+uri+"'is null.");
-		
-		resource.getContents().add(tDocument);
-
-		@SuppressWarnings("rawtypes")
-		//options map for resource.load
-		Map options = new HashMap();
-		//put logService for TabResource loading into options
-		options.put(TabResource.logServiceKey, this.getLogService());
-		//put properties for TabResource loading into options
-		options.put(TabResource.propertiesKey, this.getProps());
-
-		resource.save(options);
+		Salt2TreetaggerMapper mapper= new Salt2TreetaggerMapper();
+		if (sElementId.getSIdentifiableElement() instanceof SDocument)
+			mapper.setResourceURI(getSElementId2ResourceTable().get(sElementId));
+		return(mapper);
 	}
 }

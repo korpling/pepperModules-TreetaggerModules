@@ -16,18 +16,16 @@
  *
  */
 package de.hu_berlin.german.korpling.saltnpepper.pepperModules.treetagger.tests;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Hashtable;
 import java.util.List;
-import java.util.Properties;
 
 import junit.framework.TestCase;
 
 import org.eclipse.emf.common.util.EList;
+import org.eclipse.emf.common.util.URI;
 
 import de.hu_berlin.german.korpling.saltnpepper.misc.treetagger.Annotation;
 import de.hu_berlin.german.korpling.saltnpepper.misc.treetagger.Document;
@@ -36,6 +34,7 @@ import de.hu_berlin.german.korpling.saltnpepper.misc.treetagger.POSAnnotation;
 import de.hu_berlin.german.korpling.saltnpepper.misc.treetagger.Span;
 import de.hu_berlin.german.korpling.saltnpepper.misc.treetagger.Token;
 import de.hu_berlin.german.korpling.saltnpepper.misc.treetagger.TreetaggerFactory;
+import de.hu_berlin.german.korpling.saltnpepper.pepperModules.treetagger.TreetaggerExporterProperties;
 import de.hu_berlin.german.korpling.saltnpepper.salt.SaltFactory;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sCorpusStructure.SDocument;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SDocumentGraph;
@@ -53,6 +52,7 @@ import de.hu_berlin.german.korpling.saltnpepper.salt.saltSemantics.SPOSAnnotatio
 /**
  * TestCase for mapping from Salt to Treetagger
  * @author hildebax
+ * @author Florian Zipser
  */
 public class PublicSalt2TreetaggerMapperTest extends TestCase {
 
@@ -70,10 +70,9 @@ public class PublicSalt2TreetaggerMapperTest extends TestCase {
 	
 	public void setUp() {
 		this.setFixture(new PublicSalt2TreetaggerMapper());
-		Properties properties = new Properties();
-		try { properties.load(new InputStreamReader(new FileInputStream(propertyFilename)));}
-		catch (IOException e) {}
-		this.getFixture().setProperties(properties);
+		TreetaggerExporterProperties props= new TreetaggerExporterProperties();
+		props.addProperties(URI.createFileURI(propertyFilename));
+		getFixture().setProperties(props);
 	}
 
 	protected void tearDown() throws Exception {
@@ -444,7 +443,13 @@ public class PublicSalt2TreetaggerMapperTest extends TestCase {
 	public final void testMap() {
 		Document  tDoc = TreetaggerFactory.eINSTANCE.createDocument();
 		SDocument sDoc = this.createSDocument();
-		this.getFixture().map(sDoc, tDoc);
+		getFixture().setSDocument(sDoc);
+		getFixture().setTTDocument(tDoc);
+		File file= new File(System.getProperty("java.io.tmpdir")+"/treetaggerModule_exportTest/");
+		file.mkdirs();
+		URI uri= URI.createFileURI(file.getAbsolutePath()+"/out.tt");
+		getFixture().setResourceURI(uri);
+		this.getFixture().mapSDocument();
 		
 		assertEquals(sDoc.getSName(),tDoc.getName());
 		

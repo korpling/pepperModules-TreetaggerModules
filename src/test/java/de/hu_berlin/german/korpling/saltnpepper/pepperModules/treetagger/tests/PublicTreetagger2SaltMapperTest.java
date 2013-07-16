@@ -17,12 +17,9 @@
  */
 package de.hu_berlin.german.korpling.saltnpepper.pepperModules.treetagger.tests;
 
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.util.Hashtable;
 import java.util.List;
-import java.util.Properties;
 
 import junit.framework.TestCase;
 
@@ -77,10 +74,6 @@ public class PublicTreetagger2SaltMapperTest extends TestCase {
 		TreetaggerImporterProperties props= new TreetaggerImporterProperties();
 		props.addProperties(URI.createFileURI(propertyFilename));
 		getFixture().setProperties(props);
-//		Properties properties = new Properties();
-//		try { properties.load(new InputStreamReader(new FileInputStream(propertyFilename)));}
-//		catch (IOException e) {}
-//		this.getFixture().setProperties(properties);
 	}
 
 	protected void tearDown() throws Exception {

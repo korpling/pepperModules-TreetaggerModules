@@ -43,6 +43,7 @@ import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SElementId;
 /**
  * This class imports data from Treetagger format to Salt
  * @author hildebax
+ * @author Florian Zipser
  *
  */
 @Component(name="TreetaggerImporterComponent", factory="PepperImporterComponentFactory")
@@ -105,80 +106,6 @@ public class TreetaggerImporter extends PepperImporterImpl implements PepperImpo
 		}
 		return(mapper);
 	}
-	
-//		/**
-//	 * Stores relation between documents and their resource 
-//	 */
-//	private Map<SElementId, URI> documentResourceTable= null;
-//	
-//	@Override
-//	public void importCorpusStructure(SCorpusGraph corpusGraph)
-//			throws PepperModuleException
-//	{
-//		this.setSCorpusGraph(corpusGraph);
-//		if (this.getSCorpusGraph()== null)
-//			throw new PepperModuleException(this.name+": Cannot start with importing corpus, because salt project isn?t set.");
-//		
-//		if (this.getCorpusDefinition()== null)
-//			throw new PepperModuleException(this.name+": Cannot start with importing corpus, because no corpus definition to import is given.");
-//		if (this.getCorpusDefinition().getCorpusPath()== null)
-//			throw new PepperModuleException(this.name+": Cannot start with importing corpus, because the path of given corpus definition is null.");
-//		if (this.getCorpusDefinition().getCorpusPath().isFile())
-//		{
-//			if (	(this.getCorpusDefinition().getCorpusPath().toFileString().endsWith("/")) || 
-//					(this.getCorpusDefinition().getCorpusPath().toFileString().endsWith("\\")))
-//			{//clean uri in corpus path (if it is a folder and ends with/, / has to be removed)
-//				this.getCorpusDefinition().setCorpusPath(this.getCorpusDefinition().getCorpusPath().trimSegments(1));
-//			}//clean uri in corpus path (if it is a folder and ends with/, / has to be removed)
-//			
-//			try {
-//				this.documentResourceTable= this.createCorpusStructure(this.getCorpusDefinition().getCorpusPath(), null, null);
-//			} catch (IOException e) {
-//				throw new PepperModuleException(this.name+": Cannot start with importing corpus, because some exception occurs: ",e);
-//			}
-//		}	
-//	}
-	
-	
-//	/**
-//	 * Starts the conversion of the element corresponding to the ID 
-//	 */
-//	@Override
-//	public void start(SElementId sElementId) throws PepperModuleException 
-//	{
-//		if (sElementId.getSIdentifiableElement()!= null)
-//		{	
-//			if (sElementId.getSIdentifiableElement() instanceof SDocument)
-//			{	
-//				this.returningMode= RETURNING_MODE.PUT;
-//				URI uri= this.documentResourceTable.get(sElementId);
-//				if (uri== null)
-//					throw new TreetaggerImporterException("Cannot import document '"+sElementId+"', because no corresponding uri was found.");
-//				
-//				
-//				if (this.getSpecialParams()!=null) {
-//					String propertyFileName = this.getSpecialParams().toFileString();
-//					try {
-//						this.setConversionProperties(new Properties());
-//						this.getConversionProperties().load(new FileInputStream(propertyFileName));
-//					} catch (IOException e) {
-//						this.getLogService().log(LogService.LOG_WARNING, String.format("couldn´t load properties file '%s'. using default values.",propertyFileName));
-//					}
-//				}
-//
-//				Document tDocument = this.loadFromFile(uri);
-//				if (tDocument==null) {
-//					//TODO: take document out of the process
-//				}
-//				else {
-//					Treetagger2SaltMapper mapper = new Treetagger2SaltMapper();
-//					mapper.setProperties(this.getConversionProperties());
-//					mapper.setLogService(this.getLogService());
-//					mapper.map(tDocument,this.getSCorpusGraph().getSDocument(sElementId));
-//				}
-//			}
-//		}
-//	}
 
 	@SuppressWarnings("unchecked")
 	private Document loadFromFile(URI uri)
