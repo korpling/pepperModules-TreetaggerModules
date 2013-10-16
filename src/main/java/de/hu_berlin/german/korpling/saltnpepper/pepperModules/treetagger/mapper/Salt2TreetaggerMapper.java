@@ -115,7 +115,6 @@ public class Salt2TreetaggerMapper extends PepperMapperImpl{
 			}
 			try {
 				this.saveToFile(getResourceURI(), getTTDocument());
-				System.out.println("-----------> save to: "+ getResourceURI());
 			} catch (IOException e) {
 				throw new PepperConvertException("Cannot write document with id: '"+getSDocument().getSId()+"' to: '"+getResourceURI()+"'.", e);
 			}

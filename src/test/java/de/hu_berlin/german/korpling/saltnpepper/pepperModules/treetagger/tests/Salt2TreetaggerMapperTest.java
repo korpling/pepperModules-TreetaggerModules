@@ -54,7 +54,7 @@ import de.hu_berlin.german.korpling.saltnpepper.salt.saltSemantics.SPOSAnnotatio
  * @author hildebax
  * @author Florian Zipser
  */
-public class PublicSalt2TreetaggerMapperTest extends TestCase {
+public class Salt2TreetaggerMapperTest extends TestCase {
 
 	private String propertyFilename = "src/test/resources/salt2treetaggerMapperTest.properties";
 	

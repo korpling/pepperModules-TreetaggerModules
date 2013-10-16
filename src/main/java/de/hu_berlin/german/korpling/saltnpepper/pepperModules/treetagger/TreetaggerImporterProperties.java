@@ -19,18 +19,24 @@ package de.hu_berlin.german.korpling.saltnpepper.pepperModules.treetagger;
 
 import de.hu_berlin.german.korpling.saltnpepper.pepper.pepperModules.PepperModuleProperties;
 import de.hu_berlin.german.korpling.saltnpepper.pepper.pepperModules.PepperModuleProperty;
+import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SToken;
 
 public class TreetaggerImporterProperties extends PepperModuleProperties {
 	public static final String PREFIX="treetagger.input.";
 	
-	private static final String PROP_ANNOTATE_UNANNOTATED_SPANS= PREFIX+ "annotateUnannotatedSpans";
+	public static final String PROP_ANNOTATE_UNANNOTATED_SPANS= PREFIX+ "annotateUnannotatedSpans";
 	
-	private static final String PROP_ANNOTATE_ALL_SPANS_WITH_NAME= PREFIX+ "annotateAllSpansWithSpanName";
+	public static final String PROP_ANNOTATE_ALL_SPANS_WITH_NAME= PREFIX+ "annotateAllSpansWithSpanName";
+	/** Name of property to determine the separator which should be artificially added after a token, when mapping treetagger token to STextualDS in Salt. The default separator is a whitespace given by the character sequence " ". Note, the separator sequence, 
+	 * 	must be surrunded by double quotes. To shut of the adding of a separator, just this property value to "". 
+	 **/
+	public static final String PROP_SEPARATOR_AFTER_TOKEN= PREFIX+ "separatorAfterToken";
 	
 	public TreetaggerImporterProperties()
 	{
 		this.addProperty(new PepperModuleProperty<Boolean>(PROP_ANNOTATE_UNANNOTATED_SPANS, Boolean.class, "If set true, this switch will cause the module to annotate all spans without attributes with their name as attribute and value.", false, false));
-		this.addProperty(new PepperModuleProperty<Boolean>(PROP_ANNOTATE_ALL_SPANS_WITH_NAME, Boolean.class, "If set true, this switch will cause the module to annotate all spans with their name as attribute and value.", false, false));		
+		this.addProperty(new PepperModuleProperty<Boolean>(PROP_ANNOTATE_ALL_SPANS_WITH_NAME, Boolean.class, "If set true, this switch will cause the module to annotate all spans with their name as attribute and value.", false, false));
+		this.addProperty(new PepperModuleProperty<String>(PROP_SEPARATOR_AFTER_TOKEN, String.class, "Determines the separator which should be artificially added after a token, when mapping treetagger token to STextualDS in Salt. The default separator is a whitespace given by the character sequence \" \". Note, the separator sequence, must be surrunded by double quotes. To shut of the adding of a separator, just this property value to \"\"", " ", false));
 	}
 	
 	public Boolean getAnnotateUnannotatedSpans()
@@ -41,6 +47,16 @@ public class TreetaggerImporterProperties extends PepperModuleProperties {
 	public Boolean getAnnotateAllSpansWithName()
 	{
 		return((Boolean)this.getProperty(PROP_ANNOTATE_ALL_SPANS_WITH_NAME).getValue());
+	}
+	/**
+	 * Returns the separator to be used to separate the text covered by {@link SToken}.
+	 * @return
+	 */
+	public String getSeparatorAfterToken()
+	{
+		String separator= (String)this.getProperty(PROP_SEPARATOR_AFTER_TOKEN).getValue();
+		separator.replace("\"", "");
+		return(separator);
 	}
 	
 }

@@ -1,0 +1,448 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-model href="http://www.oasis-open.org/docbook/xml/5.0/rng/docbook.rng" schematypens="http://relaxng.org/ns/structure/1.0"?>
+<book xmlns="http://docbook.org/ns/docbook" xmlns:xlink="http://www.w3.org/1999/xlink" version="5.0">
+    <info>
+        <title>TreetaggerModules</title>
+        <subtitle>User's Guide</subtitle>
+        <authorgroup>
+            <author>
+                <personname>
+                    <firstname>Florian</firstname>
+                    <surname>Zipser</surname>
+                </personname>
+                <email>saltnpepper@lists.hu-berlin.de</email>
+            </author>
+            <author>
+                <orgname xml:id="org1">INRIA</orgname>
+            </author>
+            <author>
+                <orgname xml:id="org2">SFB 632 Information Structure / D1 Linguistic
+                    Database</orgname>
+            </author>
+            <author>
+                <orgname xml:id="org3">Humboldt-Universität zu Berlin</orgname>
+            </author>
+            <author>
+                <orgname xml:id="org4">Universität Potsdam</orgname>
+            </author>
+        </authorgroup>
+        <copyright>
+            <year>2009</year>
+            <holder><xref linkend="org1"/>, <xref linkend="org2"/>, <xref linkend="org3"/>, <xref
+                    linkend="org1"/>,<xref linkend="org4"/>, All rights reserved.</holder>
+        </copyright>
+        <releaseinfo>Version ${project.version}</releaseinfo>
+    </info>
+    <preface>
+        <title>Foreword</title>
+        <para>The intention of this document is first to give a guide to the user of how to use the
+            here mentioned pepper modules and how to utilize a mapping performed by them. Second
+            this document shall give a closer view of the details of such a mapping in a declarative
+            way, to give the user a chance to understand how specific data will be mapped by the
+            presented pepper modules.</para>
+    </preface>
+    <chapter>
+        <title>Overview</title>
+        <para>This project contains the pepper modules listed in <xref linkend="table_overview"/>. A
+            single module can be identified via its coordinates (module-name, format-name,
+            format-version) also given in <xref linkend="table_overview"/>. You can use these
+            coordinates in a pepper workflow description file to identify the modules in a pepper
+            conversion process. A description of how to model a workflow description file can be
+            found under https://korpling.german.hu-berlin.de/saltnpepper/.</para>
+        <table xml:id="table_overview" frame="all">
+            <title>pepper modules contained in this project</title>
+            <tgroup cols="3" align="left" colsep="1" rowsep="1">
+                <thead>
+                    <row>
+                        <entry>Name of pepper module</entry>
+                        <entry>Type of pepper module</entry>
+                        <entry>Format (if module is im- or exporter)</entry>
+                    </row>
+                </thead>
+                <tbody>
+                    <row>
+                        <entry><xref linkend="treetagger_importer"
+                                endterm="treetagger_importer_name"/></entry>
+                        <entry>importer</entry>
+                        <entry>1.0</entry>
+                    </row>
+                    <row>
+                        <entry><xref linkend="treetagger_exporter"
+                                endterm="treetagger_exporter_name"/></entry>
+                        <entry>exporter</entry>
+                        <entry>1.0</entry>
+                    </row>
+                </tbody>
+            </tgroup>
+        </table>
+    </chapter>
+    <chapter xml:id="changes">
+        <title>Changes</title>
+        <para> This chapter contains the changes in version ${project.version} compared to the
+            previous version. </para>
+        <section>
+            <title><xref linkend="treetagger_importer_name"/></title>
+            <itemizedlist spacing="compact">
+                <listitem>
+                    <para>Added new property XXX to importer.</para>
+                </listitem>
+            </itemizedlist>
+        </section>
+    </chapter>
+    <chapter xml:id="treetagger_importer">
+        <title xml:id="treetagger_importer_name">TreetaggerImporter</title>
+        <sect1>
+            <title>Input Data</title>
+            <para>An input file for the TreetaggerImporter is a tab separated file, having the
+                ending 'tt', 'treetagger' or 'tab'. The text overlapped by the current token and its
+                annotations are separated by one tab (columns). Each token description gets its own
+                row. The first column is mandatory and contains the token´s form. Any further column
+                is optional and can be declared in the properties file. Each column is required to
+                have a distinct name. By default, i.e. when there are no column declarations in the
+                properties file, the second and third column are considered the part-of-speech
+                annotation and the lemma annotation respectively. Note that this default is
+                overridden if there is any declaration of columns in the properties file. </para>
+            <para> It is possible to use SGML tags to mark spans of tokens. Invalid SGML elements
+                (e.g. missing opening or closing tag) will be ignored. </para>
+            <para> A whole treetagger document may be marked by a surrounding SGML element, which is
+                required to have a certain name. This name is definable in the properties file and
+                defaults to "meta". </para>
+            <para>The expected input file encoding defaults to "UTF-8" and is also definable in the
+                properties file. Any input file´s name is required to end on ".tab" or ".tt".</para>
+            <example label="sample input file content with default column settings">
+                <title>sample treetagger file</title>
+                <programlisting>    
+            &lt;meta someDocumentAttribute="someDocumentValue">
+                    &lt;someSpan someSpanAttribute="someSpanValue">
+                        TOKEN_1 POS_1 LEMMA_1
+                        TOKEN_2 POS_2 LEMMA_2
+                    &lt;/someSpan>
+                    &lt;someMoreSpan someMoreSpanAttribute="someMoreSpanValue">
+                        TOKEN_3 POS_3 LEMMA_3
+                        TOKEN_4 POS_4 LEMMA_4
+                        TOKEN_5 POS_5 LEMMA_5
+                    &lt;/someMoreSpan>
+                &lt;/meta>
+                </programlisting>
+            </example>
+            <sect2>
+                <title>Creating Treetagger Representation</title>
+                <para> The file´s content is converted to a Treetagger document containing a list of
+                    tokens and spans. If there is a document marking SGML element in the input file,
+                    an annotation for each of it´s attribute-value-pairs is added to the treetagger
+                    document. For all other SGML elements, spans are created and annotations
+                    according to the element´s attribute-value-pairs are added. For each data row, a
+                    token is created. The token´s text attribute is set to the first column´s
+                    content. For each additional column, an annotation is created and added to the
+                    token. There are three different types of annotations: The POSAnnotation, used
+                    for part-of-speech annotations, the LemmaAnnotation, used for lemma annotations,
+                    and the AnyAnnotation, used for all user-defined annotations. </para>
+                <para> If the default settings for columns are used, a
+                        <classname>POSAnnotation</classname> for the second column´s content and a
+                    LemmaAnnotation for the third column´s content are created and added to the
+                    token. </para>
+                <para> If user-defined settings for columns are used, a
+                        <classname>POSAnnotation</classname> will be created for a column named
+                    "pos", a LemmaAnnotation will be created for a column named "lemma", and an
+                    AnyAnnotation will be created for each other column. <note>
+                        <para>All names have to be distinct, and that a token can only have one
+                            POSAnnotation and one LemmaAnnotation, but any number of
+                            AnyAnnotations.</para>
+                    </note></para>
+            </sect2>
+            <sect2>
+                <title>Mapping to Salt</title>
+                <sect3>
+                    <title>Document Annotations</title>
+                    <para>When converting a Treetagger document to Salt, a
+                            <classname>SDocument</classname> and it´s proper
+                            <classname>SDocumentGraph</classname> will be created. If there is a
+                        meta tag for the whole document, all it´s attributes will be added to the
+                            <classname>SDocument</classname> as
+                            <classname>SMetaAnnotations</classname>.</para>
+                </sect3>
+                <sect3>
+                    <title>Tokens</title>
+                    <para>Each token will be mapped to an <classname>SToken</classname>, which is
+                        added to the <classname>SDocumentGraph</classname>. If a token has a
+                        POSAnnotation, the <classname>SToken</classname> will get a corresponding
+                            <classname>SPOSAnnotation</classname>. If a token has a LemmaAnnotation,
+                        the <classname>SToken</classname> will get a corresponding
+                            <classname>SLemmaAnnotation</classname>. </para>
+                    <para> All the token´s forms, separated by space characters, will be contained
+                        in the SText attribute of one <classname>STextualDS</classname>, which also
+                        is also added to the <classname>SDocumentGraph</classname>.</para>
+                </sect3>
+                <sect3>
+                    <title>Spans</title>
+                    <para> Each Treetagger span is mapped to a <classname>SSpan</classname>, which
+                        is added to the <classname>SDocumentGraph</classname>. The
+                            <classname>SSpan</classname>´s name is set to the treetagger span´s
+                        name. The annotations on the treetagger span are mapped to
+                            <classname>SAnnotation</classname>s and added to the
+                            <classname>SSpan</classname>. For each span, a
+                            <classname>SSpanningRelation</classname> between the span and all
+                        contained tokens is created. The <classname>SSpanningRelation</classname> is
+                        added to the <classname>SDocumentGraph</classname> as well. </para>
+                    <para> There are two switches concerning the annotations on the treetagger
+                        spans. The one of them concerns spans without any annotations and will add a
+                            <classname>SAnnotation</classname>, having the span´s name as name and
+                        as value, to the <classname>SSpan</classname>. The other one will do the
+                        same, but applies to all spans, regardless of the presence of annotations. </para>
+                </sect3>
+            </sect2>
+        </sect1>
+        <sect1>
+            <title>Properties</title>
+            <para> The table <xref linkend="importer_prop_overview"/> contains an overview of all
+                usable properties to customize the behaviour of this pepper module. The following
+                section contains a brief description to each single property and describes the
+                resulting differences in the mapping to the Salt model.</para>
+            <table xml:id="importer_prop_overview" frame="all">
+                <title>properties to customize importer behaviour</title>
+                <tgroup cols="4" align="left" colsep="1" rowsep="1">
+                    <colspec colnum="1" colname="c1" colwidth="2.16*"/>
+                    <colspec colnum="2" colname="c2" colwidth="2.0*"/>
+                    <colspec colnum="3" colname="c3" colwidth="1.52*"/>
+                    <colspec colnum="4" colname="c4" colwidth="1.0*"/>
+                    <thead>
+                        <row>
+                            <entry>Name of property</entry>
+                            <entry>Type of property</entry>
+                            <entry>optional/ mandatory</entry>
+                            <entry>default value</entry>
+                        </row>
+                    </thead>
+                    <tbody>
+                        <row>
+                            <entry><xref linkend="prop_prop1" endterm="importer_prop1_title"
+                                /></entry>
+                            <entry>String, encoding e.g. 'utf-8'</entry>
+                            <entry>optional</entry>
+                            <entry>--</entry>
+                        </row>
+                        <row>
+                            <entry><xref linkend="prop_prop2" endterm="importer_prop2_title"
+                                /></entry>
+                            <entry>String</entry>
+                            <entry>optional</entry>
+                            <entry>--</entry>
+                        </row>
+                        <row>
+                            <entry><xref linkend="prop_prop3" endterm="importer_prop3_title"
+                                /></entry>
+                            <entry>numerical value</entry>
+                            <entry>optional</entry>
+                            <entry>--</entry>
+                        </row>
+                        <row>
+                            <entry><xref linkend="prop_prop4" endterm="importer_prop4_title"
+                                /></entry>
+                            <entry>Boolean</entry>
+                            <entry>optional</entry>
+                            <entry>false</entry>
+                        </row>
+                        <row>
+                            <entry><xref linkend="prop_prop5" endterm="importer_prop5_title"
+                                /></entry>
+                            <entry>Boolean</entry>
+                            <entry>optional</entry>
+                            <entry>--</entry>
+                        </row>
+                        <row>
+                            <entry><xref linkend="prop_prop6" endterm="importer_prop6_title"
+                                /></entry>
+                            <entry>String</entry>
+                            <entry>optional</entry>
+                            <entry>" "</entry>
+                        </row>
+                    </tbody>
+                </tgroup>
+            </table>
+            <sect2 xml:id="prop_prop1">
+                <title xml:id="importer_prop1_title">treetagger.input.fileEncoding</title>
+                <para>States the encoding of the input file(s).</para>
+            </sect2>
+            <sect2 xml:id="prop_prop2">
+                <title xml:id="importer_prop2_title">treetagger.input.metaTag</title>
+                <para>States the meta tag used to mark the treetagger document in the input
+                    file(s).</para>
+            </sect2>
+            <sect2 xml:id="prop_prop3">
+                <title xml:id="importer_prop3_title">treetagger.input.columnX</title>
+                <para>where X is a number </para>
+                <para> Sets the names for input columns, and thus for the corresponding annotations
+                    of token. "pos" will result in a <classname>SPOSAnnotation</classname>, "lemma"
+                    will result in a <classname>SLemmaAnnotation</classname>. All other names will
+                    result in a <classname>SAnnotation</classname>. An arbitrary number of such
+                    entries is possible. Ensure that consecutive numbers are used, beginning at 1.
+                    Mind that column 0 is reserved for the word form. If no such entry exists,
+                    column 1 and 2 are interpreted as "pos" and "lemma" respectively.</para>
+            </sect2>
+            <sect2 xml:id="prop_prop4">
+                <title xml:id="importer_prop4_title"
+                    >treetagger.input.annotateUnannotatedSpans</title>
+                <para>If set true, this switch will cause the module to annotate all spans without
+                    attributes with their name as attribute and value, i.e. &lt;MyTag> will be
+                    treated as &lt;MyTag mytag="mytag"></para>
+            </sect2>
+            <sect2 xml:id="prop_prop5">
+                <title xml:id="importer_prop5_title"
+                    >treetagger.input.annotateAllSpansWithSpanName</title>
+                <para>If set true, this switch will cause the module to annotate all spans with
+                    their name as attribute and value, i.e. &lt;MyTag attribute="value"> will be
+                    treated as &lt;MyTag attribute="value" mytag="mytag"></para>
+            </sect2>
+            <sect2 xml:id="prop_prop6">
+                <title xml:id="importer_prop6_title">treetagger.input.separatorAfterToken</title>
+                <para>Determines the separator which should be artificially added after a token,
+                    when mapping treetagger token to <classname>STextualDS</classname> in Salt. The
+                    default separator is a whitespace given by the character sequence \" \". 
+                    <note><para>The separator sequence, must be surrunded by double quotes. To shut of the
+                        adding of a separator, just this property value to "".</para></note>
+                    </para>
+            </sect2>
+        </sect1>
+    </chapter>
+    <chapter xml:id="treetagger_exporter">
+        <title xml:id="treetagger_exporter_name">TreetaggerExporter</title>
+        <sect1>
+            <title>Mapping to Treetagger fromat</title>
+            <sect2>
+                <title>Document Annotations</title>
+                <para>When converting from Salt to Treetagger, a Treetagger document will be
+                    created, and all SMetaAnnotations of the SDocument will be mapped to Annotations
+                    of that document.</para>
+            </sect2>
+            <sect2>
+                <title>Tokens</title>
+                <para> Each SToken will be mapped to a Treetagger token. The token´s text comes from
+                    the STextualDS of the SDocumentGraph. If there is a SPOSAnnotation for the
+                    SToken, or if there is a SAnnotation named "pos", "part-of-speech" or
+                    "partofspeech" (all case insensitive), it will be mapped to the POSAannotation
+                    of the token. If there is a SLemmaAnnotation for the SToken, or if there is a
+                    SAnnotation named "lemma", "lemmatisation", "lemmatization" or "lemmata" (all
+                    case insensitive), it will be mapped to the LemmaAnnotation of the token. All
+                    other SAnnotations will be mapped to an "AnyAnnotation" of the treetagger token.
+                </para>
+            </sect2>
+            <sect2>
+                <title>Spans</title>
+                <para> The SSpans from all SSpanningRelations in the SDocumentGraph will be mapped
+                    to spans of the treetagger document. There is a switch in the properties file
+                    for the processing of SSpans with generic names ("sSpan", followed by a number).
+                    If this switch is set "true", these names will be replaced by the name of the
+                    first annotation found on the span. </para>
+            </sect2>
+            <sect2>
+                <title>Output file</title>
+                <para> An output file from the TreetaggerExporter always contains a SGML element
+                    marking the whole document. The tag for the element defaults to "meta". This tag
+                    is definable in the properties file. All the annotations on the treetagger
+                    document will be added to the SGML element as attribute-valuepairs. </para>
+                <para> The output file contains one tab separated row per token. The first column
+                    contains the token´s form. If there is a POSAnnotation for the token, the second
+                    column contains it´s value, else it remains empty. If there is a LemmaAnnotation
+                    for the token, the third column contains it´s value, else it remains empty. The
+                    output of AnyAnnotations can be set in the properties file. If it is set "true",
+                    a column for each distinctly named AnyAnnotation will appears in the output
+                    file, sorted alphabetically by the AnyAnnotations´ names. Note that these names
+                    do not appear in the output file. However, the names and the order of the
+                    columns will be logged on the info-level of the conversion process. </para>
+                <para> All Spans will appear as SGML elements in the ouput file. The SGML element´s
+                    name is the Spans name, and all it´s annotations will be added to the element as
+                    attribute-value-pairs. In the properties file, the renaming of generically named
+                    Spans </para>
+                <para> The default encoding for output files is "UTF-8". This also is definable in
+                    the properties file. All output files´ names end on ".tt". </para>
+            </sect2>
+        </sect1>
+        <sect1>
+            <title>Properties</title>
+            <para> The table <xref linkend="exporter_prop_overview"/> contains an overview of all
+                usable properties to customize the behaviour of this pepper module. The following
+                section contains a brief description to each single property and describes the
+                resulting differences in the mapping to the salt model.</para>
+            <table xml:id="exporter_prop_overview" frame="all">
+                <title>properties to customize exporter behaviour</title>
+                <tgroup cols="4" align="left" colsep="1" rowsep="1">
+                    <colspec colnum="1" colname="c1" colwidth="2.16*"/>
+                    <colspec colnum="2" colname="c2" colwidth="2.0*"/>
+                    <colspec colnum="3" colname="c3" colwidth="1.52*"/>
+                    <colspec colnum="4" colname="c4" colwidth="1.0*"/>
+                    <thead>
+                        <row>
+                            <entry>Name of property</entry>
+                            <entry>Type of property</entry>
+                            <entry>optional/ mandatory</entry>
+                            <entry>default value</entry>
+                        </row>
+                    </thead>
+                    <tbody>
+                        <row>
+                            <entry><xref linkend="exporter_prop_prop1"
+                                    endterm="exporter_prop1_title"/></entry>
+                            <entry>String</entry>
+                            <entry>optional</entry>
+                            <entry>utf-8</entry>
+                        </row>
+                        <row>
+                            <entry><xref linkend="exporter_prop_prop2"
+                                    endterm="exporter_prop2_title"/></entry>
+                            <entry>String</entry>
+                            <entry>optional</entry>
+                            <entry>--</entry>
+                        </row>
+                        <row>
+                            <entry><xref linkend="exporter_prop_prop3"
+                                    endterm="exporter_prop3_title"/></entry>
+                            <entry>Boolean</entry>
+                            <entry>optional</entry>
+                            <entry>false</entry>
+                        </row>
+                        <row>
+                            <entry><xref linkend="exporter_prop_prop4"
+                                    endterm="exporter_prop4_title"/></entry>
+                            <entry>Boolean</entry>
+                            <entry>optional</entry>
+                            <entry>false</entry>
+                        </row>
+                        <row>
+                            <entry><xref linkend="exporter_prop_prop5"
+                                    endterm="exporter_prop5_title"/></entry>
+                            <entry>Boolean</entry>
+                            <entry>optional</entry>
+                            <entry>false</entry>
+                        </row>
+                    </tbody>
+                </tgroup>
+            </table>
+            <sect2 xml:id="exporter_prop_prop1">
+                <title xml:id="exporter_prop1_title">treetagger.output.fileEncoding</title>
+                <para>Sets the encoding of the output file(s).</para>
+            </sect2>
+            <sect2 xml:id="exporter_prop_prop2">
+                <title xml:id="exporter_prop2_title">treetagger.output.metaTag</title>
+                <para>Sets the meta tag used to mark the treetagger document in the output
+                    file(s).</para>
+            </sect2>
+            <sect2 xml:id="exporter_prop_prop3">
+                <title xml:id="exporter_prop3_title">treetagger.output.exportAnyAnnotation</title>
+                <para>If set true, each AnyAnnotation of tokens will appear in the output
+                    file.</para>
+            </sect2>
+            <sect2 xml:id="exporter_prop_prop4">
+                <title xml:id="exporter_prop4_title"
+                    >treetagger.output.replaceGenericSpanNames</title>
+                <para>If set true, generic span names like sSpan123 will be replaced with the first
+                    annotation of the span found. If the span has no annotations, the generic name
+                    will not be replaced.</para>
+            </sect2>
+            <sect2 xml:id="exporter_prop_prop5">
+                <title xml:id="exporter_prop5_title">treetagger.output.flatten</title>
+                <para>If set true, the output directory structure is flat: all documents are put in
+                    the output root directory. </para>
+            </sect2>
+        </sect1>
+    </chapter>
+</book>

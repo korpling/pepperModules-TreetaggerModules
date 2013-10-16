@@ -48,7 +48,7 @@ import de.hu_berlin.german.korpling.saltnpepper.salt.saltSemantics.SaltSemantics
  */
 public class Treetagger2SaltMapper extends PepperMapperImpl implements PepperMapper {
 	
-	private static final String SEPARATOR = " ";
+//	private static final String SEPARATOR = " ";
 	
 	/**
 	 * Returns the specific {@link TreetaggerImporterProperties} object.
@@ -76,11 +76,14 @@ public class Treetagger2SaltMapper extends PepperMapperImpl implements PepperMap
 	 */
 	@Override
 	public MAPPING_RESULT mapSDocument() {
-		sDocument.setSDocumentGraph(SaltFactory.eINSTANCE.createSDocumentGraph());
-		sDocument.getSDocumentGraph().setSName(getTtDocument().getName()+"_graph");
-		sDocument.setSName(getTtDocument().getName());
-		this.addSMetaAnnotation(getTtDocument().getAnnotations(), sDocument);
-		this.createSTextualDS(getTtDocument().getTokens(), sDocument);
+		
+		if (getSDocument().getSDocumentGraph()== null)
+			getSDocument().setSDocumentGraph(SaltFactory.eINSTANCE.createSDocumentGraph());
+		
+		getSDocument().getSDocumentGraph().setSName(getTtDocument().getName()+"_graph");
+		getSDocument().setSName(getTtDocument().getName());
+		this.addSMetaAnnotation(getTtDocument().getAnnotations(), getSDocument());
+		this.createSTextualDS(getTtDocument().getTokens(), getSDocument());
 		return(MAPPING_RESULT.FINISHED);
 	}
 	
@@ -126,9 +129,13 @@ public class Treetagger2SaltMapper extends PepperMapperImpl implements PepperMap
 			}
 			else 
 			{
-				start= text.length() + SEPARATOR.length();
+//				start= text.length() + SEPARATOR.length();
+//				end= start + tToken.getText().length();				
+//				text= text+ SEPARATOR + tToken.getText();
+				
+				start= text.length() + this.getProps().getSeparatorAfterToken().length();
 				end= start + tToken.getText().length();				
-				text= text+ SEPARATOR + tToken.getText();
+				text= text+ this.getProps().getSeparatorAfterToken() + tToken.getText();
 			}
 			
 			//creating and adding token

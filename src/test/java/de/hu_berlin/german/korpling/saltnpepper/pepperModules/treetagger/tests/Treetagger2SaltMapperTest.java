@@ -36,6 +36,7 @@ import de.hu_berlin.german.korpling.saltnpepper.misc.treetagger.Span;
 import de.hu_berlin.german.korpling.saltnpepper.misc.treetagger.Token;
 import de.hu_berlin.german.korpling.saltnpepper.misc.treetagger.TreetaggerFactory;
 import de.hu_berlin.german.korpling.saltnpepper.misc.treetagger.resources.TabResourceFactory;
+import de.hu_berlin.german.korpling.saltnpepper.pepper.pepperModules.PepperModuleProperty;
 import de.hu_berlin.german.korpling.saltnpepper.pepperModules.treetagger.TreetaggerImporterProperties;
 import de.hu_berlin.german.korpling.saltnpepper.salt.SaltFactory;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sCorpusStructure.SDocument;
@@ -51,9 +52,10 @@ import de.hu_berlin.german.korpling.saltnpepper.salt.saltSemantics.SPOSAnnotatio
 /**
  * TestCase for mapping Treetagger to Salt
  * @author hildebax
+ * @author Florian Zipser
  *
  */
-public class PublicTreetagger2SaltMapperTest extends TestCase {
+public class Treetagger2SaltMapperTest extends TestCase {
 
 	private String propertyFilename = "src/test/resources/treetagger2saltMapperTest.properties";
 
@@ -203,6 +205,94 @@ public class PublicTreetagger2SaltMapperTest extends TestCase {
 	}
 	
 	/**
+	 * Uses default separator settings
+	 */
+	public void test_PROP_SEPARATOR_AFTER_TOKEN_DEFAULT()
+	{
+		Document doc= TreetaggerFactory.eINSTANCE.createDocument();
+		Token tok1= TreetaggerFactory.eINSTANCE.createToken();
+		tok1.setText("Is");
+		doc.getTokens().add(tok1);
+		
+		Token tok2= TreetaggerFactory.eINSTANCE.createToken();
+		tok2.setText("this");
+		doc.getTokens().add(tok2);
+		
+		Token tok3= TreetaggerFactory.eINSTANCE.createToken();
+		doc.getTokens().add(tok3);
+		tok3.setText("sample");
+		
+		getFixture().setTTDocument(doc);
+		
+		getFixture().setSDocument(SaltFactory.eINSTANCE.createSDocument());
+		getFixture().mapSDocument();
+		
+		assertEquals("Is this sample", getFixture().getSDocument().getSDocumentGraph().getSTextualDSs().get(0).getSText());
+	}
+	
+	/**
+	 * Uses no separator.
+	 */
+	public void test_PROP_SEPARATOR_AFTER_TOKEN_NO()
+	{
+		Document doc= TreetaggerFactory.eINSTANCE.createDocument();
+		Token tok1= TreetaggerFactory.eINSTANCE.createToken();
+		tok1.setText("Is");
+		doc.getTokens().add(tok1);
+		
+		Token tok2= TreetaggerFactory.eINSTANCE.createToken();
+		tok2.setText("this");
+		doc.getTokens().add(tok2);
+		
+		Token tok3= TreetaggerFactory.eINSTANCE.createToken();
+		doc.getTokens().add(tok3);
+		tok3.setText("sample");
+		
+		getFixture().setTTDocument(doc);
+		
+		getFixture().setSDocument(SaltFactory.eINSTANCE.createSDocument());
+		
+		PepperModuleProperty<String> prop= (PepperModuleProperty<String>)this.getFixture().getProperties().getProperty(TreetaggerImporterProperties.PROP_SEPARATOR_AFTER_TOKEN);
+		prop.setValue("");
+		
+		getFixture().mapSDocument();
+		
+		assertEquals("Isthissample", getFixture().getSDocument().getSDocumentGraph().getSTextualDSs().get(0).getSText());
+	}
+	
+	/**
+	 * Uses custom separator.
+	 */
+	public void test_PROP_SEPARATOR_AFTER_TOKEN_CUSTOM()
+	{
+		String sep="&";
+		
+		Document doc= TreetaggerFactory.eINSTANCE.createDocument();
+		Token tok1= TreetaggerFactory.eINSTANCE.createToken();
+		tok1.setText("Is");
+		doc.getTokens().add(tok1);
+		
+		Token tok2= TreetaggerFactory.eINSTANCE.createToken();
+		tok2.setText("this");
+		doc.getTokens().add(tok2);
+		
+		Token tok3= TreetaggerFactory.eINSTANCE.createToken();
+		doc.getTokens().add(tok3);
+		tok3.setText("sample");
+		
+		getFixture().setTTDocument(doc);
+		
+		getFixture().setSDocument(SaltFactory.eINSTANCE.createSDocument());
+		
+		PepperModuleProperty<String> prop= (PepperModuleProperty<String>)this.getFixture().getProperties().getProperty(TreetaggerImporterProperties.PROP_SEPARATOR_AFTER_TOKEN);
+		prop.setValue(sep);
+		
+		getFixture().mapSDocument();
+		
+		assertEquals("Is"+sep+"this"+sep+"sample", getFixture().getSDocument().getSDocumentGraph().getSTextualDSs().get(0).getSText());
+	}
+	
+	/**
 	 * compares the texts of tokens and calls the method for the comparison of the token annotations	 
 	 * @param tTokens
 	 * @param sDocGraph
@@ -244,5 +334,7 @@ public class PublicTreetagger2SaltMapperTest extends TestCase {
 			assertEquals(tAnno.getValue(), sAnno.getSValueSTEXT());
 		}
 	}
+	
+	
 	
 }
