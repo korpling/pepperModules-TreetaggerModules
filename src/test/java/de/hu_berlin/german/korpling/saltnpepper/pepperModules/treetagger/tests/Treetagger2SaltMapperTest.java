@@ -17,16 +17,20 @@
  */
 package de.hu_berlin.german.korpling.saltnpepper.pepperModules.treetagger.tests;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+
 import java.io.IOException;
 import java.util.Hashtable;
 import java.util.List;
-
-import junit.framework.TestCase;
 
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.resource.ResourceSet;
 import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
+import org.junit.Before;
+import org.junit.Test;
 
 import de.hu_berlin.german.korpling.saltnpepper.misc.treetagger.Annotation;
 import de.hu_berlin.german.korpling.saltnpepper.misc.treetagger.Document;
@@ -36,7 +40,7 @@ import de.hu_berlin.german.korpling.saltnpepper.misc.treetagger.Span;
 import de.hu_berlin.german.korpling.saltnpepper.misc.treetagger.Token;
 import de.hu_berlin.german.korpling.saltnpepper.misc.treetagger.TreetaggerFactory;
 import de.hu_berlin.german.korpling.saltnpepper.misc.treetagger.resources.TabResourceFactory;
-import de.hu_berlin.german.korpling.saltnpepper.pepper.pepperModules.PepperModuleProperty;
+import de.hu_berlin.german.korpling.saltnpepper.pepper.modules.PepperModuleProperty;
 import de.hu_berlin.german.korpling.saltnpepper.pepperModules.treetagger.TreetaggerImporterProperties;
 import de.hu_berlin.german.korpling.saltnpepper.salt.SaltFactory;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sCorpusStructure.SDocument;
@@ -55,7 +59,7 @@ import de.hu_berlin.german.korpling.saltnpepper.salt.saltSemantics.SPOSAnnotatio
  * @author Florian Zipser
  *
  */
-public class Treetagger2SaltMapperTest extends TestCase {
+public class Treetagger2SaltMapperTest{
 
 	private String propertyFilename = "src/test/resources/treetagger2saltMapperTest.properties";
 
@@ -70,16 +74,12 @@ public class Treetagger2SaltMapperTest extends TestCase {
 	private void setFixture(PublicTreetagger2SaltMapper fixture) {
 		this.fixture = fixture;
 	}
-	
+	@Before
 	public void setUp() {
 		this.setFixture(new PublicTreetagger2SaltMapper());
 		TreetaggerImporterProperties props= new TreetaggerImporterProperties();
 		props.addProperties(URI.createFileURI(propertyFilename));
 		getFixture().setProperties(props);
-	}
-
-	protected void tearDown() throws Exception {
-		super.tearDown();
 	}
 
 	/**
@@ -159,6 +159,7 @@ public class Treetagger2SaltMapperTest extends TestCase {
 	/**
 	 * Compares the names of the documents and calls the method for further comparions
 	 */
+	@Test
 	public final void testConvert() {
 		Document  tDoc = this.createDocument();
 		SDocument sDoc = SaltFactory.eINSTANCE.createSDocument();
@@ -176,6 +177,7 @@ public class Treetagger2SaltMapperTest extends TestCase {
 	/**
 	 * compares the document (=meta) annotations
 	 */
+	@Test
 	public final void testAddSMetaAnnotation() {
 		Document  tDoc = this.createDocument();
 		SDocument sDoc = SaltFactory.eINSTANCE.createSDocument();
@@ -194,6 +196,7 @@ public class Treetagger2SaltMapperTest extends TestCase {
 	/**
 	 * compares the texts of the documents and calls the token comparison method 
 	 */
+	@Test
 	public final void testCreateSTextualDS() {
 		Document  tDoc = this.createDocument();
 		SDocument sDoc = SaltFactory.eINSTANCE.createSDocument();
@@ -207,6 +210,7 @@ public class Treetagger2SaltMapperTest extends TestCase {
 	/**
 	 * Uses default separator settings
 	 */
+	@Test
 	public void test_PROP_SEPARATOR_AFTER_TOKEN_DEFAULT()
 	{
 		Document doc= TreetaggerFactory.eINSTANCE.createDocument();
@@ -233,6 +237,7 @@ public class Treetagger2SaltMapperTest extends TestCase {
 	/**
 	 * Uses no separator.
 	 */
+	@Test
 	public void test_PROP_SEPARATOR_AFTER_TOKEN_NO()
 	{
 		Document doc= TreetaggerFactory.eINSTANCE.createDocument();
@@ -263,6 +268,7 @@ public class Treetagger2SaltMapperTest extends TestCase {
 	/**
 	 * Uses custom separator.
 	 */
+	@Test
 	public void test_PROP_SEPARATOR_AFTER_TOKEN_CUSTOM()
 	{
 		String sep="&";
@@ -333,8 +339,5 @@ public class Treetagger2SaltMapperTest extends TestCase {
 			}
 			assertEquals(tAnno.getValue(), sAnno.getSValueSTEXT());
 		}
-	}
-	
-	
-	
+	}	
 }

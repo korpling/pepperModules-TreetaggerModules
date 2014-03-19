@@ -29,7 +29,8 @@ import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.resource.ResourceSet;
 import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
 import org.eclipse.emf.ecore.xmi.impl.XMIResourceFactoryImpl;
-import org.osgi.service.log.LogService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import de.hu_berlin.german.korpling.saltnpepper.misc.treetagger.Annotation;
 import de.hu_berlin.german.korpling.saltnpepper.misc.treetagger.Document;
@@ -38,11 +39,11 @@ import de.hu_berlin.german.korpling.saltnpepper.misc.treetagger.Token;
 import de.hu_berlin.german.korpling.saltnpepper.misc.treetagger.TreetaggerFactory;
 import de.hu_berlin.german.korpling.saltnpepper.misc.treetagger.resources.TabResource;
 import de.hu_berlin.german.korpling.saltnpepper.misc.treetagger.resources.TabResourceFactory;
-import de.hu_berlin.german.korpling.saltnpepper.pepper.pepperExceptions.PepperConvertException;
-import de.hu_berlin.german.korpling.saltnpepper.pepper.pepperModules.MAPPING_RESULT;
-import de.hu_berlin.german.korpling.saltnpepper.pepper.pepperModules.impl.PepperMapperImpl;
+import de.hu_berlin.german.korpling.saltnpepper.pepper.common.DOCUMENT_STATUS;
+import de.hu_berlin.german.korpling.saltnpepper.pepper.exceptions.PepperConvertException;
+import de.hu_berlin.german.korpling.saltnpepper.pepper.modules.exceptions.PepperModuleException;
+import de.hu_berlin.german.korpling.saltnpepper.pepper.modules.impl.PepperMapperImpl;
 import de.hu_berlin.german.korpling.saltnpepper.pepperModules.treetagger.TreetaggerExporterProperties;
-import de.hu_berlin.german.korpling.saltnpepper.pepperModules.treetagger.exceptions.TreetaggerExporterException;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SDocumentGraph;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SSpan;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.STextualRelation;
@@ -59,11 +60,8 @@ import de.hu_berlin.german.korpling.saltnpepper.salt.saltSemantics.SPOSAnnotatio
   * @author Florian Zipser
  */
 public class Salt2TreetaggerMapper extends PepperMapperImpl{
-
+	private static final Logger logger= LoggerFactory.getLogger(Salt2TreetaggerMapper.class);
 	//---------------------------------------------------------------------------------------------
-	
-	 
-
 	/**
 	 * Getter for Properties 
 	 * @return the Properties
@@ -93,7 +91,7 @@ public class Salt2TreetaggerMapper extends PepperMapperImpl{
 	 * This method maps a Salt document to a Treetagger document  
 	 */
 	@Override
-	public MAPPING_RESULT mapSDocument() {
+	public DOCUMENT_STATUS mapSDocument() {
 		
 		if (getSDocument().getSDocumentGraph()!= null)
 		{
@@ -102,16 +100,14 @@ public class Salt2TreetaggerMapper extends PepperMapperImpl{
 			{
 				setTTDocument(TreetaggerFactory.eINSTANCE.createDocument());
 			}
-			getTTDocument().setName(sDocument.getSName());
-			this.addDocumentAnnotations(sDocument.getSMetaAnnotations(), getTTDocument());
-			this.addTokens(sDocument.getSDocumentGraph(), getTTDocument());
+			getTTDocument().setName(getSDocument().getSName());
+			this.addDocumentAnnotations(getSDocument().getSMetaAnnotations(), getTTDocument());
+			this.addTokens(getSDocument().getSDocumentGraph(), getTTDocument());
 			if (this.numOfSTokensWithMultiplePOSAnnos>0) {
-				if (getLogService()!= null)
-					getLogService().log(LogService.LOG_WARNING, "There were "+this.numOfSTokensWithMultiplePOSAnnos+" tokens with more than one POS annotation in the document. The first one found for each token was used for it´s POS annotation; the remainder was used for ordinary annotations.");
+				logger.warn("There were "+this.numOfSTokensWithMultiplePOSAnnos+" tokens with more than one POS annotation in the document. The first one found for each token was used for it´s POS annotation; the remainder was used for ordinary annotations.");
 			}
 			if (this.numOfSTokensWithMultipleLemmaAnnos>0) {
-				if (getLogService()!= null)
-					getLogService().log(LogService.LOG_WARNING, "There were "+this.numOfSTokensWithMultipleLemmaAnnos+" tokens with more than one lemma annotation in the document. The first one found for each token was used for it´s lemma annotation; the remainder was used for ordinary annotations.");
+				logger.warn("There were "+this.numOfSTokensWithMultipleLemmaAnnos+" tokens with more than one lemma annotation in the document. The first one found for each token was used for it´s lemma annotation; the remainder was used for ordinary annotations.");
 			}
 			try {
 				this.saveToFile(getResourceURI(), getTTDocument());
@@ -119,14 +115,14 @@ public class Salt2TreetaggerMapper extends PepperMapperImpl{
 				throw new PepperConvertException("Cannot write document with id: '"+getSDocument().getSId()+"' to: '"+getResourceURI()+"'.", e);
 			}
 		}	
-		return(MAPPING_RESULT.FINISHED);
+		return(DOCUMENT_STATUS.COMPLETED);
 	}
 	
 	@SuppressWarnings("unchecked")
 	private void saveToFile(URI uri, Document tDocument) throws IOException
 	{
 		if (uri== null)
-			throw new TreetaggerExporterException("Cannot save o given uri, because its null for document '"+tDocument+"'.");
+			throw new PepperModuleException(this, "Cannot save o given uri, because its null for document '"+tDocument+"'.");
 		
 		// create resource set and resource 
 		ResourceSet resourceSet = new ResourceSetImpl();
@@ -146,8 +142,6 @@ public class Salt2TreetaggerMapper extends PepperMapperImpl{
 		@SuppressWarnings("rawtypes")
 		//options map for resource.load
 		Map options = new HashMap();
-		//put logService for TabResource loading into options
-		options.put(TabResource.logServiceKey, this.getLogService());
 		//put properties for TabResource loading into options
 		options.put(TabResource.propertiesKey, getProperties().getProperties());
 

@@ -22,10 +22,10 @@ import java.io.File;
 import org.eclipse.emf.common.util.URI;
 import org.osgi.service.component.annotations.Component;
 
-import de.hu_berlin.german.korpling.saltnpepper.pepper.pepperExceptions.PepperFWException;
-import de.hu_berlin.german.korpling.saltnpepper.pepper.pepperModules.PepperExporter;
-import de.hu_berlin.german.korpling.saltnpepper.pepper.pepperModules.PepperMapper;
-import de.hu_berlin.german.korpling.saltnpepper.pepper.pepperModules.impl.PepperExporterImpl;
+import de.hu_berlin.german.korpling.saltnpepper.pepper.exceptions.PepperFWException;
+import de.hu_berlin.german.korpling.saltnpepper.pepper.modules.PepperExporter;
+import de.hu_berlin.german.korpling.saltnpepper.pepper.modules.PepperMapper;
+import de.hu_berlin.german.korpling.saltnpepper.pepper.modules.impl.PepperExporterImpl;
 import de.hu_berlin.german.korpling.saltnpepper.pepperModules.treetagger.mapper.Salt2TreetaggerMapper;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sCorpusStructure.SCorpusGraph;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sCorpusStructure.SDocument;
@@ -44,7 +44,7 @@ public class TreetaggerExporter extends PepperExporterImpl implements PepperExpo
 	{
 		super();
 		//setting name of module
-		this.name= "TreetaggerExporter";
+		this.setName("TreetaggerExporter");
 		//set list of formats supported by this module
 		this.addSupportedFormat("treetagger", "1.0", null);
 		this.setProperties(new TreetaggerExporterProperties());
@@ -59,7 +59,7 @@ public class TreetaggerExporter extends PepperExporterImpl implements PepperExpo
 		{
 			for (SDocument sDocument: sCorpusGraph.getSDocuments())
 			{
-				String corpusPath = this.getCorpusDefinition().getCorpusPath().toFileString();
+				String corpusPath = this.getCorpusDesc().getCorpusPath().toFileString();
 				String docPath    = sDocument.getSElementPath().toString();
 				String docName    = sDocument.getSName()+ "." + ((TreetaggerExporterProperties)getProperties()).getFileEnding();
 

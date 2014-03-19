@@ -20,8 +20,8 @@ package de.hu_berlin.german.korpling.saltnpepper.pepperModules.treetagger;
 import java.util.List;
 import java.util.Vector;
 
-import de.hu_berlin.german.korpling.saltnpepper.pepper.pepperModules.PepperModuleProperties;
-import de.hu_berlin.german.korpling.saltnpepper.pepper.pepperModules.PepperModuleProperty;
+import de.hu_berlin.german.korpling.saltnpepper.pepper.modules.PepperModuleProperties;
+import de.hu_berlin.german.korpling.saltnpepper.pepper.modules.PepperModuleProperty;
 
 public class TreetaggerExporterProperties extends PepperModuleProperties {
 	public static final String PREFIX="treetagger.input.";
