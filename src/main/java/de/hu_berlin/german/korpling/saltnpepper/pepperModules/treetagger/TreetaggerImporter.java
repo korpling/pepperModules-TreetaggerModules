@@ -32,10 +32,10 @@ import org.osgi.service.component.annotations.Component;
 import de.hu_berlin.german.korpling.saltnpepper.misc.treetagger.Document;
 import de.hu_berlin.german.korpling.saltnpepper.misc.treetagger.resources.TabResource;
 import de.hu_berlin.german.korpling.saltnpepper.misc.treetagger.resources.TabResourceFactory;
-import de.hu_berlin.german.korpling.saltnpepper.pepper.pepperModules.PepperImporter;
-import de.hu_berlin.german.korpling.saltnpepper.pepper.pepperModules.PepperMapper;
-import de.hu_berlin.german.korpling.saltnpepper.pepper.pepperModules.impl.PepperImporterImpl;
-import de.hu_berlin.german.korpling.saltnpepper.pepperModules.treetagger.exceptions.TreetaggerImporterException;
+import de.hu_berlin.german.korpling.saltnpepper.pepper.modules.PepperImporter;
+import de.hu_berlin.german.korpling.saltnpepper.pepper.modules.PepperMapper;
+import de.hu_berlin.german.korpling.saltnpepper.pepper.modules.exceptions.PepperModuleException;
+import de.hu_berlin.german.korpling.saltnpepper.pepper.modules.impl.PepperImporterImpl;
 import de.hu_berlin.german.korpling.saltnpepper.pepperModules.treetagger.mapper.Treetagger2SaltMapper;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sCorpusStructure.SDocument;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SElementId;
@@ -73,7 +73,7 @@ public class TreetaggerImporter extends PepperImporterImpl implements PepperImpo
 	{
 		super();
 		//setting name of module
-		this.name= "TreetaggerImporter";
+		this.setName("TreetaggerImporter");
 		//set list of formats supported by this module
 		this.addSupportedFormat("treetagger", "1.0", null);
 			
@@ -127,22 +127,20 @@ public class TreetaggerImporter extends PepperImporterImpl implements PepperImpo
 				resource = resourceSet.createResource(uri);
 
 				if (resource== null)
-					throw new TreetaggerImporterException("Cannot load The resource is null.");
+					throw new PepperModuleException(this,"Cannot load The resource is null.");
 				
 				@SuppressWarnings("rawtypes")
 				//options map for resource.load
 				Map options = new HashMap();
-				//put logService for TabResource loading into options
-				options.put(TabResource.logServiceKey, this.getLogService());
 				//put properties for TabResource loading into options
 				options.put(TabResource.propertiesKey, this.getConversionProperties());
 
 				resource.load(options);
 			} 
 			catch (IOException e) 
-			{	throw new TreetaggerImporterException("Cannot load resource '"+uri+"'.",e);	}
+			{	throw new PepperModuleException(this, "Cannot load resource '"+uri+"'.",e);	}
 			catch (NullPointerException e) 
-			{	throw new TreetaggerImporterException("Cannot load resource '"+uri+"'.",e);	}
+			{	throw new PepperModuleException(this,"Cannot load resource '"+uri+"'.",e);	}
 			if (resource.getContents().size()>0) {
 				retVal= (Document) resource.getContents().get(0);
 			}
