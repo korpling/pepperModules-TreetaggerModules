@@ -49,9 +49,9 @@ public class TreetaggerExporter extends PepperExporterImpl implements PepperExpo
 		this.addSupportedFormat("treetagger", "1.0", null);
 		this.setProperties(new TreetaggerExporterProperties());
 	}
-	
+		
 	@Override
-	public void exportCorpusStructure(SCorpusGraph sCorpusGraph)
+	public void exportCorpusStructure()
 	{
 		if (sCorpusGraph== null)
 			throw new PepperFWException("No SCorpusGraph was passed for exportCorpusStructure(SCorpusGraph corpusGraph). This might be a bug of the pepper framework.");
