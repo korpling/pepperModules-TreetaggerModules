@@ -136,7 +136,7 @@ There are two switches concerning the annotations on the TreeTagger spans. The o
 Properties
 ----------
 
-The table ? contains an overview of all usable properties to customize the behavior of this pepper module. The following section contains a brief description to each single property and describes the resulting differences in the mapping to the Salt model.
+The following table contains an overview of all usable properties to customize the behavior of this pepper module. The following section contains a brief description to each single property and describes the resulting differences in the mapping to the Salt model.
 
 <table>
 <caption>properties to customize importer behavior</caption>
@@ -252,7 +252,7 @@ The default encoding for output files is "UTF-8". This also is definable in the 
 Properties
 ----------
 
-The table ? contains an overview of all usable properties to customize the behavior of this pepper module. The following section contains a brief description to each single property and describes the resulting differences in the mapping to the salt model.
+The following table contains an overview of all usable properties to customize the behavior of this pepper module. The following section contains a brief description to each single property and describes the resulting differences in the mapping to the salt model.
 
 <table>
 <caption>properties to customize exporter behavior</caption>
