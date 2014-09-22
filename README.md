@@ -223,7 +223,7 @@ Determines the separator which should be artificially added after a token, when 
 > The separator sequence, must be surrounded by double quotes. To shut of the adding of a separator, just this property value to "".
 
 
-##<a name="details_im"/>TreetaggerExporter
+##<a name="details_ex"/>TreetaggerExporter
 Mapping to TreeTagger format
 ----------------------------
 
