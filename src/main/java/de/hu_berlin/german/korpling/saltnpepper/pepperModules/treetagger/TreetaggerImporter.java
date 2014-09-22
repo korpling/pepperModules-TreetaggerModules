@@ -20,7 +20,6 @@ package de.hu_berlin.german.korpling.saltnpepper.pepperModules.treetagger;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Properties;
 
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.resource.Resource;
@@ -49,27 +48,6 @@ import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SElementId;
  */
 @Component(name = "TreetaggerImporterComponent", factory = "PepperImporterComponentFactory")
 public class TreetaggerImporter extends PepperImporterImpl implements PepperImporter {
-	private Properties conversionProperties = null;
-
-	/**
-	 * Getter for Properties
-	 * 
-	 * @return the Properties
-	 */
-	public Properties getConversionProperties() {
-		return this.conversionProperties;
-	}
-
-	/**
-	 * Setter for Properties
-	 * 
-	 * @param properties
-	 *            the Properties
-	 */
-	public void setConversionProperties(Properties properties) {
-		this.conversionProperties = properties;
-	}
-
 	// ---------------------------------------------------------------------------------------
 	public static final String[] TREETAGGER_FILE_ENDINGS = { "treetagger", "tab", "tt" };
 
@@ -83,8 +61,9 @@ public class TreetaggerImporter extends PepperImporterImpl implements PepperImpo
 		this.setProperties(new TreetaggerImporterProperties());
 		// adding all file endings to list of endings for documents (necessary
 		// for importCorpusStructure)
-		for (String ending : TREETAGGER_FILE_ENDINGS)
+		for (String ending : TREETAGGER_FILE_ENDINGS){
 			this.getSDocumentEndings().add(ending);
+		}
 	}
 
 	/**
@@ -108,7 +87,6 @@ public class TreetaggerImporter extends PepperImporterImpl implements PepperImpo
 		return (mapper);
 	}
 
-	@SuppressWarnings("unchecked")
 	private Document loadFromFile(URI uri) {
 		Document retVal = null;
 		if (uri != null) {
@@ -125,16 +103,10 @@ public class TreetaggerImporter extends PepperImporterImpl implements PepperImpo
 				// load resource
 				resource = resourceSet.createResource(uri);
 
-				if (resource == null)
+				if (resource == null){
 					throw new PepperModuleException(this, "Cannot load The resource is null.");
-
-				@SuppressWarnings("rawtypes")
-				// options map for resource.load
-				Map options = new HashMap();
-				// put properties for TabResource loading into options
-				options.put(TabResource.propertiesKey, this.getConversionProperties());
-
-				resource.load(options);
+				}
+				resource.load(getProperties().getProperties());
 			} catch (IOException e) {
 				throw new PepperModuleException(this, "Cannot load resource '" + uri + "'.", e);
 			} catch (NullPointerException e) {

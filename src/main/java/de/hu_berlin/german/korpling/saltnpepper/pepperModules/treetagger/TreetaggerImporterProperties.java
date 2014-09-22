@@ -27,11 +27,13 @@ public class TreetaggerImporterProperties extends PepperModuleProperties {
 	public static final String PROP_ANNOTATE_UNANNOTATED_SPANS = PREFIX + "annotateUnannotatedSpans";
 
 	public static final String PROP_ANNOTATE_ALL_SPANS_WITH_NAME = PREFIX + "annotateAllSpansWithSpanName";
+	/** States the meta tag used to mark the TreeTagger document in the input file(s). **/
+	public static final String PROP_META_TAG = PREFIX + "metaTag";
 	/**
 	 * Name of property to determine the separator which should be artificially
 	 * added after a token, when mapping treetagger token to STextualDS in Salt.
 	 * The default separator is a whitespace given by the character sequence " ".
-	 * Note, the separator sequence, must be surrunded by double quotes. To shut
+	 * Note, the separator sequence, must be surrounded by double quotes. To shut
 	 * of the adding of a separator, just this property value to "".
 	 **/
 	public static final String PROP_SEPARATOR_AFTER_TOKEN = PREFIX + "separatorAfterToken";
@@ -39,6 +41,7 @@ public class TreetaggerImporterProperties extends PepperModuleProperties {
 	public TreetaggerImporterProperties() {
 		this.addProperty(new PepperModuleProperty<Boolean>(PROP_ANNOTATE_UNANNOTATED_SPANS, Boolean.class, "If set true, this switch will cause the module to annotate all spans without attributes with their name as attribute and value.", false, false));
 		this.addProperty(new PepperModuleProperty<Boolean>(PROP_ANNOTATE_ALL_SPANS_WITH_NAME, Boolean.class, "If set true, this switch will cause the module to annotate all spans with their name as attribute and value.", false, false));
+		this.addProperty(new PepperModuleProperty<String>(PROP_META_TAG, String.class,"States the meta tag used to mark the TreeTagger document in the input file(s)." , "meta", false));
 		this.addProperty(new PepperModuleProperty<String>(PROP_SEPARATOR_AFTER_TOKEN, String.class, "Determines the separator which should be artificially added after a token, when mapping treetagger token to STextualDS in Salt. The default separator is a whitespace given by the character sequence \" \". Note, the separator sequence, must be surrunded by double quotes. To shut of the adding of a separator, just this property value to \"\"", " ", false));
 	}
 
