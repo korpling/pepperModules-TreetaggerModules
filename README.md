@@ -25,11 +25,11 @@ If this Pepper module is not yet contained in your Pepper distribution, you can 
 
 ### Windows
 
-    pepperStart.bat is https://korpling.german.hu-berlin.de/saltnpepper/repository/repo/de/hu_berlin/german/korpling/saltnpepper/pepperModules/pepperModules-TreetaggerModules/1.1.2/de.hu_berlin.german.korpling.saltnpepper.pepperModules.pepperModules-TreetaggerModules_1.1.2.zip
+    pepperStart.bat is https://korpling.german.hu-berlin.de/saltnpepper/repository/repo/de/hu_berlin/german/korpling/saltnpepper/pepperModules/pepperModules-TreetaggerModules/1.2.4/de.hu_berlin.german.korpling.saltnpepper.pepperModules.pepperModules-TreetaggerModules_1.2.4.zip
 
 ### Linux/Unix
 
-    bash pepperStart.sh is https://korpling.german.hu-berlin.de/saltnpepper/repository/repo/de/hu_berlin/german/korpling/saltnpepper/pepperModules/pepperModules-TreetaggerModules/1.1.2/de.hu_berlin.german.korpling.saltnpepper.pepperModules.pepperModules-TreetaggerModules_1.1.2.zip
+    bash pepperStart.sh is https://korpling.german.hu-berlin.de/saltnpepper/repository/repo/de/hu_berlin/german/korpling/saltnpepper/pepperModules/pepperModules-TreetaggerModules/1.2.4/de.hu_berlin.german.korpling.saltnpepper.pepperModules.pepperModules-TreetaggerModules_1.2.4.zip
 
 
 ## Usage
@@ -81,11 +81,11 @@ This project has been funded by the [department of corpus linguistics and morpho
 Input Data
 ----------
 
-An input file for the TreetaggerImporter is a tab separated file, having the ending 'tt', 'treetagger' or 'tab'. The text overlapped by the current token and its annotations are separated by one tab (columns). Each token description gets its own row. The first column is mandatory and contains the token´s form. Any further column is optional and can be declared in the properties file. Each column is required to have a distinct name. By default, i.e. when there are no column declarations in the properties file, the second and third column are considered the part-of-speech annotation and the lemma annotation respectively. Note that this default is overridden if there is any declaration of columns in the properties file.
+An input file for the TreetaggerImporter is a tab separated file, having the ending 'tt', 'TreeTagger' or 'tab'. The text overlapped by the current token and its annotations are separated by one tab (columns). Each token description gets its own row. The first column is mandatory and contains the token´s form. Any further column is optional and can be declared in the properties file. Each column is required to have a distinct name. By default, i.e. when there are no column declarations in the properties file, the second and third column are considered the part-of-speech annotation and the lemma annotation respectively. Note that this default is overridden if there is any declaration of columns in the properties file.
 
 It is possible to use SGML tags to mark spans of tokens. Invalid SGML elements (e.g. missing opening or closing tag) will be ignored.
 
-A whole treetagger document may be marked by a surrounding SGML element, which is required to have a certain name. This name is definable in the properties file and defaults to "meta".
+A whole TreeTagger document may be marked by a surrounding SGML element, which is required to have a certain name. This name is definable in the properties file and defaults to "meta".
 
 The expected input file encoding defaults to "UTF-8" and is also definable in the properties file. Any input file´s name is required to end on ".tab" or ".tt".
 
@@ -103,9 +103,9 @@ The expected input file encoding defaults to "UTF-8" and is also definable in th
                     </meta>
                     
 
-### Creating Treetagger Representation
+### Creating TreeTagger Representation
 
-The file´s content is converted to a Treetagger document containing a list of tokens and spans. If there is a document marking SGML element in the input file, an annotation for each of it´s attribute-value-pairs is added to the treetagger document. For all other SGML elements, spans are created and annotations according to the element´s attribute-value-pairs are added. For each data row, a token is created. The token´s text attribute is set to the first column´s content. For each additional column, an annotation is created and added to the token. There are three different types of annotations: The POSAnnotation, used for part-of-speech annotations, the LemmaAnnotation, used for lemma annotations, and the AnyAnnotation, used for all user-defined annotations.
+The file´s content is converted to a TreeTagger document containing a list of tokens and spans. If there is a document marking SGML element in the input file, an annotation for each of it´s attribute-value-pairs is added to the TreeTagger document. For all other SGML elements, spans are created and annotations according to the element´s attribute-value-pairs are added. For each data row, a token is created. The token´s text attribute is set to the first column´s content. For each additional column, an annotation is created and added to the token. There are three different types of annotations: The POSAnnotation, used for part-of-speech annotations, the LemmaAnnotation, used for lemma annotations, and the AnyAnnotation, used for all user-defined annotations.
 
 If the default settings for columns are used, a POSAnnotation for the second column´s content and a LemmaAnnotation for the third column´s content are created and added to the token.
 
@@ -119,7 +119,7 @@ If user-defined settings for columns are used, a POSAnnotation will be created f
 
 #### Document Annotations
 
-When converting a Treetagger document to Salt, a SDocument and it´s proper SDocumentGraph will be created. If there is a meta tag for the whole document, all it´s attributes will be added to the SDocument as SMetaAnnotations.
+When converting a TreeTagger document to Salt, a SDocument and it´s proper SDocumentGraph will be created. If there is a meta tag for the whole document, all it´s attributes will be added to the SDocument as SMetaAnnotations.
 
 #### Tokens
 
@@ -129,17 +129,17 @@ All the token´s forms, separated by space characters, will be contained in the 
 
 #### Spans
 
-Each Treetagger span is mapped to a SSpan, which is added to the SDocumentGraph. The SSpan´s name is set to the treetagger span´s name. The annotations on the treetagger span are mapped to SAnnotations and added to the SSpan. For each span, a SSpanningRelation between the span and all contained tokens is created. The SSpanningRelation is added to the SDocumentGraph as well.
+Each TreeTagger span is mapped to a SSpan, which is added to the SDocumentGraph. The SSpan´s name is set to the TreeTagger span´s name. The annotations on the TreeTagger span are mapped to SAnnotations and added to the SSpan. For each span, a SSpanningRelation between the span and all contained tokens is created. The SSpanningRelation is added to the SDocumentGraph as well.
 
-There are two switches concerning the annotations on the treetagger spans. The one of them concerns spans without any annotations and will add a SAnnotation, having the span´s name as name and as value, to the SSpan. The other one will do the same, but applies to all spans, regardless of the presence of annotations.
+There are two switches concerning the annotations on the TreeTagger spans. The one of them concerns spans without any annotations and will add a SAnnotation, having the span´s name as name and as value, to the SSpan. The other one will do the same, but applies to all spans, regardless of the presence of annotations.
 
 Properties
 ----------
 
-The table ? contains an overview of all usable properties to customize the behaviour of this pepper module. The following section contains a brief description to each single property and describes the resulting differences in the mapping to the Salt model.
+The table ? contains an overview of all usable properties to customize the behavior of this pepper module. The following section contains a brief description to each single property and describes the resulting differences in the mapping to the Salt model.
 
 <table>
-<caption>properties to customize importer behaviour</caption>
+<caption>properties to customize importer behavior</caption>
 <col width="32%" />
 <col width="29%" />
 <col width="22%" />
@@ -154,37 +154,37 @@ The table ? contains an overview of all usable properties to customize the behav
 </thead>
 <tbody>
 <tr class="odd">
-<td align="left">?</td>
+<td align="left">TreeTagger.input.fileEncoding</td>
 <td align="left">String, encoding e.g. 'utf-8'</td>
 <td align="left">optional</td>
 <td align="left">--</td>
 </tr>
 <tr class="even">
-<td align="left">?</td>
+<td align="left">TreeTagger.input.metaTag</td>
 <td align="left">String</td>
 <td align="left">optional</td>
 <td align="left">--</td>
 </tr>
 <tr class="odd">
-<td align="left">?</td>
+<td align="left">TreeTagger.input.columnX</td>
 <td align="left">numerical value</td>
 <td align="left">optional</td>
 <td align="left">--</td>
 </tr>
 <tr class="even">
-<td align="left">?</td>
+<td align="left">TreeTagger.input.annotateUnannotatedSpans</td>
 <td align="left">Boolean</td>
 <td align="left">optional</td>
 <td align="left">false</td>
 </tr>
 <tr class="odd">
-<td align="left">?</td>
+<td align="left">TreeTagger.input.annotateAllSpansWithSpanName</td>
 <td align="left">Boolean</td>
 <td align="left">optional</td>
 <td align="left">--</td>
 </tr>
 <tr class="even">
-<td align="left">?</td>
+<td align="left">TreeTagger.input.separatorAfterToken</td>
 <td align="left">String</td>
 <td align="left">optional</td>
 <td align="left">&quot; &quot;</td>
@@ -192,70 +192,70 @@ The table ? contains an overview of all usable properties to customize the behav
 </tbody>
 </table>
 
-### treetagger.input.fileEncoding
+### TreeTagger.input.fileEncoding
 
 States the encoding of the input file(s).
 
-### treetagger.input.metaTag
+### TreeTagger.input.metaTag
 
-States the meta tag used to mark the treetagger document in the input file(s).
+States the meta tag used to mark the TreeTagger document in the input file(s).
 
-### treetagger.input.columnX
+### TreeTagger.input.columnX
 
 where X is a number
 
 Sets the names for input columns, and thus for the corresponding annotations of token. "pos" will result in a SPOSAnnotation, "lemma" will result in a SLemmaAnnotation. All other names will result in a SAnnotation. An arbitrary number of such entries is possible. Ensure that consecutive numbers are used, beginning at 1. Mind that column 0 is reserved for the word form. If no such entry exists, column 1 and 2 are interpreted as "pos" and "lemma" respectively.
 
-### treetagger.input.annotateUnannotatedSpans
+### TreeTagger.input.annotateUnannotatedSpans
 
 If set true, this switch will cause the module to annotate all spans without attributes with their name as attribute and value, i.e. \<MyTag\> will be treated as \<MyTag mytag="mytag"\>
 
-### treetagger.input.annotateAllSpansWithSpanName
+### TreeTagger.input.annotateAllSpansWithSpanName
 
 If set true, this switch will cause the module to annotate all spans with their name as attribute and value, i.e. \<MyTag attribute="value"\> will be treated as \<MyTag attribute="value" mytag="mytag"\>
 
-### treetagger.input.separatorAfterToken
+### TreeTagger.input.separatorAfterToken
 
-Determines the separator which should be artificially added after a token, when mapping treetagger token to STextualDS in Salt. The default separator is a whitespace given by the character sequence \\" \\".
+Determines the separator which should be artificially added after a token, when mapping TreeTagger token to STextualDS in Salt. The default separator is a whitespace given by the character sequence \\" \\".
 
 > **Note**
 >
-> The separator sequence, must be surrunded by double quotes. To shut of the adding of a separator, just this property value to "".
+> The separator sequence, must be surrounded by double quotes. To shut of the adding of a separator, just this property value to "".
 
 
 ##<a name="details_im"/>TreetaggerExporter
-Mapping to Treetagger fromat
+Mapping to TreeTagger format
 ----------------------------
 
 ### Document Annotations
 
-When converting from Salt to Treetagger, a Treetagger document will be created, and all SMetaAnnotations of the SDocument will be mapped to Annotations of that document.
+When converting from Salt to TreeTagger, a TreeTagger document will be created, and all SMetaAnnotations of the SDocument will be mapped to Annotations of that document.
 
 ### Tokens
 
-Each SToken will be mapped to a Treetagger token. The token´s text comes from the STextualDS of the SDocumentGraph. If there is a SPOSAnnotation for the SToken, or if there is a SAnnotation named "pos", "part-of-speech" or "partofspeech" (all case insensitive), it will be mapped to the POSAannotation of the token. If there is a SLemmaAnnotation for the SToken, or if there is a SAnnotation named "lemma", "lemmatisation", "lemmatization" or "lemmata" (all case insensitive), it will be mapped to the LemmaAnnotation of the token. All other SAnnotations will be mapped to an "AnyAnnotation" of the treetagger token.
+Each SToken will be mapped to a TreeTagger token. The token´s text comes from the STextualDS of the SDocumentGraph. If there is a SPOSAnnotation for the SToken, or if there is a SAnnotation named "pos", "part-of-speech" or "partofspeech" (all case insensitive), it will be mapped to the POSAannotation of the token. If there is a SLemmaAnnotation for the SToken, or if there is a SAnnotation named "lemma", "lemmatisation", "lemmatization" or "lemmata" (all case insensitive), it will be mapped to the LemmaAnnotation of the token. All other SAnnotations will be mapped to an "AnyAnnotation" of the TreeTagger token.
 
 ### Spans
 
-The SSpans from all SSpanningRelations in the SDocumentGraph will be mapped to spans of the treetagger document. There is a switch in the properties file for the processing of SSpans with generic names ("sSpan", followed by a number). If this switch is set "true", these names will be replaced by the name of the first annotation found on the span.
+The SSpans from all SSpanningRelations in the SDocumentGraph will be mapped to spans of the TreeTagger document. There is a switch in the properties file for the processing of SSpans with generic names ("sSpan", followed by a number). If this switch is set "true", these names will be replaced by the name of the first annotation found on the span.
 
 ### Output file
 
-An output file from the TreetaggerExporter always contains a SGML element marking the whole document. The tag for the element defaults to "meta". This tag is definable in the properties file. All the annotations on the treetagger document will be added to the SGML element as attribute-valuepairs.
+An output file from the TreetaggerExporter always contains a SGML element marking the whole document. The tag for the element defaults to "meta". This tag is definable in the properties file. All the annotations on the TreeTagger document will be added to the SGML element as attribute-valuepairs.
 
 The output file contains one tab separated row per token. The first column contains the token´s form. If there is a POSAnnotation for the token, the second column contains it´s value, else it remains empty. If there is a LemmaAnnotation for the token, the third column contains it´s value, else it remains empty. The output of AnyAnnotations can be set in the properties file. If it is set "true", a column for each distinctly named AnyAnnotation will appears in the output file, sorted alphabetically by the AnyAnnotations´ names. Note that these names do not appear in the output file. However, the names and the order of the columns will be logged on the info-level of the conversion process.
 
-All Spans will appear as SGML elements in the ouput file. The SGML element´s name is the Spans name, and all it´s annotations will be added to the element as attribute-value-pairs. In the properties file, the renaming of generically named Spans
+All Spans will appear as SGML elements in the output file. The SGML element´s name is the Spans name, and all it´s annotations will be added to the element as attribute-value-pairs. In the properties file, the renaming of generically named Spans
 
 The default encoding for output files is "UTF-8". This also is definable in the properties file. All output files´ names end on ".tt".
 
 Properties
 ----------
 
-The table ? contains an overview of all usable properties to customize the behaviour of this pepper module. The following section contains a brief description to each single property and describes the resulting differences in the mapping to the salt model.
+The table ? contains an overview of all usable properties to customize the behavior of this pepper module. The following section contains a brief description to each single property and describes the resulting differences in the mapping to the salt model.
 
 <table>
-<caption>properties to customize exporter behaviour</caption>
+<caption>properties to customize exporter behavior</caption>
 <col width="32%" />
 <col width="29%" />
 <col width="22%" />
@@ -270,31 +270,31 @@ The table ? contains an overview of all usable properties to customize the behav
 </thead>
 <tbody>
 <tr class="odd">
-<td align="left">?</td>
+<td align="left">TreeTagger.output.fileEncoding</td>
 <td align="left">String</td>
 <td align="left">optional</td>
 <td align="left">utf-8</td>
 </tr>
 <tr class="even">
-<td align="left">?</td>
+<td align="left">TreeTagger.output.metaTag</td>
 <td align="left">String</td>
 <td align="left">optional</td>
 <td align="left">--</td>
 </tr>
 <tr class="odd">
-<td align="left">?</td>
+<td align="left">TreeTagger.output.exportAnyAnnotation</td>
 <td align="left">Boolean</td>
 <td align="left">optional</td>
 <td align="left">false</td>
 </tr>
 <tr class="even">
-<td align="left">?</td>
+<td align="left">TreeTagger.output.replaceGenericSpanNames</td>
 <td align="left">Boolean</td>
 <td align="left">optional</td>
 <td align="left">false</td>
 </tr>
 <tr class="odd">
-<td align="left">?</td>
+<td align="left">TreeTagger.output.flatten</td>
 <td align="left">Boolean</td>
 <td align="left">optional</td>
 <td align="left">false</td>
@@ -302,22 +302,22 @@ The table ? contains an overview of all usable properties to customize the behav
 </tbody>
 </table>
 
-### treetagger.output.fileEncoding
+### TreeTagger.output.fileEncoding
 
 Sets the encoding of the output file(s).
 
-### treetagger.output.metaTag
+### TreeTagger.output.metaTag
 
-Sets the meta tag used to mark the treetagger document in the output file(s).
+Sets the meta tag used to mark the TreeTagger document in the output file(s).
 
-### treetagger.output.exportAnyAnnotation
+### TreeTagger.output.exportAnyAnnotation
 
 If set true, each AnyAnnotation of tokens will appear in the output file.
 
-### treetagger.output.replaceGenericSpanNames
+### TreeTagger.output.replaceGenericSpanNames
 
 If set true, generic span names like sSpan123 will be replaced with the first annotation of the span found. If the span has no annotations, the generic name will not be replaced.
 
-### treetagger.output.flatten
+### TreeTagger.output.flatten
 
 If set true, the output directory structure is flat: all documents are put in the output root directory.
