@@ -89,18 +89,17 @@ A whole TreeTagger document may be marked by a surrounding SGML element, which i
 
 The expected input file encoding defaults to "UTF-8" and is also definable in the properties file. Any input file´s name is required to end on ".tab" or ".tt".
 
-        
-                <meta someDocumentAttribute="someDocumentValue">
-                        <someSpan someSpanAttribute="someSpanValue">
-                            TOKEN_1 POS_1 LEMMA_1
-                            TOKEN_2 POS_2 LEMMA_2
-                        </someSpan>
-                        <someMoreSpan someMoreSpanAttribute="someMoreSpanValue">
-                            TOKEN_3 POS_3 LEMMA_3
-                            TOKEN_4 POS_4 LEMMA_4
-                            TOKEN_5 POS_5 LEMMA_5
-                        </someMoreSpan>
-                    </meta>
+    <meta someDocumentAttribute="someDocumentValue">
+        <someSpan someSpanAttribute="someSpanValue">
+            TOKEN_1 POS_1 LEMMA_1
+            TOKEN_2 POS_2 LEMMA_2
+        </someSpan>
+        <someMoreSpan someMoreSpanAttribute="someMoreSpanValue">
+            TOKEN_3 POS_3 LEMMA_3
+            TOKEN_4 POS_4 LEMMA_4
+            TOKEN_5 POS_5 LEMMA_5
+        </someMoreSpan>
+    </meta>
                     
 
 ### Creating TreeTagger Representation
@@ -153,21 +152,9 @@ The following table contains an overview of all usable properties to customize t
 </tr>
 </thead>
 <tbody>
-<tr class="odd">
-<td align="left">treetagger.input.fileEncoding</td>
-<td align="left">String, encoding e.g. 'utf-8'</td>
-<td align="left">optional</td>
-<td align="left">--</td>
-</tr>
 <tr class="even">
 <td align="left">treetagger.input.metaTag</td>
 <td align="left">String</td>
-<td align="left">optional</td>
-<td align="left">--</td>
-</tr>
-<tr class="odd">
-<td align="left">treetagger.input.columnX</td>
-<td align="left">numerical value</td>
 <td align="left">optional</td>
 <td align="left">--</td>
 </tr>
@@ -192,19 +179,9 @@ The following table contains an overview of all usable properties to customize t
 </tbody>
 </table>
 
-### treetagger.input.fileEncoding
-
-States the encoding of the input file(s).
-
 ### treetagger.input.metaTag
 
 States the meta tag used to mark the TreeTagger document in the input file(s).
-
-### treetagger.input.columnX
-
-where X is a number
-
-Sets the names for input columns, and thus for the corresponding annotations of token. "pos" will result in a SPOSAnnotation, "lemma" will result in a SLemmaAnnotation. All other names will result in a SAnnotation. An arbitrary number of such entries is possible. Ensure that consecutive numbers are used, beginning at 1. Mind that column 0 is reserved for the word form. If no such entry exists, column 1 and 2 are interpreted as "pos" and "lemma" respectively.
 
 ### treetagger.input.annotateUnannotatedSpans
 
@@ -270,7 +247,7 @@ The following table contains an overview of all usable properties to customize t
 </thead>
 <tbody>
 <tr class="odd">
-<td align="left">treetagger.output.fileEncoding</td>
+<td align="left">treetagger.fileExtension</td>
 <td align="left">String</td>
 <td align="left">optional</td>
 <td align="left">utf-8</td>
@@ -302,9 +279,9 @@ The following table contains an overview of all usable properties to customize t
 </tbody>
 </table>
 
-### treetagger.output.fileEncoding
+### treetagger.fileExtension
 
-Sets the encoding of the output file(s).
+This property determines the ending of TreeTagger files, which are exported. The default value is '.tt'.
 
 ### treetagger.output.metaTag
 
