@@ -77,7 +77,7 @@ This project has been funded by the [department of corpus linguistics and morpho
   limitations under the License.
 
 
-##<a name="details_im"/>TreetaggerImporter
+#<a name="details_im"/>TreetaggerImporter
 Input Data
 ----------
 
@@ -200,7 +200,7 @@ Determines the separator which should be artificially added after a token, when 
 > The separator sequence, must be surrounded by double quotes. To shut of the adding of a separator, just this property value to "".
 
 
-##<a name="details_ex"/>TreetaggerExporter
+#<a name="details_ex"/>TreetaggerExporter
 Mapping to TreeTagger format
 ----------------------------
 
