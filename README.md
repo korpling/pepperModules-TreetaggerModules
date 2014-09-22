@@ -154,37 +154,37 @@ The following table contains an overview of all usable properties to customize t
 </thead>
 <tbody>
 <tr class="odd">
-<td align="left">TreeTagger.input.fileEncoding</td>
+<td align="left">treetagger.input.fileEncoding</td>
 <td align="left">String, encoding e.g. 'utf-8'</td>
 <td align="left">optional</td>
 <td align="left">--</td>
 </tr>
 <tr class="even">
-<td align="left">TreeTagger.input.metaTag</td>
+<td align="left">treetagger.input.metaTag</td>
 <td align="left">String</td>
 <td align="left">optional</td>
 <td align="left">--</td>
 </tr>
 <tr class="odd">
-<td align="left">TreeTagger.input.columnX</td>
+<td align="left">treetagger.input.columnX</td>
 <td align="left">numerical value</td>
 <td align="left">optional</td>
 <td align="left">--</td>
 </tr>
 <tr class="even">
-<td align="left">TreeTagger.input.annotateUnannotatedSpans</td>
+<td align="left">treetagger.input.annotateUnannotatedSpans</td>
 <td align="left">Boolean</td>
 <td align="left">optional</td>
 <td align="left">false</td>
 </tr>
 <tr class="odd">
-<td align="left">TreeTagger.input.annotateAllSpansWithSpanName</td>
+<td align="left">treetagger.input.annotateAllSpansWithSpanName</td>
 <td align="left">Boolean</td>
 <td align="left">optional</td>
 <td align="left">--</td>
 </tr>
 <tr class="even">
-<td align="left">TreeTagger.input.separatorAfterToken</td>
+<td align="left">treetagger.input.separatorAfterToken</td>
 <td align="left">String</td>
 <td align="left">optional</td>
 <td align="left">&quot; &quot;</td>
@@ -192,29 +192,29 @@ The following table contains an overview of all usable properties to customize t
 </tbody>
 </table>
 
-### TreeTagger.input.fileEncoding
+### treetagger.input.fileEncoding
 
 States the encoding of the input file(s).
 
-### TreeTagger.input.metaTag
+### treetagger.input.metaTag
 
 States the meta tag used to mark the TreeTagger document in the input file(s).
 
-### TreeTagger.input.columnX
+### treetagger.input.columnX
 
 where X is a number
 
 Sets the names for input columns, and thus for the corresponding annotations of token. "pos" will result in a SPOSAnnotation, "lemma" will result in a SLemmaAnnotation. All other names will result in a SAnnotation. An arbitrary number of such entries is possible. Ensure that consecutive numbers are used, beginning at 1. Mind that column 0 is reserved for the word form. If no such entry exists, column 1 and 2 are interpreted as "pos" and "lemma" respectively.
 
-### TreeTagger.input.annotateUnannotatedSpans
+### treetagger.input.annotateUnannotatedSpans
 
 If set true, this switch will cause the module to annotate all spans without attributes with their name as attribute and value, i.e. \<MyTag\> will be treated as \<MyTag mytag="mytag"\>
 
-### TreeTagger.input.annotateAllSpansWithSpanName
+### treetagger.input.annotateAllSpansWithSpanName
 
 If set true, this switch will cause the module to annotate all spans with their name as attribute and value, i.e. \<MyTag attribute="value"\> will be treated as \<MyTag attribute="value" mytag="mytag"\>
 
-### TreeTagger.input.separatorAfterToken
+### treetagger.input.separatorAfterToken
 
 Determines the separator which should be artificially added after a token, when mapping TreeTagger token to STextualDS in Salt. The default separator is a whitespace given by the character sequence \\" \\".
 
@@ -270,31 +270,31 @@ The following table contains an overview of all usable properties to customize t
 </thead>
 <tbody>
 <tr class="odd">
-<td align="left">TreeTagger.output.fileEncoding</td>
+<td align="left">treetagger.output.fileEncoding</td>
 <td align="left">String</td>
 <td align="left">optional</td>
 <td align="left">utf-8</td>
 </tr>
 <tr class="even">
-<td align="left">TreeTagger.output.metaTag</td>
+<td align="left">treetagger.output.metaTag</td>
 <td align="left">String</td>
 <td align="left">optional</td>
 <td align="left">--</td>
 </tr>
 <tr class="odd">
-<td align="left">TreeTagger.output.exportAnyAnnotation</td>
+<td align="left">treetagger.output.exportAnyAnnotation</td>
 <td align="left">Boolean</td>
 <td align="left">optional</td>
 <td align="left">false</td>
 </tr>
 <tr class="even">
-<td align="left">TreeTagger.output.replaceGenericSpanNames</td>
+<td align="left">treetagger.output.replaceGenericSpanNames</td>
 <td align="left">Boolean</td>
 <td align="left">optional</td>
 <td align="left">false</td>
 </tr>
 <tr class="odd">
-<td align="left">TreeTagger.output.flatten</td>
+<td align="left">treetagger.output.flatten</td>
 <td align="left">Boolean</td>
 <td align="left">optional</td>
 <td align="left">false</td>
@@ -302,22 +302,22 @@ The following table contains an overview of all usable properties to customize t
 </tbody>
 </table>
 
-### TreeTagger.output.fileEncoding
+### treetagger.output.fileEncoding
 
 Sets the encoding of the output file(s).
 
-### TreeTagger.output.metaTag
+### treetagger.output.metaTag
 
 Sets the meta tag used to mark the TreeTagger document in the output file(s).
 
-### TreeTagger.output.exportAnyAnnotation
+### treetagger.output.exportAnyAnnotation
 
 If set true, each AnyAnnotation of tokens will appear in the output file.
 
-### TreeTagger.output.replaceGenericSpanNames
+### treetagger.output.replaceGenericSpanNames
 
 If set true, generic span names like sSpan123 will be replaced with the first annotation of the span found. If the span has no annotations, the generic name will not be replaced.
 
-### TreeTagger.output.flatten
+### treetagger.output.flatten
 
 If set true, the output directory structure is flat: all documents are put in the output root directory.
