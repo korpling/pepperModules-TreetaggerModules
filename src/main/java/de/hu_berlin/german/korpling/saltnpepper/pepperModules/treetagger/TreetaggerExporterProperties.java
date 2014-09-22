@@ -27,23 +27,26 @@ public class TreetaggerExporterProperties extends PepperModuleProperties {
 	public static final String PREFIX = "treetagger.input.";
 
 	/** Keyword for property */
-	private String PROP_FILE_EXTENSION = "treetagger.fileExtension";
+	public static final String PROP_FILE_EXTENSION = "treetagger.fileExtension";
 	/** Keyword for property */
-	private String PROP_EXPORT_ANNOS = "treetagger.exportAnnotations";
+	public static final String PROP_EXPORT_ANNOS = "treetagger.exportAnnotations";
 
 	/** Keyword for property */
-	private String PROP_FLATTEN = "treetagger.output.flatten";
+	public static final String PROP_FLATTEN = "treetagger.output.flatten";
 
 	/** Extension for export file. default= tt. **/
-	private String FILE_ENDING = "tt";
+	public static final String FILE_ENDING = "tt";
 
-	private String PROP_REPLACE_GENERIC_SPAN_NAMES = "treetagger.output.replaceGenericSpanNames";
+	public static final String PROP_REPLACE_GENERIC_SPAN_NAMES = "treetagger.output.replaceGenericSpanNames";
+	/** Sets the meta tag used to mark the TreeTagger document in the output file(s). **/
+	public static final String PROP_META_TAG = "treetagger.output.metaTag";
 
 	public TreetaggerExporterProperties() {
 		this.addProperty(new PepperModuleProperty<String>(PROP_FILE_EXTENSION, String.class, "This property determines the ending of TreeTagger files, which are exported. The default value is '" + FILE_ENDING + "'.", FILE_ENDING, false));
 		this.addProperty(new PepperModuleProperty<String>(PROP_EXPORT_ANNOS, String.class, "If set true, each AnyAnnotation of tokens will appear in the output file.", false));
 		this.addProperty(new PepperModuleProperty<Boolean>(PROP_FLATTEN, Boolean.class, "If set true, the output directory structure is flat: all documents are put in the output root 	directory.", false, false));
 		this.addProperty(new PepperModuleProperty<Boolean>(PROP_REPLACE_GENERIC_SPAN_NAMES, Boolean.class, "If set true, generic span names like 'sSpan123' will be replaced with the first annotation 	of the span found. If the span has no annotations, the generic name will not be replaced.", false, false));
+		this.addProperty(new PepperModuleProperty<String>(PROP_META_TAG, String.class, "Sets the meta tag used to mark the TreeTagger document in the output file(s).", "meta", false));
 	}
 
 	/** Returns file ending for eported files. **/
