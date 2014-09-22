@@ -44,54 +44,58 @@ import de.hu_berlin.german.korpling.saltnpepper.salt.saltSemantics.SaltSemantics
 
 /**
  * This class is for mapping Treetagger to Salt
+ * 
  * @author hildebax
  */
 public class Treetagger2SaltMapper extends PepperMapperImpl implements PepperMapper {
-	
-//	private static final String SEPARATOR = " ";
-	
+
+	// private static final String SEPARATOR = " ";
+
 	/**
 	 * Returns the specific {@link TreetaggerImporterProperties} object.
+	 * 
 	 * @return the Properties
 	 */
 	public TreetaggerImporterProperties getProps() {
 		return (TreetaggerImporterProperties) this.getProperties();
 	}
 
-	private Document ttDocument= null;
-	public Document getTtDocument()
-	{
+	private Document ttDocument = null;
+
+	public Document getTtDocument() {
 		return ttDocument;
 	}
 
-	public void setTTDocument(Document ttDocument)
-	{
+	public void setTTDocument(Document ttDocument) {
 		this.ttDocument = ttDocument;
 	}
-	
+
 	/**
 	 * The method maps a Treetagger document to a Salt document
-	 * @param tDocument the Treetagger document 
-	 * @param sDocument the Salt document
+	 * 
+	 * @param tDocument
+	 *            the Treetagger document
+	 * @param sDocument
+	 *            the Salt document
 	 */
 	@Override
 	public DOCUMENT_STATUS mapSDocument() {
-		
-		if (getSDocument().getSDocumentGraph()== null)
+
+		if (getSDocument().getSDocumentGraph() == null)
 			getSDocument().setSDocumentGraph(SaltFactory.eINSTANCE.createSDocumentGraph());
-		
-		getSDocument().getSDocumentGraph().setSName(getTtDocument().getName()+"_graph");
+
+		getSDocument().getSDocumentGraph().setSName(getTtDocument().getName() + "_graph");
 		getSDocument().setSName(getTtDocument().getName());
 		this.addSMetaAnnotation(getTtDocument().getAnnotations(), getSDocument());
 		this.createSTextualDS(getTtDocument().getTokens(), getSDocument());
-		return(DOCUMENT_STATUS.COMPLETED);
+		return (DOCUMENT_STATUS.COMPLETED);
 	}
-	
+
 	/*
-	 * auxiliary method 
+	 * auxiliary method
 	 */
 	protected void addSMetaAnnotation(EList<Annotation> tAnnotations, SDocument sDocument) {
-		for (int i=0;i<tAnnotations.size();i++) {
+		for (int i = 0; i < tAnnotations.size(); i++) {
 			Annotation tAnno = tAnnotations.get(i);
 			SMetaAnnotation sMetaAnnotation = SaltFactory.eINSTANCE.createSMetaAnnotation();
 			sMetaAnnotation.setSName(tAnno.getName());
@@ -101,49 +105,45 @@ public class Treetagger2SaltMapper extends PepperMapperImpl implements PepperMap
 	}
 
 	/*
-	 * auxiliary method 
+	 * auxiliary method
 	 */
-	protected STextualDS createSTextualDS(EList<Token> tTokens, SDocument sDocument)
-	{
+	protected STextualDS createSTextualDS(EList<Token> tTokens, SDocument sDocument) {
 		boolean annotateUnannotatedSpans = this.getProps().getAnnotateUnannotatedSpans();
-		
-		boolean annotateAllSpansWithSpanName = this.getProps().getAnnotateAllSpansWithName(); 	
-		
-		//creating and adding STextualDS
-		STextualDS sText= SaltFactory.eINSTANCE.createSTextualDS();
+
+		boolean annotateAllSpansWithSpanName = this.getProps().getAnnotateAllSpansWithName();
+
+		// creating and adding STextualDS
+		STextualDS sText = SaltFactory.eINSTANCE.createSTextualDS();
 		sDocument.getSDocumentGraph().addSNode(sText);
-		
-		Hashtable<Span,SSpan> spanTable = new Hashtable<Span,SSpan>();
-		
-		String text= null;
-		int start= 0;
-		int end= 0; 
-		//for (Token tToken: tTokens)	{
-		for (int tokenIndex=0;tokenIndex<tTokens.size();tokenIndex++) {
+
+		Hashtable<Span, SSpan> spanTable = new Hashtable<Span, SSpan>();
+
+		String text = null;
+		int start = 0;
+		int end = 0;
+		// for (Token tToken: tTokens) {
+		for (int tokenIndex = 0; tokenIndex < tTokens.size(); tokenIndex++) {
 			Token tToken = tTokens.get(tokenIndex);
-			if (text== null)
-			{
-				start= 0;
-				end= tToken.getText().length();
-				text= tToken.getText();
+			if (text == null) {
+				start = 0;
+				end = tToken.getText().length();
+				text = tToken.getText();
+			} else {
+				// start= text.length() + SEPARATOR.length();
+				// end= start + tToken.getText().length();
+				// text= text+ SEPARATOR + tToken.getText();
+
+				start = text.length() + this.getProps().getSeparatorAfterToken().length();
+				end = start + tToken.getText().length();
+				text = text + this.getProps().getSeparatorAfterToken() + tToken.getText();
 			}
-			else 
-			{
-//				start= text.length() + SEPARATOR.length();
-//				end= start + tToken.getText().length();				
-//				text= text+ SEPARATOR + tToken.getText();
-				
-				start= text.length() + this.getProps().getSeparatorAfterToken().length();
-				end= start + tToken.getText().length();				
-				text= text+ this.getProps().getSeparatorAfterToken() + tToken.getText();
-			}
-			
-			//creating and adding token
-			SToken sToken= this.createSToken(tToken);
+
+			// creating and adding token
+			SToken sToken = this.createSToken(tToken);
 			sDocument.getSDocumentGraph().addSNode(sToken);
-			
-			//creating and adding spans and spanning relations
-			for (int i=0;i<tToken.getSpans().size();i++) {
+
+			// creating and adding spans and spanning relations
+			for (int i = 0; i < tToken.getSpans().size(); i++) {
 				Span tSpan = tToken.getSpans().get(i);
 				SSpan sSpan = null;
 				if (!spanTable.containsKey(tSpan)) {
@@ -152,18 +152,17 @@ public class Treetagger2SaltMapper extends PepperMapperImpl implements PepperMap
 					sSpan.setGraph(sDocument.getSDocumentGraph());
 					sSpan.setSName(tSpan.getName());
 					EList<Annotation> tAnnotations = tSpan.getAnnotations();
-					if ((annotateAllSpansWithSpanName)||((tAnnotations.size()==0)&&(annotateUnannotatedSpans))) {
+					if ((annotateAllSpansWithSpanName) || ((tAnnotations.size() == 0) && (annotateUnannotatedSpans))) {
 						SAnnotation anno = SaltFactory.eINSTANCE.createSAnnotation();
 						anno.setName(tSpan.getName().toLowerCase());
 						anno.setValue(tSpan.getName().toLowerCase());
 						sSpan.addSAnnotation(anno);
-					} 
-					for (int j=0;j<tAnnotations.size();j++) {
+					}
+					for (int j = 0; j < tAnnotations.size(); j++) {
 						SAnnotation anno = this.createSAnnotation(tSpan.getAnnotations().get(j));
 						sSpan.addSAnnotation(anno);
 					}
-				} 
-				else {
+				} else {
 					sSpan = spanTable.get(tSpan);
 				}
 				SSpanningRelation sSpanningRelation = SaltFactory.eINSTANCE.createSSpanningRelation();
@@ -172,59 +171,52 @@ public class Treetagger2SaltMapper extends PepperMapperImpl implements PepperMap
 				sSpanningRelation.setSToken(sToken);
 			}
 
-			STextualRelation sTextRel= this.createSTextualRelation(sToken, sText, start, end);
+			STextualRelation sTextRel = this.createSTextualRelation(sToken, sText, start, end);
 			sDocument.getSDocumentGraph().addSRelation(sTextRel);
-		}	
+		}
 		sText.setSText(text);
-		return(sText);
+		return (sText);
 	}
 
 	/*
-	 * auxiliary method 
+	 * auxiliary method
 	 */
-	protected SToken createSToken(Token tToken)
-	{
-		SToken retVal= SaltFactory.eINSTANCE.createSToken();
-		for (Annotation tAnnotation: tToken.getAnnotations())
-		{
+	protected SToken createSToken(Token tToken) {
+		SToken retVal = SaltFactory.eINSTANCE.createSToken();
+		for (Annotation tAnnotation : tToken.getAnnotations()) {
 			retVal.addSAnnotation(this.createSAnnotation(tAnnotation));
-		}	
-		return(retVal);
+		}
+		return (retVal);
 	}
-	
+
 	/*
-	 * auxiliary method 
+	 * auxiliary method
 	 */
-	protected SAnnotation createSAnnotation(Annotation tAnnotation)
-	{
-		SAnnotation retVal= null;
+	protected SAnnotation createSAnnotation(Annotation tAnnotation) {
+		SAnnotation retVal = null;
 		if (tAnnotation instanceof POSAnnotation)
-			retVal= SaltSemanticsFactory.eINSTANCE.createSPOSAnnotation();
+			retVal = SaltSemanticsFactory.eINSTANCE.createSPOSAnnotation();
 		else if (tAnnotation instanceof LemmaAnnotation)
-			retVal= SaltSemanticsFactory.eINSTANCE.createSLemmaAnnotation();
-		else 
-		{
-			retVal= SaltFactory.eINSTANCE.createSAnnotation();
+			retVal = SaltSemanticsFactory.eINSTANCE.createSLemmaAnnotation();
+		else {
+			retVal = SaltFactory.eINSTANCE.createSAnnotation();
 			retVal.setSName(tAnnotation.getName());
 		}
 		retVal.setSValue(tAnnotation.getValue());
-		return(retVal);
+		return (retVal);
 	}
-	
+
 	/*
-	 * auxiliary method 
+	 * auxiliary method
 	 */
-	protected STextualRelation createSTextualRelation(SToken sToken, STextualDS sText, int start, int end)
-	{
-		STextualRelation retVal= null;
-		retVal= SaltFactory.eINSTANCE.createSTextualRelation();
+	protected STextualRelation createSTextualRelation(SToken sToken, STextualDS sText, int start, int end) {
+		STextualRelation retVal = null;
+		retVal = SaltFactory.eINSTANCE.createSTextualRelation();
 		retVal.setSTextualDS(sText);
 		retVal.setSToken(sToken);
 		retVal.setSStart(start);
 		retVal.setSEnd(end);
-		return(retVal);
+		return (retVal);
 	}
 
-	
-	
 }

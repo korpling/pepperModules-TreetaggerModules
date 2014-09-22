@@ -27,64 +27,60 @@ import de.hu_berlin.german.korpling.saltnpepper.pepper.modules.PepperExporter;
 import de.hu_berlin.german.korpling.saltnpepper.pepper.modules.PepperMapper;
 import de.hu_berlin.german.korpling.saltnpepper.pepper.modules.impl.PepperExporterImpl;
 import de.hu_berlin.german.korpling.saltnpepper.pepperModules.treetagger.mapper.Salt2TreetaggerMapper;
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sCorpusStructure.SCorpusGraph;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sCorpusStructure.SDocument;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SElementId;
 
 /**
  * This class exports data from Salt to Treetagger format
+ * 
  * @author hildebax
  * @author Florian Zipser
- *
+ * 
  */
-@Component(name="TreetaggerExporterComponent", factory="PepperExporterComponentFactory")
-public class TreetaggerExporter extends PepperExporterImpl implements PepperExporter
-{
-	public TreetaggerExporter()
-	{
+@Component(name = "TreetaggerExporterComponent", factory = "PepperExporterComponentFactory")
+public class TreetaggerExporter extends PepperExporterImpl implements PepperExporter {
+	public TreetaggerExporter() {
 		super();
-		//setting name of module
+		// setting name of module
 		this.setName("TreetaggerExporter");
-		//set list of formats supported by this module
+		// set list of formats supported by this module
 		this.addSupportedFormat("treetagger", "1.0", null);
 		this.setProperties(new TreetaggerExporterProperties());
 	}
-		
+
 	@Override
-	public void exportCorpusStructure()
-	{
-		if (sCorpusGraph== null)
+	public void exportCorpusStructure() {
+		if (sCorpusGraph == null)
 			throw new PepperFWException("No SCorpusGraph was passed for exportCorpusStructure(SCorpusGraph corpusGraph). This might be a bug of the pepper framework.");
-		else 
-		{
-			for (SDocument sDocument: sCorpusGraph.getSDocuments())
-			{
+		else {
+			for (SDocument sDocument : sCorpusGraph.getSDocuments()) {
 				String corpusPath = this.getCorpusDesc().getCorpusPath().toFileString();
-				String docPath    = sDocument.getSElementPath().toString();
-				String docName    = sDocument.getSName()+ "." + ((TreetaggerExporterProperties)getProperties()).getFileEnding();
+				String docPath = sDocument.getSElementPath().toString();
+				String docName = sDocument.getSName() + "." + ((TreetaggerExporterProperties) getProperties()).getFileEnding();
 
 				File path = null;
-				if (((TreetaggerExporterProperties)getProperties()).isFlatten()) { path = new File(corpusPath);           }
-				else               { path = new File(corpusPath + docPath); }
-				
+				if (((TreetaggerExporterProperties) getProperties()).isFlatten()) {
+					path = new File(corpusPath);
+				} else {
+					path = new File(corpusPath + docPath);
+				}
+
 				path.mkdirs();
-				URI uri = URI.createFileURI(path.toString() + '/' + docName);	
+				URI uri = URI.createFileURI(path.toString() + '/' + docName);
 				this.getSElementId2ResourceTable().put(sDocument.getSElementId(), uri);
 			}
 		}
 	}
-	
-	
+
 	/**
-	 * Creates a mapper of type {@link PAULA2SaltMapper}.
-	 * {@inheritDoc PepperModule#createPepperMapper(SElementId)}
+	 * Creates a mapper of type {@link PAULA2SaltMapper}. {@inheritDoc
+	 * PepperModule#createPepperMapper(SElementId)}
 	 */
 	@Override
-	public PepperMapper createPepperMapper(SElementId sElementId)
-	{
-		Salt2TreetaggerMapper mapper= new Salt2TreetaggerMapper();
+	public PepperMapper createPepperMapper(SElementId sElementId) {
+		Salt2TreetaggerMapper mapper = new Salt2TreetaggerMapper();
 		if (sElementId.getSIdentifiableElement() instanceof SDocument)
 			mapper.setResourceURI(getSElementId2ResourceTable().get(sElementId));
-		return(mapper);
+		return (mapper);
 	}
 }

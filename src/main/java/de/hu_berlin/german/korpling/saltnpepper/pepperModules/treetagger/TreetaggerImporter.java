@@ -42,17 +42,18 @@ import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SElementId;
 
 /**
  * This class imports data from Treetagger format to Salt
+ * 
  * @author hildebax
  * @author Florian Zipser
- *
+ * 
  */
-@Component(name="TreetaggerImporterComponent", factory="PepperImporterComponentFactory")
-public class TreetaggerImporter extends PepperImporterImpl implements PepperImporter
-{
+@Component(name = "TreetaggerImporterComponent", factory = "PepperImporterComponentFactory")
+public class TreetaggerImporter extends PepperImporterImpl implements PepperImporter {
 	private Properties conversionProperties = null;
-	
+
 	/**
 	 * Getter for Properties
+	 * 
 	 * @return the Properties
 	 */
 	public Properties getConversionProperties() {
@@ -61,90 +62,88 @@ public class TreetaggerImporter extends PepperImporterImpl implements PepperImpo
 
 	/**
 	 * Setter for Properties
-	 * @param properties the Properties
+	 * 
+	 * @param properties
+	 *            the Properties
 	 */
 	public void setConversionProperties(Properties properties) {
 		this.conversionProperties = properties;
 	}
-	//---------------------------------------------------------------------------------------
-	public static final String[] TREETAGGER_FILE_ENDINGS={"treetagger", "tab", "tt"};
-	
-	public TreetaggerImporter()
-	{
+
+	// ---------------------------------------------------------------------------------------
+	public static final String[] TREETAGGER_FILE_ENDINGS = { "treetagger", "tab", "tt" };
+
+	public TreetaggerImporter() {
 		super();
-		//setting name of module
+		// setting name of module
 		this.setName("TreetaggerImporter");
-		//set list of formats supported by this module
+		// set list of formats supported by this module
 		this.addSupportedFormat("treetagger", "1.0", null);
-			
+
 		this.setProperties(new TreetaggerImporterProperties());
-		//adding all file endings to list of endings for documents (necessary for importCorpusStructure)
-		for (String ending: TREETAGGER_FILE_ENDINGS)
+		// adding all file endings to list of endings for documents (necessary
+		// for importCorpusStructure)
+		for (String ending : TREETAGGER_FILE_ENDINGS)
 			this.getSDocumentEndings().add(ending);
 	}
-	
+
 	/**
-	 * Creates a mapper of type {@link PAULA2SaltMapper}.
-	 * {@inheritDoc PepperModule#createPepperMapper(SElementId)}
+	 * Creates a mapper of type {@link PAULA2SaltMapper}. {@inheritDoc
+	 * PepperModule#createPepperMapper(SElementId)}
 	 */
 	@Override
-	public PepperMapper createPepperMapper(SElementId sElementId)
-	{
-		Treetagger2SaltMapper mapper= new Treetagger2SaltMapper();
-	
-		if (sElementId.getSIdentifiableElement() instanceof SDocument)
-		{
-			URI uri= getSElementId2ResourceTable().get(sElementId);
+	public PepperMapper createPepperMapper(SElementId sElementId) {
+		Treetagger2SaltMapper mapper = new Treetagger2SaltMapper();
+
+		if (sElementId.getSIdentifiableElement() instanceof SDocument) {
+			URI uri = getSElementId2ResourceTable().get(sElementId);
 			Document tDocument = this.loadFromFile(uri);
-			if (tDocument==null) {
-				mapper= null;
-			}
-			else {
+			if (tDocument == null) {
+				mapper = null;
+			} else {
 				mapper.setTTDocument(tDocument);
 			}
-		
+
 		}
-		return(mapper);
+		return (mapper);
 	}
 
 	@SuppressWarnings("unchecked")
-	private Document loadFromFile(URI uri)
-	{
-		Document retVal= null;
-		if (uri!= null)
-		{
-			// create resource set and resource 
+	private Document loadFromFile(URI uri) {
+		Document retVal = null;
+		if (uri != null) {
+			// create resource set and resource
 			ResourceSet resourceSet = new ResourceSetImpl();
-	
+
 			// Register XML resource factory
-			resourceSet.getResourceFactoryRegistry().getExtensionToFactoryMap().put("treetagger",new XMIResourceFactoryImpl());
+			resourceSet.getResourceFactoryRegistry().getExtensionToFactoryMap().put("treetagger", new XMIResourceFactoryImpl());
 			TabResourceFactory tabResourceFactory = new TabResourceFactory();
-			resourceSet.getResourceFactoryRegistry().getExtensionToFactoryMap().put("tab",tabResourceFactory);
-			resourceSet.getResourceFactoryRegistry().getExtensionToFactoryMap().put("tt",tabResourceFactory);
-			Resource resource= null;
+			resourceSet.getResourceFactoryRegistry().getExtensionToFactoryMap().put("tab", tabResourceFactory);
+			resourceSet.getResourceFactoryRegistry().getExtensionToFactoryMap().put("tt", tabResourceFactory);
+			Resource resource = null;
 			try {
-				//load resource 
+				// load resource
 				resource = resourceSet.createResource(uri);
 
-				if (resource== null)
-					throw new PepperModuleException(this,"Cannot load The resource is null.");
-				
+				if (resource == null)
+					throw new PepperModuleException(this, "Cannot load The resource is null.");
+
 				@SuppressWarnings("rawtypes")
-				//options map for resource.load
+				// options map for resource.load
 				Map options = new HashMap();
-				//put properties for TabResource loading into options
+				// put properties for TabResource loading into options
 				options.put(TabResource.propertiesKey, this.getConversionProperties());
 
 				resource.load(options);
-			} 
-			catch (IOException e) 
-			{	throw new PepperModuleException(this, "Cannot load resource '"+uri+"'.",e);	}
-			catch (NullPointerException e) 
-			{	throw new PepperModuleException(this,"Cannot load resource '"+uri+"'.",e);	}
-			if (resource.getContents().size()>0) {
-				retVal= (Document) resource.getContents().get(0);
+			} catch (IOException e) {
+				throw new PepperModuleException(this, "Cannot load resource '" + uri + "'.", e);
+			} catch (NullPointerException e) {
+				throw new PepperModuleException(this, "Cannot load resource '" + uri + "'.", e);
+			}
+			if (resource.getContents().size() > 0) {
+				retVal = (Document) resource.getContents().get(0);
 			}
 		}
-		return(retVal);
+		return (retVal);
 	}
 }
