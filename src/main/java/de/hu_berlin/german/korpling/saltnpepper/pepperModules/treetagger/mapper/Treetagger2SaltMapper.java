@@ -91,12 +91,9 @@ public class Treetagger2SaltMapper extends PepperMapperImpl implements PepperMap
 	 * auxiliary method
 	 */
 	protected void addSMetaAnnotation(EList<Annotation> tAnnotations, SDocument sDocument) {
-		System.out.println("begin meta");
 		for (Annotation tAnno: tAnnotations){
-			System.out.println("tAnno");
 			sDocument.createSMetaAnnotation(null, tAnno.getName(), tAnno.getValue());
 		}
-		System.out.println("end meta");
 	}
 
 	/*

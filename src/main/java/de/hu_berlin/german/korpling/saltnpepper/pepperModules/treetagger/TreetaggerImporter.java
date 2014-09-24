@@ -18,8 +18,6 @@
 package de.hu_berlin.german.korpling.saltnpepper.pepperModules.treetagger;
 
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
 
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.resource.Resource;
@@ -29,7 +27,6 @@ import org.eclipse.emf.ecore.xmi.impl.XMIResourceFactoryImpl;
 import org.osgi.service.component.annotations.Component;
 
 import de.hu_berlin.german.korpling.saltnpepper.misc.treetagger.Document;
-import de.hu_berlin.german.korpling.saltnpepper.misc.treetagger.resources.TabResource;
 import de.hu_berlin.german.korpling.saltnpepper.misc.treetagger.resources.TabResourceFactory;
 import de.hu_berlin.german.korpling.saltnpepper.pepper.modules.PepperImporter;
 import de.hu_berlin.german.korpling.saltnpepper.pepper.modules.PepperMapper;

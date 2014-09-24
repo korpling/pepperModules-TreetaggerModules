@@ -117,7 +117,6 @@ public class Salt2TreetaggerMapper extends PepperMapperImpl {
 		return (DOCUMENT_STATUS.COMPLETED);
 	}
 
-	@SuppressWarnings("unchecked")
 	private void saveToFile(URI uri, Document tDocument) throws IOException {
 		if (uri == null)
 			throw new PepperModuleException(this, "Cannot save o given uri, because its null for document '" + tDocument + "'.");
@@ -132,18 +131,11 @@ public class Salt2TreetaggerMapper extends PepperMapperImpl {
 		Resource resource = resourceSet.createResource(uri);
 
 		if (resource == null) {
-			System.out.println("fileEnding: " + getProps().getFileEnding());
 			throw new PepperConvertException("Cannot save treetagger file, the resource '" + uri + "' is null.");
 		}
 		resource.getContents().add(tDocument);
-
-		@SuppressWarnings("rawtypes")
-		// options map for resource.load
-		Map options = new HashMap();
-		// put properties for TabResource loading into options
-		options.put(TabResource.propertiesKey, getProperties().getProperties());
-
-		resource.save(options);
+		
+		resource.save(getProperties().getProperties());
 	}
 
 	/*
