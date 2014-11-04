@@ -46,7 +46,7 @@ import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SElementId;
 @Component(name = "TreetaggerImporterComponent", factory = "PepperImporterComponentFactory")
 public class TreetaggerImporter extends PepperImporterImpl implements PepperImporter {
 	// ---------------------------------------------------------------------------------------
-	public static final String[] TREETAGGER_FILE_ENDINGS = { "treetagger", "tab", "tt" };
+	public static final String[] TREETAGGER_FILE_ENDINGS = { "treetagger", "tab", "tt", "txt" };
 
 	public TreetaggerImporter() {
 		super();
@@ -95,6 +95,7 @@ public class TreetaggerImporter extends PepperImporterImpl implements PepperImpo
 			TabResourceFactory tabResourceFactory = new TabResourceFactory();
 			resourceSet.getResourceFactoryRegistry().getExtensionToFactoryMap().put("tab", tabResourceFactory);
 			resourceSet.getResourceFactoryRegistry().getExtensionToFactoryMap().put("tt", tabResourceFactory);
+			resourceSet.getResourceFactoryRegistry().getExtensionToFactoryMap().put("txt", tabResourceFactory);
 			Resource resource = null;
 			try {
 				// load resource
