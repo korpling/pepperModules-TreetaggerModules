@@ -27,6 +27,7 @@ import de.hu_berlin.german.korpling.saltnpepper.pepper.modules.PepperExporter;
 import de.hu_berlin.german.korpling.saltnpepper.pepper.modules.PepperMapper;
 import de.hu_berlin.german.korpling.saltnpepper.pepper.modules.impl.PepperExporterImpl;
 import de.hu_berlin.german.korpling.saltnpepper.pepperModules.treetagger.mapper.Salt2TreetaggerMapper;
+import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sCorpusStructure.SCorpusGraph;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sCorpusStructure.SDocument;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SElementId;
 
@@ -50,9 +51,7 @@ public class TreetaggerExporter extends PepperExporterImpl implements PepperExpo
 
 	@Override
 	public void exportCorpusStructure() {
-		if (sCorpusGraph == null)
-			throw new PepperFWException("No SCorpusGraph was passed for exportCorpusStructure(SCorpusGraph corpusGraph). This might be a bug of the pepper framework.");
-		else {
+		for (SCorpusGraph sCorpusGraph : getSaltProject().getSCorpusGraphs()) {
 			for (SDocument sDocument : sCorpusGraph.getSDocuments()) {
 				String corpusPath = this.getCorpusDesc().getCorpusPath().toFileString();
 				String docPath = sDocument.getSElementPath().toString();
