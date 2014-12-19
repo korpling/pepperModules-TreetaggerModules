@@ -1,7 +1,6 @@
 ![SaltNPepper project](./gh-site/img/SaltNPepper_logo2010.png)
-# ${project.artifactId}
+# pepperModules-TreetaggerModules
 This project provides an im- and an exporter to support the TreeTagger format in the linguistic converter framework Pepper (see https://u.hu-berlin.de/saltnpepper). The [TreeTagger](http://www.cis.uni-muenchen.de/~schmid/tools/TreeTagger/) is a natural language processing tool, to annotate text with part-of-speech and lemma annotations. A detailed description of the importer can be found in section [TreeTaggerImporter](#details_im) and a description for the exporter can be found [TreeTaggerExporter](#details_ex).
--
 
 Pepper is a pluggable framework to convert a variety of linguistic formats (like [TigerXML](http://www.ims.uni-stuttgart.de/forschung/ressourcen/werkzeuge/TIGERSearch/doc/html/TigerXML.html), the [EXMARaLDA format](http://www.exmaralda.org/), [PAULA](http://www.sfb632.uni-potsdam.de/paula.html) etc.) into each other. Furthermore Pepper uses Salt (see https://github.com/korpling/salt), the graph-based meta model for linguistic data, which acts as an intermediate model to reduce the number of mappings to be implemented. That means converting data from a format _A_ to format _B_ consists of two steps. First the data is mapped from format _A_ to Salt and second from Salt to format _B_. This detour reduces the number of Pepper modules from _n<sup>2</sup>-n_ (in the case of a direct mapping) to _2n_ to handle a number of n formats.
 
