@@ -1,8 +1,10 @@
-![SaltNPepper project](./md/img/SaltNPepper_logo2010.png)
-# pepperModules-TreetaggerModules
-This project provides a plugin for the linguistic converter framework Pepper (see https://github.com/korpling/pepper). Pepper is a pluggable framework to convert a variety of linguistic formats (like [TigerXML](http://www.ims.uni-stuttgart.de/forschung/ressourcen/werkzeuge/TIGERSearch/doc/html/TigerXML.html), the [EXMARaLDA format](http://www.exmaralda.org/), [PAULA](http://www.sfb632.uni-potsdam.de/paula.html) etc.) into each other. Furthermore Pepper uses Salt (see https://github.com/korpling/salt), the graph-based meta model for linguistic data, which acts as an intermediate model to reduce the number of mappings to be implemented. That means converting data from a format _A_ to format _B_ consists of two steps. First the data is mapped from format _A_ to Salt and second from Salt to format _B_. This detour reduces the number of Pepper modules from _n<sup>2</sup>-n_ (in the case of a direct mapping) to _2n_ to handle a number of n formats.
+![SaltNPepper project](./gh-site/img/SaltNPepper_logo2010.png)
+# ${project.artifactId}
+This project provides an im- and an exporter to support the TreeTagger format in the linguistic converter framework Pepper (see https://u.hu-berlin.de/saltnpepper). The TreeTagger is a natural language processing tool, to annotate text with part-of-speech and lemma annotations. A detailed description of the importer can be found in section TreeTaggerImporter and a description for the exporter can be found TreeTaggerExporter.
 
-![n:n mappings via SaltNPepper](./md/img/puzzle.png)
+Pepper is a pluggable framework to convert a variety of linguistic formats (like [TigerXML](http://www.ims.uni-stuttgart.de/forschung/ressourcen/werkzeuge/TIGERSearch/doc/html/TigerXML.html), the [EXMARaLDA format](http://www.exmaralda.org/), [PAULA](http://www.sfb632.uni-potsdam.de/paula.html) etc.) into each other. Furthermore Pepper uses Salt (see https://github.com/korpling/salt), the graph-based meta model for linguistic data, which acts as an intermediate model to reduce the number of mappings to be implemented. That means converting data from a format _A_ to format _B_ consists of two steps. First the data is mapped from format _A_ to Salt and second from Salt to format _B_. This detour reduces the number of Pepper modules from _n<sup>2</sup>-n_ (in the case of a direct mapping) to _2n_ to handle a number of n formats.
+
+![n:n mappings via SaltNPepper](./gh-site/img/puzzle.png)
 
 In Pepper there are three different types of modules:
 * importers (to map a format _A_ to a Salt model)
@@ -10,8 +12,6 @@ In Pepper there are three different types of modules:
 * exporters (to map a Salt model to a format _B_).
 
 For a simple Pepper workflow you need at least one importer and one exporter.
-
-This project provides an importer and an exporter to map data to and from a Salt model to the TreeTagger format. The [TreeTagger](http://www.cis.uni-muenchen.de/~schmid/tools/TreeTagger/) is a natural language processing tool, to annotate text with part-of-speech and lemma annotations. A detailed description of the importer can be found in section [TreeTaggerImporter](#details_im) and a description for the exporter can be found [TreeTaggerExporter](#details_ex).
 
 ## Requirements
 Since the here provided module is a plugin for Pepper, you need an instance of the Pepper framework. If you do not already have a running Pepper instance, click on the link below and download the latest stable version (not a SNAPSHOT):
@@ -23,14 +23,20 @@ Since the here provided module is a plugin for Pepper, you need an instance of t
 ## Install module
 If this Pepper module is not yet contained in your Pepper distribution, you can easily install it. Just open a command line and enter one of the following program calls:
 
-### Windows
+**Windows**
+```
+pepperStart.bat 
+```
 
-    pepperStart.bat is https://korpling.german.hu-berlin.de/saltnpepper/repository/repo/de/hu_berlin/german/korpling/saltnpepper/pepperModules/pepperModules-TreetaggerModules/1.2.4/de.hu_berlin.german.korpling.saltnpepper.pepperModules.pepperModules-TreetaggerModules_1.2.4.zip
+**Linux/Unix**
+```
+bash pepperStart.sh 
+```
 
-### Linux/Unix
-
-    bash pepperStart.sh is https://korpling.german.hu-berlin.de/saltnpepper/repository/repo/de/hu_berlin/german/korpling/saltnpepper/pepperModules/pepperModules-TreetaggerModules/1.2.4/de.hu_berlin.german.korpling.saltnpepper.pepperModules.pepperModules-TreetaggerModules_1.2.4.zip
-
+Then type in command *is* and the path from where to install the module:
+```
+pepper> update de.hu_berlin.german.korpling.saltnpepper::pepperModules-${project.artifactId}::https://korpling.german.hu-berlin.de/maven2/
+```
 
 ## Usage
 To use this module in your Pepper workflow, put the following lines into the workflow description file. Note the fixed order of xml elements in the workflow description file: &lt;importer/>, &lt;manipulator/>, &lt;exporter>. The TreetaggerImporter is an importer module, which can be addressed by one of the following alternatives.
@@ -41,10 +47,18 @@ A detailed description of the Pepper workflow can be found on the [Pepper projec
 ```xml
 <importer name="TreetaggerImporter" path="PATH_TO_CORPUS"/>
 ```
+or
+```xml
+<exporter name="TreetaggerExporter" path="PATH_TO_CORPUS"/>
+```
 
 ### b) Identify the module by formats
 ```xml
-<importer formatName="xml" formatVersion="1.0" path="PATH_TO_CORPUS"/>
+<importer formatName="treetagger" formatVersion="1.0" path="PATH_TO_CORPUS"/>
+```
+or
+```xml
+<exporter formatName="treetagger" formatVersion="1.0" path="PATH_TO_CORPUS"/>
 ```
 
 ### c) Use properties
@@ -52,6 +66,12 @@ A detailed description of the Pepper workflow can be found on the [Pepper projec
 <importer name="TreetaggerImporter" path="PATH_TO_CORPUS">
   <property key="PROPERTY_NAME">PROPERTY_VALUE</key>
 </importer>
+```
+or
+```xml
+<exporter name="TreetaggerExporter" path="PATH_TO_CORPUS">
+  <property key="PROPERTY_NAME">PROPERTY_VALUE</key>
+</exporter>
 ```
 
 ## Contribute
