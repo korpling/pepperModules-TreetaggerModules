@@ -24,6 +24,7 @@ import org.osgi.service.component.annotations.Component;
 
 import de.hu_berlin.german.korpling.saltnpepper.pepper.modules.PepperExporter;
 import de.hu_berlin.german.korpling.saltnpepper.pepper.modules.PepperMapper;
+import de.hu_berlin.german.korpling.saltnpepper.pepper.modules.PepperExporter.EXPORT_MODE;
 import de.hu_berlin.german.korpling.saltnpepper.pepper.modules.impl.PepperExporterImpl;
 import de.hu_berlin.german.korpling.saltnpepper.pepperModules.treetagger.mapper.Salt2TreetaggerMapper;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sCorpusStructure.SCorpusGraph;
@@ -46,28 +47,9 @@ public class TreetaggerExporter extends PepperExporterImpl implements PepperExpo
 		// set list of formats supported by this module
 		this.addSupportedFormat("treetagger", "1.0", null);
 		this.setProperties(new TreetaggerExporterProperties());
-	}
+		this.setExportMode(EXPORT_MODE.DOCUMENTS_IN_FILES);
+		setSDocumentEnding("tt");
 
-	@Override
-	public void exportCorpusStructure() {
-		for (SCorpusGraph sCorpusGraph : getSaltProject().getSCorpusGraphs()) {
-			for (SDocument sDocument : sCorpusGraph.getSDocuments()) {
-				String corpusPath = this.getCorpusDesc().getCorpusPath().toFileString();
-				String docPath = sDocument.getSElementPath().toString();
-				String docName = sDocument.getSName() + "." + ((TreetaggerExporterProperties) getProperties()).getFileEnding();
-
-				File path = null;
-				if (((TreetaggerExporterProperties) getProperties()).isFlatten()) {
-					path = new File(corpusPath);
-				} else {
-					path = new File(corpusPath + docPath);
-				}
-
-				path.mkdirs();
-				URI uri = URI.createFileURI(path.toString() + '/' + docName);
-				this.getSElementId2ResourceTable().put(sDocument.getSElementId(), uri);
-			}
-		}
 	}
 
 	/**
