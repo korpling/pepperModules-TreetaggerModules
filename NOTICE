@@ -19,7 +19,6 @@ inside the folders plugins or lib.
 
 This project includes:
   Apache Commons Lang under The Apache Software License, Version 2.0
-  Apache Log4j under The Apache Software License, Version 2.0
   carrot-osgi-anno-scr-core under The BSD License
   carrot-osgi-anno-scr-make under The BSD License
   de.hu_berlin.german.korpling.treetagger-emf-api under The Apache Software License, Version 2.0
