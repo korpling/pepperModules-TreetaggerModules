@@ -44,6 +44,9 @@ public class TreetaggerExporter extends PepperExporterImpl implements PepperExpo
 		super();
 		// setting name of module
 		this.setName("TreetaggerExporter");
+		setSupplierContact(URI.createURI("saltnpepper@lists.hu-berlin.de"));
+		setSupplierHomepage(URI.createURI("https://github.com/korpling/pepperModules-TreetaggerModules"));
+		setDesc("This exporter transforms a Salt model into the TreeTagger format produced by the TreeTagger tool (see http://www.cis.uni-muenchen.de/~schmid/tools/TreeTagger/). ");
 		// set list of formats supported by this module
 		this.addSupportedFormat("treetagger", "1.0", null);
 		this.setProperties(new TreetaggerExporterProperties());

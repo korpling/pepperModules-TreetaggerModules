@@ -52,6 +52,9 @@ public class TreetaggerImporter extends PepperImporterImpl implements PepperImpo
 		super();
 		// setting name of module
 		this.setName("TreetaggerImporter");
+	    setSupplierContact(URI.createURI("saltnpepper@lists.hu-berlin.de"));
+		setSupplierHomepage(URI.createURI("https://github.com/korpling/pepperModules-TreetaggerModules"));
+		setDesc("This importer transforms data in TreeTagger format produced by the TreeTagger tool (see http://www.cis.uni-muenchen.de/~schmid/tools/TreeTagger/) to a Salt model. ");
 		// set list of formats supported by this module
 		this.addSupportedFormat("treetagger", "1.0", null);
 
