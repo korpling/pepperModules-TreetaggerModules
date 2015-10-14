@@ -20,7 +20,6 @@ package org.corpus_tools.peppermodules.treetagger;
 import org.corpus_tools.pepper.common.PepperConfiguration;
 import org.corpus_tools.pepper.impl.PepperExporterImpl;
 import org.corpus_tools.pepper.modules.PepperExporter;
-import org.corpus_tools.pepper.modules.PepperExporter.EXPORT_MODE;
 import org.corpus_tools.pepper.modules.PepperMapper;
 import org.corpus_tools.peppermodules.treetagger.mapper.Salt2TreetaggerMapper;
 import org.corpus_tools.salt.common.SDocument;
