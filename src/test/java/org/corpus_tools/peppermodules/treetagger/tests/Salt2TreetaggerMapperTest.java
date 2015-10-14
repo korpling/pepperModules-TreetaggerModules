@@ -15,7 +15,7 @@
  *
  *
  */
-package de.hu_berlin.german.korpling.saltnpepper.pepperModules.treetagger.tests;
+package org.corpus_tools.peppermodules.treetagger.tests;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -24,6 +24,7 @@ import java.util.List;
 
 import junit.framework.TestCase;
 
+import org.corpus_tools.peppermodules.treetagger.TreetaggerExporterProperties;
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.common.util.URI;
 
@@ -34,7 +35,6 @@ import de.hu_berlin.german.korpling.saltnpepper.misc.treetagger.POSAnnotation;
 import de.hu_berlin.german.korpling.saltnpepper.misc.treetagger.Span;
 import de.hu_berlin.german.korpling.saltnpepper.misc.treetagger.Token;
 import de.hu_berlin.german.korpling.saltnpepper.misc.treetagger.TreetaggerFactory;
-import de.hu_berlin.german.korpling.saltnpepper.pepperModules.treetagger.TreetaggerExporterProperties;
 import de.hu_berlin.german.korpling.saltnpepper.salt.SaltFactory;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sCorpusStructure.SDocument;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SDocumentGraph;
@@ -329,7 +329,7 @@ public class Salt2TreetaggerMapperTest extends TestCase {
 	}
 	
 	/**
-	 * Test method for {@link de.hu_berlin.german.korpling.saltnpepper.pepperModules.treetagger.tests.PublicSalt2TreetaggerMapper#addDocumentAnnotations(org.eclipse.emf.common.util.EList, de.hu_berlin.german.korpling.saltnpepper.misc.treetagger.Document)}.
+	 * Test method for {@link org.corpus_tools.peppermodules.treetagger.tests.PublicSalt2TreetaggerMapper#addDocumentAnnotations(org.eclipse.emf.common.util.EList, de.hu_berlin.german.korpling.saltnpepper.misc.treetagger.Document)}.
 	 */
 	public final void testAddDocumentAnnotations() {
 		Document  tDoc = TreetaggerFactory.eINSTANCE.createDocument();
@@ -352,7 +352,7 @@ public class Salt2TreetaggerMapperTest extends TestCase {
 	}
 
 	/**
-	 * Test method for {@link de.hu_berlin.german.korpling.saltnpepper.pepperModules.treetagger.tests.PublicSalt2TreetaggerMapper#addTokens(de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SDocumentGraph, de.hu_berlin.german.korpling.saltnpepper.misc.treetagger.Document)}.
+	 * Test method for {@link org.corpus_tools.peppermodules.treetagger.tests.PublicSalt2TreetaggerMapper#addTokens(de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SDocumentGraph, de.hu_berlin.german.korpling.saltnpepper.misc.treetagger.Document)}.
 	 */
 	public final void testAddTokens() {
 		Document  tDoc = TreetaggerFactory.eINSTANCE.createDocument();
@@ -438,7 +438,7 @@ public class Salt2TreetaggerMapperTest extends TestCase {
 	}
 	
 	/**
-	 * Test method for {@link de.hu_berlin.german.korpling.saltnpepper.pepperModules.treetagger.mapper.Salt2TreetaggerMapper#map(de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sCorpusStructure.SDocument, de.hu_berlin.german.korpling.saltnpepper.misc.treetagger.Document)}.
+	 * Test method for {@link org.corpus_tools.peppermodules.treetagger.mapper.Salt2TreetaggerMapper#map(de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sCorpusStructure.SDocument, de.hu_berlin.german.korpling.saltnpepper.misc.treetagger.Document)}.
 	 */
 	public final void testMap() {
 		Document  tDoc = TreetaggerFactory.eINSTANCE.createDocument();

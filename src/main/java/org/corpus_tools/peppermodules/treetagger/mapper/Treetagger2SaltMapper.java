@@ -15,10 +15,11 @@
  *
  *
  */
-package de.hu_berlin.german.korpling.saltnpepper.pepperModules.treetagger.mapper;
+package org.corpus_tools.peppermodules.treetagger.mapper;
 
 import java.util.Hashtable;
 
+import org.corpus_tools.peppermodules.treetagger.TreetaggerImporterProperties;
 import org.eclipse.emf.common.util.EList;
 
 import de.hu_berlin.german.korpling.saltnpepper.misc.treetagger.Annotation;
@@ -30,7 +31,6 @@ import de.hu_berlin.german.korpling.saltnpepper.misc.treetagger.Token;
 import de.hu_berlin.german.korpling.saltnpepper.pepper.common.DOCUMENT_STATUS;
 import de.hu_berlin.german.korpling.saltnpepper.pepper.modules.PepperMapper;
 import de.hu_berlin.german.korpling.saltnpepper.pepper.modules.impl.PepperMapperImpl;
-import de.hu_berlin.german.korpling.saltnpepper.pepperModules.treetagger.TreetaggerImporterProperties;
 import de.hu_berlin.german.korpling.saltnpepper.salt.SaltFactory;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sCorpusStructure.SDocument;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SSpan;

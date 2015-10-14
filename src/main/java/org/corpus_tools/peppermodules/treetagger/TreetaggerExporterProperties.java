@@ -15,7 +15,7 @@
  *
  *
  */
-package de.hu_berlin.german.korpling.saltnpepper.pepperModules.treetagger;
+package org.corpus_tools.peppermodules.treetagger;
 
 import java.util.List;
 import java.util.Vector;
