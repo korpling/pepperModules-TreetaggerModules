@@ -18,7 +18,6 @@
 package org.corpus_tools.peppermodules.treetagger.tests;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
@@ -32,11 +31,7 @@ import org.corpus_tools.salt.common.SDocument;
 import org.corpus_tools.salt.common.SDocumentGraph;
 import org.corpus_tools.salt.common.STextualRelation;
 import org.corpus_tools.salt.common.SToken;
-import org.corpus_tools.salt.core.SAnnotation;
-import org.corpus_tools.salt.core.SAnnotationContainer;
 import org.corpus_tools.salt.core.SMetaAnnotation;
-import org.corpus_tools.salt.semantics.SLemmaAnnotation;
-import org.corpus_tools.salt.semantics.SPOSAnnotation;
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.resource.ResourceSet;
@@ -313,30 +308,7 @@ public class Treetagger2SaltMapperTest{
 			Token  tTok = tTokens.get(index);
 			SToken sTok = sTokens.get(index);
 			assertEquals(tTok.getText(), sTokenTextTable.get(sTok));
-			compareAnnotations(tTok.getAnnotations(), sTok);
+			Salt2TreetaggerMapperTest.compareAnnotations(sTok, tTok.getAnnotations());
 		}
 	}
-	
-	/**
-	 * compares annotations for equivalency
-	 * @param tAnnos
-	 * @param sAnnos
-	 */
-	private void compareAnnotations(List<Annotation> tAnnos, SAnnotationContainer container) {
-		assertEquals(tAnnos.size(), container.getAnnotations().size());
-		for (int annoIndex=0;annoIndex<tAnnos.size();annoIndex++) {
-			Annotation  tAnno = tAnnos.get(annoIndex);
-			SAnnotation sAnno = container.getAnnotation(tAnno.getName());
-			
-			if (tAnno instanceof POSAnnotation)
-				assertTrue(sAnno instanceof SPOSAnnotation);
-			else if (tAnno instanceof LemmaAnnotation)
-				assertTrue(sAnno instanceof SLemmaAnnotation);
-			else {
-				assertFalse((sAnno instanceof SPOSAnnotation)||(sAnno instanceof SLemmaAnnotation));
-				assertEquals(tAnno.getName(),  sAnno.getName());
-			}
-			assertEquals(tAnno.getValue(), sAnno.getValue_STEXT());
-		}
-	}	
 }

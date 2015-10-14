@@ -42,6 +42,7 @@ import org.corpus_tools.salt.core.SAnnotationContainer;
 import org.corpus_tools.salt.core.SMetaAnnotation;
 import org.corpus_tools.salt.semantics.SLemmaAnnotation;
 import org.corpus_tools.salt.semantics.SPOSAnnotation;
+import org.corpus_tools.salt.util.SaltUtil;
 import org.eclipse.emf.common.util.URI;
 import org.junit.Before;
 import org.junit.Test;
@@ -418,23 +419,24 @@ public class Salt2TreetaggerMapperTest{
 	 * @param sAnnos
 	 * @param tAnnos
 	 */
-	protected void compareAnnotations(SAnnotationContainer container, List<Annotation> tAnnos) {
+	public static void compareAnnotations(SAnnotationContainer container, List<Annotation> tAnnos) {
 		assertEquals(container.getAnnotations().size(), tAnnos.size());
 		for (int annoIndex=0; annoIndex<container.getAnnotations().size(); annoIndex++) {
-//			SAnnotation sAnno = sAnnos.get(annoIndex);
 			Annotation  tAnno = tAnnos.get(annoIndex);
-			SAnnotation sAnno = container.getAnnotation(tAnno.getName());
 			if (tAnno instanceof POSAnnotation) {
-				assertTrue(sAnno instanceof SPOSAnnotation); 
+				SAnnotation sAnno =container.getAnnotation(SaltUtil.createQName(SaltUtil.SALT_NAMESPACE, SaltUtil.SEMANTICS_POS));
+				assertTrue(sAnno.getClass().getName(),sAnno instanceof SPOSAnnotation); 
 				//do not compare SName and Name, they are set automatically
 				assertEquals(sAnno.getValue_STEXT(), tAnno.getValue());
 			}
 			else if (tAnno instanceof LemmaAnnotation) {
+				SAnnotation sAnno =container.getAnnotation(SaltUtil.createQName(SaltUtil.SALT_NAMESPACE, SaltUtil.SEMANTICS_LEMMA));
 				assertTrue(sAnno instanceof SLemmaAnnotation); 
 				//do not compare SName and Name, they are set automatically
 				assertEquals(sAnno.getValue_STEXT(), tAnno.getValue());
 			} 
 			else {
+				SAnnotation sAnno =container.getAnnotation(tAnno.getName());
 				assertFalse((sAnno instanceof SPOSAnnotation)||(sAnno instanceof SLemmaAnnotation));
 				assertEquals(sAnno.getName(),       tAnno.getName() );
 				assertEquals(sAnno.getValue_STEXT(), tAnno.getValue());
