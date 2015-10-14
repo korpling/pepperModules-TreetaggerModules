@@ -17,9 +17,9 @@
  */
 package org.corpus_tools.peppermodules.treetagger;
 
-import de.hu_berlin.german.korpling.saltnpepper.pepper.modules.PepperModuleProperties;
-import de.hu_berlin.german.korpling.saltnpepper.pepper.modules.PepperModuleProperty;
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SToken;
+import org.corpus_tools.pepper.modules.PepperModuleProperties;
+import org.corpus_tools.pepper.modules.PepperModuleProperty;
+import org.corpus_tools.salt.common.SToken;
 
 public class TreetaggerImporterProperties extends PepperModuleProperties {
 	public static final String PREFIX = "treetagger.input.";

@@ -19,7 +19,14 @@ package org.corpus_tools.peppermodules.treetagger;
 
 import java.io.IOException;
 
+import org.corpus_tools.pepper.common.PepperConfiguration;
+import org.corpus_tools.pepper.impl.PepperImporterImpl;
+import org.corpus_tools.pepper.modules.PepperImporter;
+import org.corpus_tools.pepper.modules.PepperMapper;
+import org.corpus_tools.pepper.modules.exceptions.PepperModuleException;
 import org.corpus_tools.peppermodules.treetagger.mapper.Treetagger2SaltMapper;
+import org.corpus_tools.salt.common.SDocument;
+import org.corpus_tools.salt.graph.Identifier;
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.resource.ResourceSet;
@@ -29,12 +36,7 @@ import org.osgi.service.component.annotations.Component;
 
 import de.hu_berlin.german.korpling.saltnpepper.misc.treetagger.Document;
 import de.hu_berlin.german.korpling.saltnpepper.misc.treetagger.resources.TabResourceFactory;
-import de.hu_berlin.german.korpling.saltnpepper.pepper.modules.PepperImporter;
-import de.hu_berlin.german.korpling.saltnpepper.pepper.modules.PepperMapper;
-import de.hu_berlin.german.korpling.saltnpepper.pepper.modules.exceptions.PepperModuleException;
-import de.hu_berlin.german.korpling.saltnpepper.pepper.modules.impl.PepperImporterImpl;
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sCorpusStructure.SDocument;
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SElementId;
+
 
 /**
  * This class imports data from Treetagger format to Salt
@@ -51,31 +53,31 @@ public class TreetaggerImporter extends PepperImporterImpl implements PepperImpo
 	public TreetaggerImporter() {
 		super();
 		// setting name of module
-		this.setName("TreetaggerImporter");
-	    setSupplierContact(URI.createURI("saltnpepper@lists.hu-berlin.de"));
+		setName("TreetaggerImporter");
+	    setSupplierContact(URI.createURI(PepperConfiguration.EMAIL));
 		setSupplierHomepage(URI.createURI("https://github.com/korpling/pepperModules-TreetaggerModules"));
 		setDesc("This importer transforms data in TreeTagger format produced by the TreeTagger tool (see http://www.cis.uni-muenchen.de/~schmid/tools/TreeTagger/) to a Salt model. ");
 		// set list of formats supported by this module
-		this.addSupportedFormat("treetagger", "1.0", null);
+		addSupportedFormat("treetagger", "1.0", null);
 
-		this.setProperties(new TreetaggerImporterProperties());
+		setProperties(new TreetaggerImporterProperties());
 		// adding all file endings to list of endings for documents (necessary
 		// for importCorpusStructure)
 		for (String ending : TREETAGGER_FILE_ENDINGS){
-			this.getSDocumentEndings().add(ending);
+			this.getDocumentEndings().add(ending);
 		}
 	}
 
 	/**
 	 * Creates a mapper of type {@link PAULA2SaltMapper}. {@inheritDoc
-	 * PepperModule#createPepperMapper(SElementId)}
+	 * PepperModule#createPepperMapper(Identifier)}
 	 */
 	@Override
-	public PepperMapper createPepperMapper(SElementId sElementId) {
+	public PepperMapper createPepperMapper(Identifier sElementId) {
 		Treetagger2SaltMapper mapper = new Treetagger2SaltMapper();
 
-		if (sElementId.getSIdentifiableElement() instanceof SDocument) {
-			URI uri = getSElementId2ResourceTable().get(sElementId);
+		if (sElementId.getIdentifiableElement() instanceof SDocument) {
+			URI uri = getIdentifier2ResourceTable().get(sElementId);
 			Document tDocument = this.loadFromFile(uri);
 			if (tDocument == null) {
 				mapper = null;

@@ -17,20 +17,20 @@
  */
 package org.corpus_tools.peppermodules.treetagger.tests;
 
+import java.util.Set;
+
 import org.corpus_tools.peppermodules.treetagger.mapper.Salt2TreetaggerMapper;
-import org.eclipse.emf.common.util.EList;
+import org.corpus_tools.salt.common.SDocumentGraph;
+import org.corpus_tools.salt.common.SSpan;
+import org.corpus_tools.salt.common.SToken;
+import org.corpus_tools.salt.core.SMetaAnnotation;
 
 import de.hu_berlin.german.korpling.saltnpepper.misc.treetagger.Document;
 import de.hu_berlin.german.korpling.saltnpepper.misc.treetagger.Span;
 import de.hu_berlin.german.korpling.saltnpepper.misc.treetagger.Token;
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SDocumentGraph;
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SSpan;
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SToken;
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SMetaAnnotation;
-
 public class PublicSalt2TreetaggerMapper extends Salt2TreetaggerMapper {
 
-	public void addDocumentAnnotations(EList<SMetaAnnotation> sMetaAnnotations, Document tDocument) {
+	public void addDocumentAnnotations(Set<SMetaAnnotation> sMetaAnnotations, Document tDocument) {
 		super.addDocumentAnnotations(sMetaAnnotations, tDocument);
 	}
 	

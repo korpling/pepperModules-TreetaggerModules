@@ -25,7 +25,18 @@ import java.io.IOException;
 import java.util.Hashtable;
 import java.util.List;
 
+import org.corpus_tools.pepper.modules.PepperModuleProperty;
 import org.corpus_tools.peppermodules.treetagger.TreetaggerImporterProperties;
+import org.corpus_tools.salt.SaltFactory;
+import org.corpus_tools.salt.common.SDocument;
+import org.corpus_tools.salt.common.SDocumentGraph;
+import org.corpus_tools.salt.common.STextualRelation;
+import org.corpus_tools.salt.common.SToken;
+import org.corpus_tools.salt.core.SAnnotation;
+import org.corpus_tools.salt.core.SAnnotationContainer;
+import org.corpus_tools.salt.core.SMetaAnnotation;
+import org.corpus_tools.salt.semantics.SLemmaAnnotation;
+import org.corpus_tools.salt.semantics.SPOSAnnotation;
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.resource.ResourceSet;
@@ -41,17 +52,6 @@ import de.hu_berlin.german.korpling.saltnpepper.misc.treetagger.Span;
 import de.hu_berlin.german.korpling.saltnpepper.misc.treetagger.Token;
 import de.hu_berlin.german.korpling.saltnpepper.misc.treetagger.TreetaggerFactory;
 import de.hu_berlin.german.korpling.saltnpepper.misc.treetagger.resources.TabResourceFactory;
-import de.hu_berlin.german.korpling.saltnpepper.pepper.modules.PepperModuleProperty;
-import de.hu_berlin.german.korpling.saltnpepper.salt.SaltFactory;
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sCorpusStructure.SDocument;
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SDocumentGraph;
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SDocumentStructurePackage;
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.STextualRelation;
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SToken;
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SAnnotation;
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SMetaAnnotation;
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltSemantics.SLemmaAnnotation;
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltSemantics.SPOSAnnotation;
 
 /**
  * TestCase for mapping Treetagger to Salt
@@ -143,7 +143,6 @@ public class Treetagger2SaltMapperTest{
 	private void saveDocument() {
 		Document tDoc = this.createDocument();
 		ResourceSet resourceSet = new ResourceSetImpl();
-		resourceSet.getPackageRegistry().put(SDocumentStructurePackage.eINSTANCE.getNsURI(), SDocumentStructurePackage.eINSTANCE);
 		TabResourceFactory tabResourceFactory = new TabResourceFactory();
 		resourceSet.getResourceFactoryRegistry().getExtensionToFactoryMap().put("tab",tabResourceFactory);
 		resourceSet.getResourceFactoryRegistry().getExtensionToFactoryMap().put("tt",tabResourceFactory);
@@ -162,14 +161,14 @@ public class Treetagger2SaltMapperTest{
 	@Test
 	public final void testConvert() {
 		Document  tDoc = this.createDocument();
-		SDocument sDoc = SaltFactory.eINSTANCE.createSDocument();
-		sDoc.setSDocumentGraph(SaltFactory.eINSTANCE.createSDocumentGraph());
+		SDocument sDoc = SaltFactory.createSDocument();
+		sDoc.setDocumentGraph(SaltFactory.createSDocumentGraph());
 		
-		this.getFixture().setTTDocument(tDoc);
-		this.getFixture().setSDocument(sDoc);
-		this.getFixture().mapSDocument();
-		assertEquals(tDoc.getName(), sDoc.getSName());
-		assertEquals(tDoc.getName() + "_graph", sDoc.getSDocumentGraph().getSName());
+		getFixture().setTTDocument(tDoc);
+		getFixture().setDocument(sDoc);
+		getFixture().mapSDocument();
+		assertEquals(tDoc.getName(), sDoc.getName());
+		assertEquals(tDoc.getName() + "_graph", sDoc.getDocumentGraph().getName());
 		this.testAddSMetaAnnotation();
 		this.testCreateSTextualDS();
 	}
@@ -180,16 +179,16 @@ public class Treetagger2SaltMapperTest{
 	@Test
 	public final void testAddSMetaAnnotation() {
 		Document  tDoc = this.createDocument();
-		SDocument sDoc = SaltFactory.eINSTANCE.createSDocument();
-		sDoc.setSDocumentGraph(SaltFactory.eINSTANCE.createSDocumentGraph());
-		assertTrue(sDoc.getSMetaAnnotations().isEmpty());
-		this.getFixture().addSMetaAnnotation(tDoc.getAnnotations(), sDoc);
-		assertEquals(tDoc.getAnnotations().size(), sDoc.getSMetaAnnotations().size());
+		SDocument sDoc = SaltFactory.createSDocument();
+		sDoc.setDocumentGraph(SaltFactory.createSDocumentGraph());
+		assertTrue(sDoc.getMetaAnnotations().isEmpty());
+		getFixture().addMetaAnnotation(tDoc.getAnnotations(), sDoc);
+		assertEquals(tDoc.getAnnotations().size(), sDoc.getMetaAnnotations().size());
 		for (int i=0;i<tDoc.getAnnotations().size();i++) {
 			Annotation      tAnno = tDoc.getAnnotations().get(i);
-			SMetaAnnotation sAnno = sDoc.getSMetaAnnotations().get(i);
-			assertEquals(tAnno.getName(),  sAnno.getSName());			
-			assertEquals(tAnno.getValue(), sAnno.getSValueSTEXT());
+			SMetaAnnotation sAnno = sDoc.getMetaAnnotation(tAnno.getName());
+			assertEquals(tAnno.getName(),  sAnno.getName());			
+			assertEquals(tAnno.getValue(), sAnno.getValue_STEXT());
 		}
 	}
 
@@ -199,11 +198,11 @@ public class Treetagger2SaltMapperTest{
 	@Test
 	public final void testCreateSTextualDS() {
 		Document  tDoc = this.createDocument();
-		SDocument sDoc = SaltFactory.eINSTANCE.createSDocument();
-		sDoc.setSDocumentGraph(SaltFactory.eINSTANCE.createSDocumentGraph());
-		this.getFixture().createSTextualDS(tDoc.getTokens(), sDoc);
-		SDocumentGraph sDocGraph = sDoc.getSDocumentGraph();
-		assertEquals(exampleText, sDocGraph.getSTextualDSs().get(0).getSText());
+		SDocument sDoc = SaltFactory.createSDocument();
+		sDoc.setDocumentGraph(SaltFactory.createSDocumentGraph());
+		getFixture().createSTextualDS(tDoc.getTokens(), sDoc);
+		SDocumentGraph sDocGraph = sDoc.getDocumentGraph();
+		assertEquals(exampleText, sDocGraph.getTextualDSs().get(0).getText());
 		this.compareTokens(tDoc.getTokens(), sDocGraph);
 	}
 	
@@ -228,10 +227,10 @@ public class Treetagger2SaltMapperTest{
 		
 		getFixture().setTTDocument(doc);
 		
-		getFixture().setSDocument(SaltFactory.eINSTANCE.createSDocument());
+		getFixture().setDocument(SaltFactory.createSDocument());
 		getFixture().mapSDocument();
 		
-		assertEquals("Is this sample", getFixture().getSDocument().getSDocumentGraph().getSTextualDSs().get(0).getSText());
+		assertEquals("Is this sample", getFixture().getDocument().getDocumentGraph().getTextualDSs().get(0).getText());
 	}
 	
 	/**
@@ -255,14 +254,14 @@ public class Treetagger2SaltMapperTest{
 		
 		getFixture().setTTDocument(doc);
 		
-		getFixture().setSDocument(SaltFactory.eINSTANCE.createSDocument());
+		getFixture().setDocument(SaltFactory.createSDocument());
 		
-		PepperModuleProperty<String> prop= (PepperModuleProperty<String>)this.getFixture().getProperties().getProperty(TreetaggerImporterProperties.PROP_SEPARATOR_AFTER_TOKEN);
+		PepperModuleProperty<String> prop= (PepperModuleProperty<String>)getFixture().getProperties().getProperty(TreetaggerImporterProperties.PROP_SEPARATOR_AFTER_TOKEN);
 		prop.setValue("");
 		
 		getFixture().mapSDocument();
 		
-		assertEquals("Isthissample", getFixture().getSDocument().getSDocumentGraph().getSTextualDSs().get(0).getSText());
+		assertEquals("Isthissample", getFixture().getDocument().getDocumentGraph().getTextualDSs().get(0).getText());
 	}
 	
 	/**
@@ -288,14 +287,14 @@ public class Treetagger2SaltMapperTest{
 		
 		getFixture().setTTDocument(doc);
 		
-		getFixture().setSDocument(SaltFactory.eINSTANCE.createSDocument());
+		getFixture().setDocument(SaltFactory.createSDocument());
 		
-		PepperModuleProperty<String> prop= (PepperModuleProperty<String>)this.getFixture().getProperties().getProperty(TreetaggerImporterProperties.PROP_SEPARATOR_AFTER_TOKEN);
+		PepperModuleProperty<String> prop= (PepperModuleProperty<String>)getFixture().getProperties().getProperty(TreetaggerImporterProperties.PROP_SEPARATOR_AFTER_TOKEN);
 		prop.setValue(sep);
 		
 		getFixture().mapSDocument();
 		
-		assertEquals("Is"+sep+"this"+sep+"sample", getFixture().getSDocument().getSDocumentGraph().getSTextualDSs().get(0).getSText());
+		assertEquals("Is"+sep+"this"+sep+"sample", getFixture().getDocument().getDocumentGraph().getTextualDSs().get(0).getText());
 	}
 	
 	/**
@@ -304,17 +303,17 @@ public class Treetagger2SaltMapperTest{
 	 * @param sDocGraph
 	 */
 	private void compareTokens(List<Token> tTokens, SDocumentGraph sDocGraph) {
-		List<SToken> sTokens = sDocGraph.getSTokens();
+		List<SToken> sTokens = sDocGraph.getTokens();
 		assertEquals(tTokens.size(), sTokens.size());
 		Hashtable<SToken,String> sTokenTextTable = new Hashtable<SToken, String>();
-		for (STextualRelation sTextRel : sDocGraph.getSTextualRelations()) {
-			sTokenTextTable.put(sTextRel.getSToken(), sTextRel.getSTextualDS().getSText().substring(sTextRel.getSStart(), sTextRel.getSEnd()));
+		for (STextualRelation sTextRel : sDocGraph.getTextualRelations()) {
+			sTokenTextTable.put(sTextRel.getSource(), sTextRel.getTarget().getText().substring(sTextRel.getStart(), sTextRel.getEnd()));
 		}
 		for (int index=0; index<tTokens.size(); index++) {
 			Token  tTok = tTokens.get(index);
 			SToken sTok = sTokens.get(index);
 			assertEquals(tTok.getText(), sTokenTextTable.get(sTok));
-			this.compareAnnotations(tTok.getAnnotations(), sTok.getSAnnotations());
+			compareAnnotations(tTok.getAnnotations(), sTok);
 		}
 	}
 	
@@ -323,11 +322,11 @@ public class Treetagger2SaltMapperTest{
 	 * @param tAnnos
 	 * @param sAnnos
 	 */
-	private void compareAnnotations(List<Annotation> tAnnos, List<SAnnotation> sAnnos) {
-		assertEquals(tAnnos.size(), sAnnos.size());
+	private void compareAnnotations(List<Annotation> tAnnos, SAnnotationContainer container) {
+		assertEquals(tAnnos.size(), container.getAnnotations().size());
 		for (int annoIndex=0;annoIndex<tAnnos.size();annoIndex++) {
 			Annotation  tAnno = tAnnos.get(annoIndex);
-			SAnnotation sAnno = sAnnos.get(annoIndex);
+			SAnnotation sAnno = container.getAnnotation(tAnno.getName());
 			
 			if (tAnno instanceof POSAnnotation)
 				assertTrue(sAnno instanceof SPOSAnnotation);
@@ -335,9 +334,9 @@ public class Treetagger2SaltMapperTest{
 				assertTrue(sAnno instanceof SLemmaAnnotation);
 			else {
 				assertFalse((sAnno instanceof SPOSAnnotation)||(sAnno instanceof SLemmaAnnotation));
-				assertEquals(tAnno.getName(),  sAnno.getSName());
+				assertEquals(tAnno.getName(),  sAnno.getName());
 			}
-			assertEquals(tAnno.getValue(), sAnno.getSValueSTEXT());
+			assertEquals(tAnno.getValue(), sAnno.getValue_STEXT());
 		}
 	}	
 }

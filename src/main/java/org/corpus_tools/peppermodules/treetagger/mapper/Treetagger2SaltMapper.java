@@ -18,9 +18,20 @@
 package org.corpus_tools.peppermodules.treetagger.mapper;
 
 import java.util.Hashtable;
+import java.util.List;
 
+import org.corpus_tools.pepper.common.DOCUMENT_STATUS;
+import org.corpus_tools.pepper.impl.PepperMapperImpl;
+import org.corpus_tools.pepper.modules.PepperMapper;
 import org.corpus_tools.peppermodules.treetagger.TreetaggerImporterProperties;
-import org.eclipse.emf.common.util.EList;
+import org.corpus_tools.salt.SaltFactory;
+import org.corpus_tools.salt.common.SDocument;
+import org.corpus_tools.salt.common.SSpan;
+import org.corpus_tools.salt.common.SSpanningRelation;
+import org.corpus_tools.salt.common.STextualDS;
+import org.corpus_tools.salt.common.STextualRelation;
+import org.corpus_tools.salt.common.SToken;
+import org.corpus_tools.salt.core.SAnnotation;
 
 import de.hu_berlin.german.korpling.saltnpepper.misc.treetagger.Annotation;
 import de.hu_berlin.german.korpling.saltnpepper.misc.treetagger.Document;
@@ -28,18 +39,6 @@ import de.hu_berlin.german.korpling.saltnpepper.misc.treetagger.LemmaAnnotation;
 import de.hu_berlin.german.korpling.saltnpepper.misc.treetagger.POSAnnotation;
 import de.hu_berlin.german.korpling.saltnpepper.misc.treetagger.Span;
 import de.hu_berlin.german.korpling.saltnpepper.misc.treetagger.Token;
-import de.hu_berlin.german.korpling.saltnpepper.pepper.common.DOCUMENT_STATUS;
-import de.hu_berlin.german.korpling.saltnpepper.pepper.modules.PepperMapper;
-import de.hu_berlin.german.korpling.saltnpepper.pepper.modules.impl.PepperMapperImpl;
-import de.hu_berlin.german.korpling.saltnpepper.salt.SaltFactory;
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sCorpusStructure.SDocument;
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SSpan;
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SSpanningRelation;
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.STextualDS;
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.STextualRelation;
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SToken;
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SAnnotation;
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltSemantics.SaltSemanticsFactory;
 
 /**
  * This class is for mapping Treetagger to Salt
@@ -77,36 +76,36 @@ public class Treetagger2SaltMapper extends PepperMapperImpl implements PepperMap
 	@Override
 	public DOCUMENT_STATUS mapSDocument() {
 
-		if (getSDocument().getSDocumentGraph() == null){
-			getSDocument().setSDocumentGraph(SaltFactory.eINSTANCE.createSDocumentGraph());
+		if (getDocument().getDocumentGraph() == null){
+			getDocument().setDocumentGraph(SaltFactory.createSDocumentGraph());
 		}
-		getSDocument().getSDocumentGraph().setSName(getTtDocument().getName() + "_graph");
-		getSDocument().setSName(getTtDocument().getName());
-		this.addSMetaAnnotation(getTtDocument().getAnnotations(), getSDocument());
-		this.createSTextualDS(getTtDocument().getTokens(), getSDocument());
+		getDocument().getDocumentGraph().setName(getTtDocument().getName() + "_graph");
+		getDocument().setName(getTtDocument().getName());
+		this.addMetaAnnotation(getTtDocument().getAnnotations(), getDocument());
+		this.createSTextualDS(getTtDocument().getTokens(), getDocument());
 		return (DOCUMENT_STATUS.COMPLETED);
 	}
 
 	/*
 	 * auxiliary method
 	 */
-	protected void addSMetaAnnotation(EList<Annotation> tAnnotations, SDocument sDocument) {
+	protected void addMetaAnnotation(List<Annotation> tAnnotations, SDocument sDocument) {
 		for (Annotation tAnno: tAnnotations){
-			sDocument.createSMetaAnnotation(null, tAnno.getName(), tAnno.getValue());
+			sDocument.createMetaAnnotation(null, tAnno.getName(), tAnno.getValue());
 		}
 	}
 
 	/*
 	 * auxiliary method
 	 */
-	protected STextualDS createSTextualDS(EList<Token> tTokens, SDocument sDocument) {
+	protected STextualDS createSTextualDS(List<Token> tTokens, SDocument sDocument) {
 		boolean annotateUnannotatedSpans = this.getProps().getAnnotateUnannotatedSpans();
 
 		boolean annotateAllSpansWithSpanName = this.getProps().getAnnotateAllSpansWithName();
 
 		// creating and adding STextualDS
-		STextualDS sText = SaltFactory.eINSTANCE.createSTextualDS();
-		sDocument.getSDocumentGraph().addSNode(sText);
+		STextualDS sText = SaltFactory.createSTextualDS();
+		sDocument.getDocumentGraph().addNode(sText);
 
 		Hashtable<Span, SSpan> spanTable = new Hashtable<Span, SSpan>();
 
@@ -128,38 +127,38 @@ public class Treetagger2SaltMapper extends PepperMapperImpl implements PepperMap
 
 			// creating and adding token
 			SToken sToken = this.createSToken(tToken);
-			sDocument.getSDocumentGraph().addSNode(sToken);
+			sDocument.getDocumentGraph().addNode(sToken);
 
 			// creating and adding spans and spanning relations
 			for (int i = 0; i < tToken.getSpans().size(); i++) {
 				Span tSpan = tToken.getSpans().get(i);
 				SSpan sSpan = null;
 				if (!spanTable.containsKey(tSpan)) {
-					sSpan = SaltFactory.eINSTANCE.createSSpan();
+					sSpan = SaltFactory.createSSpan();
 					spanTable.put(tSpan, sSpan);
-					sSpan.setGraph(sDocument.getSDocumentGraph());
-					sSpan.setSName(tSpan.getName());
-					EList<Annotation> tAnnotations = tSpan.getAnnotations();
+					sSpan.setGraph(sDocument.getDocumentGraph());
+					sSpan.setName(tSpan.getName());
+					List<Annotation> tAnnotations = tSpan.getAnnotations();
 					if ((annotateAllSpansWithSpanName) || ((tAnnotations.size() == 0) && (annotateUnannotatedSpans))) {
-						sSpan.createSAnnotation(null, tSpan.getName().toLowerCase(), tSpan.getName().toLowerCase());
+						sSpan.createAnnotation(null, tSpan.getName().toLowerCase(), tSpan.getName().toLowerCase());
 					}
 					for (int j = 0; j < tAnnotations.size(); j++) {
-						SAnnotation anno = this.createSAnnotation(tSpan.getAnnotations().get(j));
-						sSpan.addSAnnotation(anno);
+						SAnnotation anno = this.createAnnotation(tSpan.getAnnotations().get(j));
+						sSpan.addAnnotation(anno);
 					}
 				} else {
 					sSpan = spanTable.get(tSpan);
 				}
-				SSpanningRelation sSpanningRelation = SaltFactory.eINSTANCE.createSSpanningRelation();
-				sSpanningRelation.setSDocumentGraph(sDocument.getSDocumentGraph());
-				sSpanningRelation.setSSpan(sSpan);
-				sSpanningRelation.setSToken(sToken);
+				SSpanningRelation sSpanningRelation = SaltFactory.createSSpanningRelation();
+				sSpanningRelation.setSource(sSpan);
+				sSpanningRelation.setTarget(sToken);
+				sSpanningRelation.setGraph(sDocument.getDocumentGraph());
 			}
 
 			STextualRelation sTextRel = this.createSTextualRelation(sToken, sText, start, end);
-			sDocument.getSDocumentGraph().addSRelation(sTextRel);
+			sDocument.getDocumentGraph().addRelation(sTextRel);
 		}
-		sText.setSText(text);
+		sText.setText(text);
 		return (sText);
 	}
 
@@ -167,9 +166,9 @@ public class Treetagger2SaltMapper extends PepperMapperImpl implements PepperMap
 	 * auxiliary method
 	 */
 	protected SToken createSToken(Token tToken) {
-		SToken retVal = SaltFactory.eINSTANCE.createSToken();
+		SToken retVal = SaltFactory.createSToken();
 		for (Annotation tAnnotation : tToken.getAnnotations()) {
-			retVal.addSAnnotation(this.createSAnnotation(tAnnotation));
+			retVal.addAnnotation(this.createAnnotation(tAnnotation));
 		}
 		return (retVal);
 	}
@@ -177,17 +176,17 @@ public class Treetagger2SaltMapper extends PepperMapperImpl implements PepperMap
 	/*
 	 * auxiliary method
 	 */
-	protected SAnnotation createSAnnotation(Annotation tAnnotation) {
+	protected SAnnotation createAnnotation(Annotation tAnnotation) {
 		SAnnotation retVal = null;
 		if (tAnnotation instanceof POSAnnotation)
-			retVal = SaltSemanticsFactory.eINSTANCE.createSPOSAnnotation();
+			retVal = SaltFactory.createSPOSAnnotation();
 		else if (tAnnotation instanceof LemmaAnnotation)
-			retVal = SaltSemanticsFactory.eINSTANCE.createSLemmaAnnotation();
+			retVal = SaltFactory.createSLemmaAnnotation();
 		else {
-			retVal = SaltFactory.eINSTANCE.createSAnnotation();
-			retVal.setSName(tAnnotation.getName());
+			retVal = SaltFactory.createSAnnotation();
+			retVal.setName(tAnnotation.getName());
 		}
-		retVal.setSValue(tAnnotation.getValue());
+		retVal.setValue(tAnnotation.getValue());
 		return (retVal);
 	}
 
@@ -196,11 +195,11 @@ public class Treetagger2SaltMapper extends PepperMapperImpl implements PepperMap
 	 */
 	protected STextualRelation createSTextualRelation(SToken sToken, STextualDS sText, int start, int end) {
 		STextualRelation retVal = null;
-		retVal = SaltFactory.eINSTANCE.createSTextualRelation();
-		retVal.setSTextualDS(sText);
-		retVal.setSToken(sToken);
-		retVal.setSStart(start);
-		retVal.setSEnd(end);
+		retVal = SaltFactory.createSTextualRelation();
+		retVal.setTarget(sText);
+		retVal.setSource(sToken);
+		retVal.setStart(start);
+		retVal.setEnd(end);
 		return (retVal);
 	}
 

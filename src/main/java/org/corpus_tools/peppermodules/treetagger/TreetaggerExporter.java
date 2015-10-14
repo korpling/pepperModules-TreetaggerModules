@@ -17,19 +17,16 @@
  */
 package org.corpus_tools.peppermodules.treetagger;
 
-import java.io.File;
-
+import org.corpus_tools.pepper.common.PepperConfiguration;
+import org.corpus_tools.pepper.impl.PepperExporterImpl;
+import org.corpus_tools.pepper.modules.PepperExporter;
+import org.corpus_tools.pepper.modules.PepperExporter.EXPORT_MODE;
+import org.corpus_tools.pepper.modules.PepperMapper;
 import org.corpus_tools.peppermodules.treetagger.mapper.Salt2TreetaggerMapper;
+import org.corpus_tools.salt.common.SDocument;
+import org.corpus_tools.salt.graph.Identifier;
 import org.eclipse.emf.common.util.URI;
 import org.osgi.service.component.annotations.Component;
-
-import de.hu_berlin.german.korpling.saltnpepper.pepper.modules.PepperExporter;
-import de.hu_berlin.german.korpling.saltnpepper.pepper.modules.PepperMapper;
-import de.hu_berlin.german.korpling.saltnpepper.pepper.modules.PepperExporter.EXPORT_MODE;
-import de.hu_berlin.german.korpling.saltnpepper.pepper.modules.impl.PepperExporterImpl;
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sCorpusStructure.SCorpusGraph;
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sCorpusStructure.SDocument;
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SElementId;
 
 /**
  * This class exports data from Salt to Treetagger format
@@ -43,27 +40,27 @@ public class TreetaggerExporter extends PepperExporterImpl implements PepperExpo
 	public TreetaggerExporter() {
 		super();
 		// setting name of module
-		this.setName("TreetaggerExporter");
-		setSupplierContact(URI.createURI("saltnpepper@lists.hu-berlin.de"));
+		setName("TreetaggerExporter");
+		setSupplierContact(URI.createURI(PepperConfiguration.EMAIL));
 		setSupplierHomepage(URI.createURI("https://github.com/korpling/pepperModules-TreetaggerModules"));
 		setDesc("This exporter transforms a Salt model into the TreeTagger format produced by the TreeTagger tool (see http://www.cis.uni-muenchen.de/~schmid/tools/TreeTagger/). ");
 		// set list of formats supported by this module
-		this.addSupportedFormat("treetagger", "1.0", null);
-		this.setProperties(new TreetaggerExporterProperties());
-		this.setExportMode(EXPORT_MODE.DOCUMENTS_IN_FILES);
-		setSDocumentEnding("tt");
+		addSupportedFormat("treetagger", "1.0", null);
+		setProperties(new TreetaggerExporterProperties());
+		setExportMode(EXPORT_MODE.DOCUMENTS_IN_FILES);
+		setDocumentEnding("tt");
 
 	}
 
 	/**
 	 * Creates a mapper of type {@link PAULA2SaltMapper}. {@inheritDoc
-	 * PepperModule#createPepperMapper(SElementId)}
+	 * PepperModule#createPepperMapper(Identifier)}
 	 */
 	@Override
-	public PepperMapper createPepperMapper(SElementId sElementId) {
+	public PepperMapper createPepperMapper(Identifier sElementId) {
 		Salt2TreetaggerMapper mapper = new Salt2TreetaggerMapper();
-		if (sElementId.getSIdentifiableElement() instanceof SDocument)
-			mapper.setResourceURI(getSElementId2ResourceTable().get(sElementId));
+		if (sElementId.getIdentifiableElement() instanceof SDocument)
+			mapper.setResourceURI(getIdentifier2ResourceTable().get(sElementId));
 		return (mapper);
 	}
 }

@@ -16,17 +16,35 @@
  *
  */
 package org.corpus_tools.peppermodules.treetagger.tests;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Hashtable;
 import java.util.List;
-
-import junit.framework.TestCase;
+import java.util.Set;
 
 import org.corpus_tools.peppermodules.treetagger.TreetaggerExporterProperties;
-import org.eclipse.emf.common.util.EList;
+import org.corpus_tools.salt.SaltFactory;
+import org.corpus_tools.salt.common.SDocument;
+import org.corpus_tools.salt.common.SDocumentGraph;
+import org.corpus_tools.salt.common.SPointingRelation;
+import org.corpus_tools.salt.common.SSpan;
+import org.corpus_tools.salt.common.SSpanningRelation;
+import org.corpus_tools.salt.common.STextualDS;
+import org.corpus_tools.salt.common.STextualRelation;
+import org.corpus_tools.salt.common.SToken;
+import org.corpus_tools.salt.core.SAnnotation;
+import org.corpus_tools.salt.core.SAnnotationContainer;
+import org.corpus_tools.salt.core.SMetaAnnotation;
+import org.corpus_tools.salt.semantics.SLemmaAnnotation;
+import org.corpus_tools.salt.semantics.SPOSAnnotation;
 import org.eclipse.emf.common.util.URI;
+import org.junit.Before;
+import org.junit.Test;
 
 import de.hu_berlin.german.korpling.saltnpepper.misc.treetagger.Annotation;
 import de.hu_berlin.german.korpling.saltnpepper.misc.treetagger.Document;
@@ -35,26 +53,13 @@ import de.hu_berlin.german.korpling.saltnpepper.misc.treetagger.POSAnnotation;
 import de.hu_berlin.german.korpling.saltnpepper.misc.treetagger.Span;
 import de.hu_berlin.german.korpling.saltnpepper.misc.treetagger.Token;
 import de.hu_berlin.german.korpling.saltnpepper.misc.treetagger.TreetaggerFactory;
-import de.hu_berlin.german.korpling.saltnpepper.salt.SaltFactory;
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sCorpusStructure.SDocument;
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SDocumentGraph;
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SPointingRelation;
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SSpan;
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SSpanningRelation;
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.STextualDS;
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.STextualRelation;
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SToken;
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SAnnotation;
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SMetaAnnotation;
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltSemantics.SLemmaAnnotation;
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltSemantics.SPOSAnnotation;
 
 /**
  * TestCase for mapping from Salt to Treetagger
  * @author hildebax
  * @author Florian Zipser
  */
-public class Salt2TreetaggerMapperTest extends TestCase {
+public class Salt2TreetaggerMapperTest{
 
 	private String propertyFilename = "src/test/resources/salt2treetaggerMapperTest.properties";
 	
@@ -68,6 +73,7 @@ public class Salt2TreetaggerMapperTest extends TestCase {
 		this.fixture = fixture;
 	}
 	
+	@Before
 	public void setUp() {
 		this.setFixture(new PublicSalt2TreetaggerMapper());
 		TreetaggerExporterProperties props= new TreetaggerExporterProperties();
@@ -75,26 +81,22 @@ public class Salt2TreetaggerMapperTest extends TestCase {
 		getFixture().setProperties(props);
 	}
 
-	protected void tearDown() throws Exception {
-		super.tearDown();
-	}
-
 	protected SDocument createSDocument() {
-		SDocument      sDocument = SaltFactory.eINSTANCE.createSDocument();
-		SDocumentGraph sDocGraph = SaltFactory.eINSTANCE.createSDocumentGraph();
-		sDocument.setSName("Salt2TreetaggerMapperTestDocument");
-		sDocument.createSMetaAnnotation("", "name", "Salt2TreetaggerMapperTestDocument");
-		sDocument.setSDocumentGraph(sDocGraph);
+		SDocument      sDocument = SaltFactory.createSDocument();
+		SDocumentGraph sDocGraph = SaltFactory.createSDocumentGraph();
+		sDocument.setName("Salt2TreetaggerMapperTestDocument");
+		sDocument.createMetaAnnotation("", "name", "Salt2TreetaggerMapperTestDocument");
+		sDocument.setDocumentGraph(sDocGraph);
 
 		{//creating the document structure
 			//an object for the primary text
 			STextualDS sTextualDS= null;
 			
 			{//creating the primary text
-				sTextualDS= SaltFactory.eINSTANCE.createSTextualDS();
-				sTextualDS.setSText("Is this example more complicated than it appears to be?");
+				sTextualDS= SaltFactory.createSTextualDS();
+				sTextualDS.setText("Is this example more complicated than it appears to be?");
 				//adding the text to the document-graph
-				sDocGraph.addSNode(sTextualDS);
+				sDocGraph.addNode(sTextualDS);
 			}//creating the primary text
 			
 			{//creating tokenization (token objects and relations between tokens and the primary data object)
@@ -104,118 +106,118 @@ public class Salt2TreetaggerMapperTest extends TestCase {
 				STextualRelation sTextRel= null;
 				
 				//adding the created token to the document-graph
-				sToken= SaltFactory.eINSTANCE.createSToken();
-				sDocGraph.addSNode(sToken);
+				sToken= SaltFactory.createSToken();
+				sDocGraph.addNode(sToken);
 				
-				sTextRel= SaltFactory.eINSTANCE.createSTextualRelation();
+				sTextRel= SaltFactory.createSTextualRelation();
 				//adding the token as source of this relation
-				sTextRel.setSToken(sToken);
+				sTextRel.setSource(sToken);
 				//adding the primary text as target of this relation
-				sTextRel.setSTextualDS(sTextualDS);
+				sTextRel.setTarget(sTextualDS);
 				//adding the start-position of the token in the primary text 
-				sTextRel.setSStart(0);
+				sTextRel.setStart(0);
 				//adding the end-position of the token in the primary text (start-position of the token + length of the token) 
-				sTextRel.setSEnd(2);
+				sTextRel.setEnd(2);
 				//adding the textual relation between token and primary text to document graph
-				sDocGraph.addSRelation(sTextRel);
+				sDocGraph.addRelation(sTextRel);
 				
 				{//creating the rest of the tokenization, this can also be done automatically
 
 					//creating tokenization for the token 'this' and adding it to the morphology layer
-					sToken= SaltFactory.eINSTANCE.createSToken();
-					sDocGraph.addSNode(sToken);
+					sToken= SaltFactory.createSToken();
+					sDocGraph.addNode(sToken);
 
-					sTextRel= SaltFactory.eINSTANCE.createSTextualRelation();
-					sTextRel.setSToken(sToken);
-					sTextRel.setSTextualDS(sTextualDS);
-					sTextRel.setSStart(3);
-					sTextRel.setSEnd(7);	
-					sDocGraph.addSRelation(sTextRel);
+					sTextRel= SaltFactory.createSTextualRelation();
+					sTextRel.setSource(sToken);
+					sTextRel.setTarget(sTextualDS);
+					sTextRel.setStart(3);
+					sTextRel.setEnd(7);	
+					sDocGraph.addRelation(sTextRel);
 				
 					//creating tokenization for the token 'example' and adding it to the morphology layer
-					sToken= SaltFactory.eINSTANCE.createSToken();
-					sDocGraph.addSNode(sToken);
-					sTextRel= SaltFactory.eINSTANCE.createSTextualRelation();
-					sTextRel.setSToken(sToken);
-					sTextRel.setSTextualDS(sTextualDS);
-					sTextRel.setSStart(8);
-					sTextRel.setSEnd(15);
-					sDocGraph.addSRelation(sTextRel);
+					sToken= SaltFactory.createSToken();
+					sDocGraph.addNode(sToken);
+					sTextRel= SaltFactory.createSTextualRelation();
+					sTextRel.setSource(sToken);
+					sTextRel.setTarget(sTextualDS);
+					sTextRel.setStart(8);
+					sTextRel.setEnd(15);
+					sDocGraph.addRelation(sTextRel);
 					
 					//creating tokenization for the token 'more' and adding it to the morphology layer
-					sToken= SaltFactory.eINSTANCE.createSToken();
-					sDocGraph.addSNode(sToken);
-					sTextRel= SaltFactory.eINSTANCE.createSTextualRelation();
-					sTextRel.setSToken(sToken);
-					sTextRel.setSTextualDS(sTextualDS);
-					sTextRel.setSStart(16);
-					sTextRel.setSEnd(20);
-					sDocGraph.addSRelation(sTextRel);
+					sToken= SaltFactory.createSToken();
+					sDocGraph.addNode(sToken);
+					sTextRel= SaltFactory.createSTextualRelation();
+					sTextRel.setSource(sToken);
+					sTextRel.setTarget(sTextualDS);
+					sTextRel.setStart(16);
+					sTextRel.setEnd(20);
+					sDocGraph.addRelation(sTextRel);
 					
 					//creating tokenization for the token 'complicated' and adding it to the morphology layer
-					sToken= SaltFactory.eINSTANCE.createSToken();
-					sDocGraph.addSNode(sToken);
-					sTextRel= SaltFactory.eINSTANCE.createSTextualRelation();
-					sTextRel.setSToken(sToken);
-					sTextRel.setSTextualDS(sTextualDS);
-					sTextRel.setSStart(21);
-					sTextRel.setSEnd(32);
-					sDocGraph.addSRelation(sTextRel);
+					sToken= SaltFactory.createSToken();
+					sDocGraph.addNode(sToken);
+					sTextRel= SaltFactory.createSTextualRelation();
+					sTextRel.setSource(sToken);
+					sTextRel.setTarget(sTextualDS);
+					sTextRel.setStart(21);
+					sTextRel.setEnd(32);
+					sDocGraph.addRelation(sTextRel);
 					
 					//creating tokenization for the token 'than' and adding it to the morphology layer
-					sToken= SaltFactory.eINSTANCE.createSToken();
-					sDocGraph.addSNode(sToken);
-					sTextRel= SaltFactory.eINSTANCE.createSTextualRelation();
-					sTextRel.setSToken(sToken);
-					sTextRel.setSTextualDS(sTextualDS);
-					sTextRel.setSStart(33);
-					sTextRel.setSEnd(37);
-					sDocGraph.addSRelation(sTextRel);
+					sToken= SaltFactory.createSToken();
+					sDocGraph.addNode(sToken);
+					sTextRel= SaltFactory.createSTextualRelation();
+					sTextRel.setSource(sToken);
+					sTextRel.setTarget(sTextualDS);
+					sTextRel.setStart(33);
+					sTextRel.setEnd(37);
+					sDocGraph.addRelation(sTextRel);
 					
 					//creating tokenization for the token 'it' and adding it to the morphology layer
-					sToken= SaltFactory.eINSTANCE.createSToken();
-					sDocGraph.addSNode(sToken);
-					sTextRel= SaltFactory.eINSTANCE.createSTextualRelation();
-					sTextRel.setSToken(sToken);
-					sTextRel.setSTextualDS(sTextualDS);
-					sTextRel.setSStart(38);
-					sTextRel.setSEnd(40);
-					sDocGraph.addSRelation(sTextRel);
+					sToken= SaltFactory.createSToken();
+					sDocGraph.addNode(sToken);
+					sTextRel= SaltFactory.createSTextualRelation();
+					sTextRel.setSource(sToken);
+					sTextRel.setTarget(sTextualDS);
+					sTextRel.setStart(38);
+					sTextRel.setEnd(40);
+					sDocGraph.addRelation(sTextRel);
 					
 					//creating tokenization for the token 'appears' and adding it to the morphology layer
-					sToken= SaltFactory.eINSTANCE.createSToken();
-					sDocGraph.addSNode(sToken);
-					sTextRel= SaltFactory.eINSTANCE.createSTextualRelation();
-					sTextRel.setSToken(sToken);
-					sTextRel.setSTextualDS(sTextualDS);
-					sTextRel.setSStart(41);
-					sTextRel.setSEnd(48);
-					sDocGraph.addSRelation(sTextRel);
+					sToken= SaltFactory.createSToken();
+					sDocGraph.addNode(sToken);
+					sTextRel= SaltFactory.createSTextualRelation();
+					sTextRel.setSource(sToken);
+					sTextRel.setTarget(sTextualDS);
+					sTextRel.setStart(41);
+					sTextRel.setEnd(48);
+					sDocGraph.addRelation(sTextRel);
 					
 					//creating tokenization for the token 'to' and adding it to the morphology layer
-					sToken= SaltFactory.eINSTANCE.createSToken();
-					sDocGraph.addSNode(sToken);
-					sTextRel= SaltFactory.eINSTANCE.createSTextualRelation();
-					sTextRel.setSToken(sToken);
-					sTextRel.setSTextualDS(sTextualDS);
-					sTextRel.setSStart(49);
-					sTextRel.setSEnd(51);
-					sDocGraph.addSRelation(sTextRel);
+					sToken= SaltFactory.createSToken();
+					sDocGraph.addNode(sToken);
+					sTextRel= SaltFactory.createSTextualRelation();
+					sTextRel.setSource(sToken);
+					sTextRel.setTarget(sTextualDS);
+					sTextRel.setStart(49);
+					sTextRel.setEnd(51);
+					sDocGraph.addRelation(sTextRel);
 					
 					//creating tokenization for the token 'be' and adding it to the morphology layer
-					sToken= SaltFactory.eINSTANCE.createSToken();
-					sDocGraph.addSNode(sToken);
-					sTextRel= SaltFactory.eINSTANCE.createSTextualRelation();
-					sTextRel.setSToken(sToken);
-					sTextRel.setSTextualDS(sTextualDS);
-					sTextRel.setSStart(52);
-					sTextRel.setSEnd(54);
-					sDocGraph.addSRelation(sTextRel);
+					sToken= SaltFactory.createSToken();
+					sDocGraph.addNode(sToken);
+					sTextRel= SaltFactory.createSTextualRelation();
+					sTextRel.setSource(sToken);
+					sTextRel.setTarget(sTextualDS);
+					sTextRel.setStart(52);
+					sTextRel.setEnd(54);
+					sDocGraph.addRelation(sTextRel);
 				}//creating the rest of the tokenization, this can also be done automatically
 			}//creating tokenization (token objects and relations between tokens and the primary data object)
 			
 			// a synchronized list of all tokens to walk through
-			List<SToken> sTokens= Collections.synchronizedList(sDocGraph.getSTokens());
+			List<SToken> sTokens= Collections.synchronizedList(sDocGraph.getTokens());
 			
 			{//adding some annotations, part-of-speech and lemma (for part-of speech and lemma annotations a special annotation in Salt exists)
 				{//adding part-of speech annotations
@@ -225,9 +227,9 @@ public class Salt2TreetaggerMapperTest extends TestCase {
 					String[] posAnnotations={"VBZ", "DT", "NN", "ABR", "JJ", "IN", "PRP", "VBZ", "TO", "VB"}; 
 					for (int i= 0; i< sTokens.size();i++)
 					{
-						sPOSAnno= SaltFactory.eINSTANCE.createSPOSAnnotation();
-						sPOSAnno.setSValue(posAnnotations[i]);
-						sTokens.get(i).addSAnnotation(sPOSAnno);
+						sPOSAnno= SaltFactory.createSPOSAnnotation();
+						sPOSAnno.setValue(posAnnotations[i]);
+						sTokens.get(i).addAnnotation(sPOSAnno);
 					}
 				}//adding part-of speech annotations
 				
@@ -238,9 +240,9 @@ public class Salt2TreetaggerMapperTest extends TestCase {
 					String[] lemmaAnnotations={"be", "this", "example", "more", "complicated", "than", "it", "appear", "to", "be"}; 
 					for (int i= 0; i< sTokens.size();i++)
 					{
-						sLemmaAnno= SaltFactory.eINSTANCE.createSLemmaAnnotation();
-						sLemmaAnno.setSValue(lemmaAnnotations[i]);
-						sTokens.get(i).addSAnnotation(sLemmaAnno);
+						sLemmaAnno= SaltFactory.createSLemmaAnnotation();
+						sLemmaAnno.setValue(lemmaAnnotations[i]);
+						sTokens.get(i).addAnnotation(sLemmaAnno);
 					}
 				}//adding lemma annotations
 				
@@ -250,40 +252,40 @@ public class Salt2TreetaggerMapperTest extends TestCase {
 					SAnnotation sAnno= null;
 					
 					//creating a span node as placeholder for information-structure annotation
-					sSpan= SaltFactory.eINSTANCE.createSSpan();
+					sSpan= SaltFactory.createSSpan();
 					//adding the created span to the document-graph
-					sDocGraph.addSNode(sSpan);
+					sDocGraph.addNode(sSpan);
 					//creating an annotation for information-structure
-					sAnno= SaltFactory.eINSTANCE.createSAnnotation();
+					sAnno= SaltFactory.createSAnnotation();
 					//setting the name of the annotation
-					sAnno.setSName("Inf-Struct");
+					sAnno.setName("Inf-Struct");
 					//setting the value of the annotation
-					sAnno.setSValue("contrast-focus");
+					sAnno.setValue("contrast-focus");
 					//adding the annotation to the placeholder span
-					sSpan.addSAnnotation(sAnno);
+					sSpan.addAnnotation(sAnno);
 					
 					//creating a relation to connect a token with the span
-					sSpanRel= SaltFactory.eINSTANCE.createSSpanningRelation();
+					sSpanRel= SaltFactory.createSSpanningRelation();
 					//setting the span as source of the relation
-					sSpanRel.setSSpan(sSpan);
+					sSpanRel.setSource(sSpan);
 					//setting the first token as target of the relation
-					sSpanRel.setSToken(sTokens.get(0));
+					sSpanRel.setTarget(sTokens.get(0));
 					//adding the created relation to the document-graph
-					sDocGraph.addSRelation(sSpanRel);
+					sDocGraph.addRelation(sSpanRel);
 					
 					{//creating the second span
-						sSpan= SaltFactory.eINSTANCE.createSSpan();
-						sDocGraph.addSNode(sSpan);
-						sAnno= SaltFactory.eINSTANCE.createSAnnotation();
-						sAnno.setSName("Inf-Struct");
-						sAnno.setSValue("topic");
-						sSpan.addSAnnotation(sAnno);
+						sSpan= SaltFactory.createSSpan();
+						sDocGraph.addNode(sSpan);
+						sAnno= SaltFactory.createSAnnotation();
+						sAnno.setName("Inf-Struct");
+						sAnno.setValue("topic");
+						sSpan.addAnnotation(sAnno);
 						for (int i= 1; i< sTokens.size(); i++)
 						{
-							sSpanRel= SaltFactory.eINSTANCE.createSSpanningRelation();
-							sSpanRel.setSSpan(sSpan);
-							sSpanRel.setSToken(sTokens.get(i));
-							sDocGraph.addSRelation(sSpanRel);
+							sSpanRel= SaltFactory.createSSpanningRelation();
+							sSpanRel.setSource(sSpan);
+							sSpanRel.setTarget(sTokens.get(i));
+							sDocGraph.addRelation(sSpanRel);
 						}
 					}//creating the second span
 					
@@ -293,35 +295,35 @@ public class Salt2TreetaggerMapperTest extends TestCase {
 			
 			{//creating an anaphoric relation with the use of pointing relations between the Tokens {"it"} and {"this", "example"}
 				//creating a span as placeholder, which contains the tokens for "this" and "example"
-				SSpan sSpan= SaltFactory.eINSTANCE.createSSpan();
+				SSpan sSpan= SaltFactory.createSSpan();
 				//adding the created span to the document-graph
-				sDocGraph.addSNode(sSpan);
+				sDocGraph.addNode(sSpan);
 				
 				//creating a relation between the span and the tokens
 				SSpanningRelation sSpanRel= null;
-				sSpanRel= SaltFactory.eINSTANCE.createSSpanningRelation();
-				sSpanRel.setSSpan(sSpan);
-				sSpanRel.setSToken(sTokens.get(1));
-				sDocGraph.addSRelation(sSpanRel);
-				sSpanRel= SaltFactory.eINSTANCE.createSSpanningRelation();
-				sSpanRel.setSSpan(sSpan);
-				sSpanRel.setSToken(sTokens.get(2));
-				sDocGraph.addSRelation(sSpanRel);
+				sSpanRel= SaltFactory.createSSpanningRelation();
+				sSpanRel.setSource(sSpan);
+				sSpanRel.setTarget(sTokens.get(1));
+				sDocGraph.addRelation(sSpanRel);
+				sSpanRel= SaltFactory.createSSpanningRelation();
+				sSpanRel.setSource(sSpan);
+				sSpanRel.setTarget(sTokens.get(2));
+				sDocGraph.addRelation(sSpanRel);
 				
 				//creating a pointing relations
-				SPointingRelation sPointingRelation= SaltFactory.eINSTANCE.createSPointingRelation();
+				SPointingRelation sPointingRelation= SaltFactory.createSPointingRelation();
 				//setting token "it" as source of this relation
-				sPointingRelation.setSStructuredSource(sTokens.get(6));
+				sPointingRelation.setSource(sTokens.get(6));
 				//setting span "this example" as target of this relation
-				sPointingRelation.setSStructuredTarget(sSpan);
+				sPointingRelation.setTarget(sSpan);
 				//adding the created relation to the document-graph
-				sDocGraph.addSRelation(sPointingRelation);
+				sDocGraph.addRelation(sPointingRelation);
 				//creating an annotation
-				SAnnotation sAnno= SaltFactory.eINSTANCE.createSAnnotation();
-				sAnno.setSName("anaphoric");
-				sAnno.setSValue("antecedent");
+				SAnnotation sAnno= SaltFactory.createSAnnotation();
+				sAnno.setName("anaphoric");
+				sAnno.setValue("antecedent");
 				//adding the annotation to the relation
-				sPointingRelation.addSAnnotation(sAnno);
+				sPointingRelation.addAnnotation(sAnno);
 			}//creating an anaphoric relation with the use of pointing relations between the Tokens {"it"} and {"this", "example"}
 		
 		}//creating the document structure
@@ -331,22 +333,23 @@ public class Salt2TreetaggerMapperTest extends TestCase {
 	/**
 	 * Test method for {@link org.corpus_tools.peppermodules.treetagger.tests.PublicSalt2TreetaggerMapper#addDocumentAnnotations(org.eclipse.emf.common.util.EList, de.hu_berlin.german.korpling.saltnpepper.misc.treetagger.Document)}.
 	 */
-	public final void testAddDocumentAnnotations() {
+	@Test
+	public void testAddDocumentAnnotations() {
 		Document  tDoc = TreetaggerFactory.eINSTANCE.createDocument();
 		SDocument sDoc = this.createSDocument();
 
 		assertTrue(tDoc.getAnnotations().isEmpty());
 				
-		this.getFixture().addDocumentAnnotations(sDoc.getSMetaAnnotations(), tDoc);
+		getFixture().addDocumentAnnotations(sDoc.getMetaAnnotations(), tDoc);
 		
-		EList<SMetaAnnotation> metaAnnoList = sDoc.getSMetaAnnotations();
-		EList<Annotation>      annoList     = tDoc.getAnnotations();
+		Set<SMetaAnnotation> metaAnnoList = sDoc.getMetaAnnotations();
+		List<Annotation>      annoList     = tDoc.getAnnotations();
 		
 		for (int annoIndex=0; annoIndex<metaAnnoList.size(); annoIndex++) {
-			SMetaAnnotation metaAnno = metaAnnoList.get(annoIndex);
 			Annotation      anno     = annoList.get(annoIndex);
-			assertEquals(metaAnno.getSName(),       anno.getName());			
-			assertEquals(metaAnno.getSValueSTEXT(), anno.getValue());
+			SMetaAnnotation metaAnno =sDoc.getMetaAnnotation(anno.getName());
+			assertEquals(metaAnno.getName(),       anno.getName());			
+			assertEquals(metaAnno.getValue_STEXT(), anno.getValue());
 		}
 		
 	}
@@ -354,36 +357,37 @@ public class Salt2TreetaggerMapperTest extends TestCase {
 	/**
 	 * Test method for {@link org.corpus_tools.peppermodules.treetagger.tests.PublicSalt2TreetaggerMapper#addTokens(de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SDocumentGraph, de.hu_berlin.german.korpling.saltnpepper.misc.treetagger.Document)}.
 	 */
-	public final void testAddTokens() {
+	@Test
+	public void testAddTokens() {
 		Document  tDoc = TreetaggerFactory.eINSTANCE.createDocument();
 		SDocument sDoc = this.createSDocument();
 
-		SDocumentGraph sDocGraph = sDoc.getSDocumentGraph();
+		SDocumentGraph sDocGraph = sDoc.getDocumentGraph();
 		
-		this.getFixture().addTokens(sDocGraph, tDoc);
+		getFixture().addTokens(sDocGraph, tDoc);
 		
 		Hashtable<SToken, ArrayList<SSpan>> token2spansTable = new Hashtable<SToken, ArrayList<SSpan>>();
-		for (SSpanningRelation spanRel : sDocGraph.getSSpanningRelations()) {
-			SToken sTok = spanRel.getSToken();
+		for (SSpanningRelation spanRel : sDocGraph.getSpanningRelations()) {
+			SToken sTok = spanRel.getTarget();
 			if (!token2spansTable.containsKey(sTok)) {
 				token2spansTable.put(sTok, new ArrayList<SSpan>());	
 			}
-			token2spansTable.get(sTok).add(spanRel.getSSpan());
+			token2spansTable.get(sTok).add(spanRel.getSource());
 		}
 		
 		Hashtable<SToken, STextualRelation> token2textrelTable = new Hashtable<SToken, STextualRelation>();
-		for (STextualRelation textRel : sDocGraph.getSTextualRelations()) {
-			token2textrelTable.put(textRel.getSToken(), textRel);
+		for (STextualRelation textRel : sDocGraph.getTextualRelations()) {
+			token2textrelTable.put(textRel.getSource(), textRel);
 		}
 		
-		for (int tokIndex=0; tokIndex<sDocGraph.getSTokens().size(); tokIndex++) {
-			SToken sTok = sDocGraph.getSTokens().get(tokIndex);
+		for (int tokIndex=0; tokIndex<sDocGraph.getTokens().size(); tokIndex++) {
+			SToken sTok = sDocGraph.getTokens().get(tokIndex);
 			Token  tTok = tDoc.getTokens().get(tokIndex);
 			STextualRelation textRel = token2textrelTable.get(sTok); 
 			
-			int start = textRel.getSStart();
-			int end   = textRel.getSEnd();
-			String sText = textRel.getSTextualDS().getSText().substring(start, end);
+			int start = textRel.getStart();
+			int end   = textRel.getEnd();
+			String sText = textRel.getTarget().getText().substring(start, end);
 			String tText = tTok.getText();
 			assertEquals(sText,tText);
 
@@ -391,7 +395,7 @@ public class Salt2TreetaggerMapperTest extends TestCase {
 			this.compareSpans(token2spansTable.get(sTok), tTok.getSpans());
 			
 			//compare token annotations
-			this.compareAnnotations(sTok.getSAnnotations(), tTok.getAnnotations());
+			this.compareAnnotations(sTok, tTok.getAnnotations());
 		}
 	}
 
@@ -403,9 +407,9 @@ public class Salt2TreetaggerMapperTest extends TestCase {
 	protected void compareSpans(List<SSpan> sSpans, List<Span> tSpans) {
 		assertEquals(sSpans.size(),tSpans.size());
 		for (int spanIndex=0; spanIndex<sSpans.size(); spanIndex++) {
-			assertEquals(sSpans.get(spanIndex).getSName(), tSpans.get(spanIndex).getName());
+			assertEquals(sSpans.get(spanIndex).getName(), tSpans.get(spanIndex).getName());
 			//compare span annotations
-			this.compareAnnotations(sSpans.get(spanIndex).getSAnnotations(), tSpans.get(spanIndex).getAnnotations());
+			this.compareAnnotations(sSpans.get(spanIndex), tSpans.get(spanIndex).getAnnotations());
 		}
 	}
 	
@@ -414,25 +418,26 @@ public class Salt2TreetaggerMapperTest extends TestCase {
 	 * @param sAnnos
 	 * @param tAnnos
 	 */
-	protected void compareAnnotations(List<SAnnotation> sAnnos, List<Annotation> tAnnos) {
-		assertEquals(sAnnos.size(), tAnnos.size());
-		for (int annoIndex=0; annoIndex<sAnnos.size(); annoIndex++) {
-			SAnnotation sAnno = sAnnos.get(annoIndex);
+	protected void compareAnnotations(SAnnotationContainer container, List<Annotation> tAnnos) {
+		assertEquals(container.getAnnotations().size(), tAnnos.size());
+		for (int annoIndex=0; annoIndex<container.getAnnotations().size(); annoIndex++) {
+//			SAnnotation sAnno = sAnnos.get(annoIndex);
 			Annotation  tAnno = tAnnos.get(annoIndex);
+			SAnnotation sAnno = container.getAnnotation(tAnno.getName());
 			if (tAnno instanceof POSAnnotation) {
 				assertTrue(sAnno instanceof SPOSAnnotation); 
 				//do not compare SName and Name, they are set automatically
-				assertEquals(sAnno.getSValueSTEXT(), tAnno.getValue());
+				assertEquals(sAnno.getValue_STEXT(), tAnno.getValue());
 			}
 			else if (tAnno instanceof LemmaAnnotation) {
 				assertTrue(sAnno instanceof SLemmaAnnotation); 
 				//do not compare SName and Name, they are set automatically
-				assertEquals(sAnno.getSValueSTEXT(), tAnno.getValue());
+				assertEquals(sAnno.getValue_STEXT(), tAnno.getValue());
 			} 
 			else {
 				assertFalse((sAnno instanceof SPOSAnnotation)||(sAnno instanceof SLemmaAnnotation));
-				assertEquals(sAnno.getSName(),       sAnno.getName() );
-				assertEquals(sAnno.getSValueSTEXT(), tAnno.getValue());
+				assertEquals(sAnno.getName(),       tAnno.getName() );
+				assertEquals(sAnno.getValue_STEXT(), tAnno.getValue());
 			}
 		}
 	}
@@ -440,18 +445,19 @@ public class Salt2TreetaggerMapperTest extends TestCase {
 	/**
 	 * Test method for {@link org.corpus_tools.peppermodules.treetagger.mapper.Salt2TreetaggerMapper#map(de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sCorpusStructure.SDocument, de.hu_berlin.german.korpling.saltnpepper.misc.treetagger.Document)}.
 	 */
+	@Test
 	public final void testMap() {
 		Document  tDoc = TreetaggerFactory.eINSTANCE.createDocument();
 		SDocument sDoc = this.createSDocument();
-		getFixture().setSDocument(sDoc);
+		getFixture().setDocument(sDoc);
 		getFixture().setTTDocument(tDoc);
 		File file= new File(System.getProperty("java.io.tmpdir")+"/treetaggerModule_exportTest/");
 		file.mkdirs();
 		URI uri= URI.createFileURI(file.getAbsolutePath()+"/out.tt");
 		getFixture().setResourceURI(uri);
-		this.getFixture().mapSDocument();
+		getFixture().mapSDocument();
 		
-		assertEquals(sDoc.getSName(),tDoc.getName());
+		assertEquals(sDoc.getName(),tDoc.getName());
 		
 		this.testAddDocumentAnnotations();
 		this.testAddTokens();

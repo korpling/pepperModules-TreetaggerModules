@@ -17,31 +17,32 @@
  */
 package org.corpus_tools.peppermodules.treetagger.tests;
 
+import java.util.List;
+
 import org.corpus_tools.peppermodules.treetagger.mapper.Treetagger2SaltMapper;
-import org.eclipse.emf.common.util.EList;
+import org.corpus_tools.salt.common.SDocument;
+import org.corpus_tools.salt.common.STextualDS;
+import org.corpus_tools.salt.common.STextualRelation;
+import org.corpus_tools.salt.common.SToken;
+import org.corpus_tools.salt.core.SAnnotation;
 
 import de.hu_berlin.german.korpling.saltnpepper.misc.treetagger.Annotation;
 import de.hu_berlin.german.korpling.saltnpepper.misc.treetagger.Document;
 import de.hu_berlin.german.korpling.saltnpepper.misc.treetagger.Token;
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sCorpusStructure.SDocument;
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.STextualDS;
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.STextualRelation;
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SToken;
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SAnnotation;
 
 public class PublicTreetagger2SaltMapper extends Treetagger2SaltMapper {
 
 	public void convert(Document tDocument, SDocument sDocument) {
 		super.setTTDocument(tDocument);
-		super.setSDocument(sDocument);
+		super.setDocument(sDocument);
 		super.mapSDocument();
 	}
 	
-	public void addSMetaAnnotation(EList<Annotation> tAnnotations, SDocument sDocument) {
-		super.addSMetaAnnotation(tAnnotations, sDocument);
+	public void addMetaAnnotation(List<Annotation> tAnnotations, SDocument sDocument) {
+		super.addMetaAnnotation(tAnnotations, sDocument);
 	}
 	
-	public STextualDS createSTextualDS(EList<Token> tTokens, SDocument sDocument) {
+	public STextualDS createSTextualDS(List<Token> tTokens, SDocument sDocument) {
 		return super.createSTextualDS(tTokens, sDocument);
 	}
 
@@ -49,8 +50,8 @@ public class PublicTreetagger2SaltMapper extends Treetagger2SaltMapper {
 		return super.createSToken(tToken);
 	}
 	
-	public SAnnotation createSAnnotation(Annotation tAnnotation) {
-		return super.createSAnnotation(tAnnotation);
+	public SAnnotation createAnnotation(Annotation tAnnotation) {
+		return super.createAnnotation(tAnnotation);
 	}
 	
 	public STextualRelation createSTextualRelation(SToken sToken, STextualDS sText, int start, int end)	{
