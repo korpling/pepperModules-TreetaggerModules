@@ -37,7 +37,6 @@ import org.osgi.service.component.annotations.Component;
 import de.hu_berlin.german.korpling.saltnpepper.misc.treetagger.Document;
 import de.hu_berlin.german.korpling.saltnpepper.misc.treetagger.resources.TabResourceFactory;
 
-
 /**
  * This class imports data from Treetagger format to Salt
  * 
@@ -54,7 +53,7 @@ public class TreetaggerImporter extends PepperImporterImpl implements PepperImpo
 		super();
 		// setting name of module
 		setName("TreetaggerImporter");
-	    setSupplierContact(URI.createURI(PepperConfiguration.EMAIL));
+		setSupplierContact(URI.createURI(PepperConfiguration.EMAIL));
 		setSupplierHomepage(URI.createURI("https://github.com/korpling/pepperModules-TreetaggerModules"));
 		setDesc("This importer transforms data in TreeTagger format produced by the TreeTagger tool (see http://www.cis.uni-muenchen.de/~schmid/tools/TreeTagger/) to a Salt model. ");
 		// set list of formats supported by this module
@@ -63,7 +62,7 @@ public class TreetaggerImporter extends PepperImporterImpl implements PepperImpo
 		setProperties(new TreetaggerImporterProperties());
 		// adding all file endings to list of endings for documents (necessary
 		// for importCorpusStructure)
-		for (String ending : TREETAGGER_FILE_ENDINGS){
+		for (String ending : TREETAGGER_FILE_ENDINGS) {
 			this.getDocumentEndings().add(ending);
 		}
 	}
@@ -106,7 +105,7 @@ public class TreetaggerImporter extends PepperImporterImpl implements PepperImpo
 				// load resource
 				resource = resourceSet.createResource(uri);
 
-				if (resource == null){
+				if (resource == null) {
 					throw new PepperModuleException(this, "Cannot load The resource is null.");
 				}
 				resource.load(getProperties().getProperties());

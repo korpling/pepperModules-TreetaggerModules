@@ -50,66 +50,71 @@ import de.hu_berlin.german.korpling.saltnpepper.misc.treetagger.resources.TabRes
 
 /**
  * TestCase for mapping Treetagger to Salt
+ * 
  * @author hildebax
  * @author Florian Zipser
  *
  */
-public class Treetagger2SaltMapperTest{
+public class Treetagger2SaltMapperTest {
 
 	private String propertyFilename = "src/test/resources/treetagger2saltMapperTest.properties";
 
 	private String exampleText = "Is this example more complicated than it appears to be";
 
 	private PublicTreetagger2SaltMapper fixture = null;
-	
+
 	private PublicTreetagger2SaltMapper getFixture() {
 		return fixture;
 	}
-	
+
 	private void setFixture(PublicTreetagger2SaltMapper fixture) {
 		this.fixture = fixture;
 	}
+
 	@Before
 	public void setUp() {
 		this.setFixture(new PublicTreetagger2SaltMapper());
-		TreetaggerImporterProperties props= new TreetaggerImporterProperties();
+		TreetaggerImporterProperties props = new TreetaggerImporterProperties();
 		props.addProperties(URI.createFileURI(propertyFilename));
 		getFixture().setProperties(props);
 	}
 
 	/**
 	 * Creates a test Document for mapping
-	 * @return a Document with Tokens {Is,this,example,more,complicated,than,it,appears,to,be}, POS/Lemma annotations, and two spans  
+	 * 
+	 * @return a Document with Tokens
+	 *         {Is,this,example,more,complicated,than,it,appears,to,be},
+	 *         POS/Lemma annotations, and two spans
 	 */
 	protected Document createDocument() {
-		//create the Document
+		// create the Document
 		Document tDocument = TreetaggerFactory.eINSTANCE.createDocument();
- 		tDocument.setName("treetagger2saltTestDocument");
+		tDocument.setName("treetagger2saltTestDocument");
 		Annotation anno = TreetaggerFactory.eINSTANCE.createAnnotation();
 		anno.setAnnotatableElement(tDocument);
 		anno.setName("docAnnotation");
 		anno.setValue("docAnnotationValue");
-		
-		//create the Tokens and it´s Annotations
-		String[] tokens           = exampleText.split(" ");
-		String[] posAnnotations   = {"VBZ" , "DT"   , "NN"      , "ABR"  , "JJ"          , "IN"   , "PRP" , "VBZ"     , "TO" , "VB"};
-		String[] lemmaAnnotations = {"be"  , "this" , "example" , "more" , "complicated" , "than" , "it"  , "appear"  , "to" , "be"};
-		
-		for (int tokenIndex=0;tokenIndex<tokens.length;tokenIndex++) {
-			Token           token     = TreetaggerFactory.eINSTANCE.createToken();
-			POSAnnotation   posAnno   = TreetaggerFactory.eINSTANCE.createPOSAnnotation();
-			LemmaAnnotation lemmaAnno = TreetaggerFactory.eINSTANCE.createLemmaAnnotation(); 
-			
+
+		// create the Tokens and it´s Annotations
+		String[] tokens = exampleText.split(" ");
+		String[] posAnnotations = { "VBZ", "DT", "NN", "ABR", "JJ", "IN", "PRP", "VBZ", "TO", "VB" };
+		String[] lemmaAnnotations = { "be", "this", "example", "more", "complicated", "than", "it", "appear", "to", "be" };
+
+		for (int tokenIndex = 0; tokenIndex < tokens.length; tokenIndex++) {
+			Token token = TreetaggerFactory.eINSTANCE.createToken();
+			POSAnnotation posAnno = TreetaggerFactory.eINSTANCE.createPOSAnnotation();
+			LemmaAnnotation lemmaAnno = TreetaggerFactory.eINSTANCE.createLemmaAnnotation();
+
 			tDocument.getTokens().add(token);
 			posAnno.setAnnotatableElement(token);
 			lemmaAnno.setAnnotatableElement(token);
-			
+
 			token.setText(tokens[tokenIndex]);
 			posAnno.setValue(posAnnotations[tokenIndex]);
 			lemmaAnno.setValue(lemmaAnnotations[tokenIndex]);
 		}
 
-		//create the Spans
+		// create the Spans
 		Span span = TreetaggerFactory.eINSTANCE.createSpan();
 		span.setName("FirstSpan");
 		anno = TreetaggerFactory.eINSTANCE.createAnnotation();
@@ -124,13 +129,13 @@ public class Treetagger2SaltMapperTest{
 		anno.setName("Inf-Struct");
 		anno.setValue("topic");
 		anno.setAnnotatableElement(span);
-		for (int tokenIndex=1;tokenIndex<tokens.length;tokenIndex++) {
+		for (int tokenIndex = 1; tokenIndex < tokens.length; tokenIndex++) {
 			span.getTokens().add(tDocument.getTokens().get(tokenIndex));
 		}
-		
+
 		return tDocument;
 	}
-	
+
 	/**
 	 * auxilliary method to save the data to file
 	 */
@@ -139,26 +144,26 @@ public class Treetagger2SaltMapperTest{
 		Document tDoc = this.createDocument();
 		ResourceSet resourceSet = new ResourceSetImpl();
 		TabResourceFactory tabResourceFactory = new TabResourceFactory();
-		resourceSet.getResourceFactoryRegistry().getExtensionToFactoryMap().put("tab",tabResourceFactory);
-		resourceSet.getResourceFactoryRegistry().getExtensionToFactoryMap().put("tt",tabResourceFactory);
+		resourceSet.getResourceFactoryRegistry().getExtensionToFactoryMap().put("tab", tabResourceFactory);
+		resourceSet.getResourceFactoryRegistry().getExtensionToFactoryMap().put("tt", tabResourceFactory);
 		Resource resourceOut = resourceSet.createResource(URI.createFileURI("./PublicTreetagger2SaltTest.tab"));
 		resourceOut.getContents().add(tDoc);
-		try { 
+		try {
 			resourceOut.save(null);
-		}
-		catch (IOException e) {
+		} catch (IOException e) {
 		}
 	}
-	
+
 	/**
-	 * Compares the names of the documents and calls the method for further comparions
+	 * Compares the names of the documents and calls the method for further
+	 * comparions
 	 */
 	@Test
 	public final void testConvert() {
-		Document  tDoc = this.createDocument();
+		Document tDoc = this.createDocument();
 		SDocument sDoc = SaltFactory.createSDocument();
 		sDoc.setDocumentGraph(SaltFactory.createSDocumentGraph());
-		
+
 		getFixture().setTTDocument(tDoc);
 		getFixture().setDocument(sDoc);
 		getFixture().mapSDocument();
@@ -173,26 +178,26 @@ public class Treetagger2SaltMapperTest{
 	 */
 	@Test
 	public final void testAddSMetaAnnotation() {
-		Document  tDoc = this.createDocument();
+		Document tDoc = this.createDocument();
 		SDocument sDoc = SaltFactory.createSDocument();
 		sDoc.setDocumentGraph(SaltFactory.createSDocumentGraph());
 		assertTrue(sDoc.getMetaAnnotations().isEmpty());
 		getFixture().addMetaAnnotation(tDoc.getAnnotations(), sDoc);
 		assertEquals(tDoc.getAnnotations().size(), sDoc.getMetaAnnotations().size());
-		for (int i=0;i<tDoc.getAnnotations().size();i++) {
-			Annotation      tAnno = tDoc.getAnnotations().get(i);
+		for (int i = 0; i < tDoc.getAnnotations().size(); i++) {
+			Annotation tAnno = tDoc.getAnnotations().get(i);
 			SMetaAnnotation sAnno = sDoc.getMetaAnnotation(tAnno.getName());
-			assertEquals(tAnno.getName(),  sAnno.getName());			
+			assertEquals(tAnno.getName(), sAnno.getName());
 			assertEquals(tAnno.getValue(), sAnno.getValue_STEXT());
 		}
 	}
 
 	/**
-	 * compares the texts of the documents and calls the token comparison method 
+	 * compares the texts of the documents and calls the token comparison method
 	 */
 	@Test
 	public final void testCreateSTextualDS() {
-		Document  tDoc = this.createDocument();
+		Document tDoc = this.createDocument();
 		SDocument sDoc = SaltFactory.createSDocument();
 		sDoc.setDocumentGraph(SaltFactory.createSDocumentGraph());
 		getFixture().createSTextualDS(tDoc.getTokens(), sDoc);
@@ -200,112 +205,111 @@ public class Treetagger2SaltMapperTest{
 		assertEquals(exampleText, sDocGraph.getTextualDSs().get(0).getText());
 		this.compareTokens(tDoc.getTokens(), sDocGraph);
 	}
-	
+
 	/**
 	 * Uses default separator settings
 	 */
 	@Test
-	public void test_PROP_SEPARATOR_AFTER_TOKEN_DEFAULT()
-	{
-		Document doc= TreetaggerFactory.eINSTANCE.createDocument();
-		Token tok1= TreetaggerFactory.eINSTANCE.createToken();
+	public void test_PROP_SEPARATOR_AFTER_TOKEN_DEFAULT() {
+		Document doc = TreetaggerFactory.eINSTANCE.createDocument();
+		Token tok1 = TreetaggerFactory.eINSTANCE.createToken();
 		tok1.setText("Is");
 		doc.getTokens().add(tok1);
-		
-		Token tok2= TreetaggerFactory.eINSTANCE.createToken();
+
+		Token tok2 = TreetaggerFactory.eINSTANCE.createToken();
 		tok2.setText("this");
 		doc.getTokens().add(tok2);
-		
-		Token tok3= TreetaggerFactory.eINSTANCE.createToken();
+
+		Token tok3 = TreetaggerFactory.eINSTANCE.createToken();
 		doc.getTokens().add(tok3);
 		tok3.setText("sample");
-		
+
 		getFixture().setTTDocument(doc);
-		
+
 		getFixture().setDocument(SaltFactory.createSDocument());
 		getFixture().mapSDocument();
-		
+
 		assertEquals("Is this sample", getFixture().getDocument().getDocumentGraph().getTextualDSs().get(0).getText());
 	}
-	
+
 	/**
 	 * Uses no separator.
 	 */
 	@Test
-	public void test_PROP_SEPARATOR_AFTER_TOKEN_NO()
-	{
-		Document doc= TreetaggerFactory.eINSTANCE.createDocument();
-		Token tok1= TreetaggerFactory.eINSTANCE.createToken();
+	public void test_PROP_SEPARATOR_AFTER_TOKEN_NO() {
+		Document doc = TreetaggerFactory.eINSTANCE.createDocument();
+		Token tok1 = TreetaggerFactory.eINSTANCE.createToken();
 		tok1.setText("Is");
 		doc.getTokens().add(tok1);
-		
-		Token tok2= TreetaggerFactory.eINSTANCE.createToken();
+
+		Token tok2 = TreetaggerFactory.eINSTANCE.createToken();
 		tok2.setText("this");
 		doc.getTokens().add(tok2);
-		
-		Token tok3= TreetaggerFactory.eINSTANCE.createToken();
+
+		Token tok3 = TreetaggerFactory.eINSTANCE.createToken();
 		doc.getTokens().add(tok3);
 		tok3.setText("sample");
-		
+
 		getFixture().setTTDocument(doc);
-		
+
 		getFixture().setDocument(SaltFactory.createSDocument());
-		
-		PepperModuleProperty<String> prop= (PepperModuleProperty<String>)getFixture().getProperties().getProperty(TreetaggerImporterProperties.PROP_SEPARATOR_AFTER_TOKEN);
+
+		PepperModuleProperty<String> prop = (PepperModuleProperty<String>) getFixture().getProperties().getProperty(TreetaggerImporterProperties.PROP_SEPARATOR_AFTER_TOKEN);
 		prop.setValue("");
-		
+
 		getFixture().mapSDocument();
-		
+
 		assertEquals("Isthissample", getFixture().getDocument().getDocumentGraph().getTextualDSs().get(0).getText());
 	}
-	
+
 	/**
 	 * Uses custom separator.
 	 */
 	@Test
-	public void test_PROP_SEPARATOR_AFTER_TOKEN_CUSTOM()
-	{
-		String sep="&";
-		
-		Document doc= TreetaggerFactory.eINSTANCE.createDocument();
-		Token tok1= TreetaggerFactory.eINSTANCE.createToken();
+	public void test_PROP_SEPARATOR_AFTER_TOKEN_CUSTOM() {
+		String sep = "&";
+
+		Document doc = TreetaggerFactory.eINSTANCE.createDocument();
+		Token tok1 = TreetaggerFactory.eINSTANCE.createToken();
 		tok1.setText("Is");
 		doc.getTokens().add(tok1);
-		
-		Token tok2= TreetaggerFactory.eINSTANCE.createToken();
+
+		Token tok2 = TreetaggerFactory.eINSTANCE.createToken();
 		tok2.setText("this");
 		doc.getTokens().add(tok2);
-		
-		Token tok3= TreetaggerFactory.eINSTANCE.createToken();
+
+		Token tok3 = TreetaggerFactory.eINSTANCE.createToken();
 		doc.getTokens().add(tok3);
 		tok3.setText("sample");
-		
+
 		getFixture().setTTDocument(doc);
-		
+
 		getFixture().setDocument(SaltFactory.createSDocument());
-		
-		PepperModuleProperty<String> prop= (PepperModuleProperty<String>)getFixture().getProperties().getProperty(TreetaggerImporterProperties.PROP_SEPARATOR_AFTER_TOKEN);
+
+		PepperModuleProperty<String> prop = (PepperModuleProperty<String>) getFixture().getProperties().getProperty(TreetaggerImporterProperties.PROP_SEPARATOR_AFTER_TOKEN);
 		prop.setValue(sep);
-		
+
 		getFixture().mapSDocument();
-		
-		assertEquals("Is"+sep+"this"+sep+"sample", getFixture().getDocument().getDocumentGraph().getTextualDSs().get(0).getText());
+
+		assertEquals("Is" + sep + "this" + sep + "sample", getFixture().getDocument().getDocumentGraph().getTextualDSs().get(0).getText());
 	}
-	
+
 	/**
-	 * compares the texts of tokens and calls the method for the comparison of the token annotations	 
+	 * compares the texts of tokens and calls the method for the comparison of
+	 * the token annotations
+	 * 
 	 * @param tTokens
 	 * @param sDocGraph
 	 */
 	private void compareTokens(List<Token> tTokens, SDocumentGraph sDocGraph) {
 		List<SToken> sTokens = sDocGraph.getTokens();
 		assertEquals(tTokens.size(), sTokens.size());
-		Hashtable<SToken,String> sTokenTextTable = new Hashtable<SToken, String>();
+		Hashtable<SToken, String> sTokenTextTable = new Hashtable<SToken, String>();
 		for (STextualRelation sTextRel : sDocGraph.getTextualRelations()) {
 			sTokenTextTable.put(sTextRel.getSource(), sTextRel.getTarget().getText().substring(sTextRel.getStart(), sTextRel.getEnd()));
 		}
-		for (int index=0; index<tTokens.size(); index++) {
-			Token  tTok = tTokens.get(index);
+		for (int index = 0; index < tTokens.size(); index++) {
+			Token tTok = tTokens.get(index);
 			SToken sTok = sTokens.get(index);
 			assertEquals(tTok.getText(), sTokenTextTable.get(sTok));
 			Salt2TreetaggerMapperTest.compareAnnotations(sTok, tTok.getAnnotations());

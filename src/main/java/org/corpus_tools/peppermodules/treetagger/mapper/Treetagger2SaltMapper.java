@@ -76,7 +76,7 @@ public class Treetagger2SaltMapper extends PepperMapperImpl implements PepperMap
 	@Override
 	public DOCUMENT_STATUS mapSDocument() {
 
-		if (getDocument().getDocumentGraph() == null){
+		if (getDocument().getDocumentGraph() == null) {
 			getDocument().setDocumentGraph(SaltFactory.createSDocumentGraph());
 		}
 		getDocument().getDocumentGraph().setName(getTtDocument().getName() + "_graph");
@@ -90,7 +90,7 @@ public class Treetagger2SaltMapper extends PepperMapperImpl implements PepperMap
 	 * auxiliary method
 	 */
 	protected void addMetaAnnotation(List<Annotation> tAnnotations, SDocument sDocument) {
-		for (Annotation tAnno: tAnnotations){
+		for (Annotation tAnno : tAnnotations) {
 			sDocument.createMetaAnnotation(null, tAnno.getName(), tAnno.getValue());
 		}
 	}

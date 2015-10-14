@@ -28,20 +28,21 @@ import org.corpus_tools.salt.core.SMetaAnnotation;
 import de.hu_berlin.german.korpling.saltnpepper.misc.treetagger.Document;
 import de.hu_berlin.german.korpling.saltnpepper.misc.treetagger.Span;
 import de.hu_berlin.german.korpling.saltnpepper.misc.treetagger.Token;
+
 public class PublicSalt2TreetaggerMapper extends Salt2TreetaggerMapper {
 
 	public void addDocumentAnnotations(Set<SMetaAnnotation> sMetaAnnotations, Document tDocument) {
 		super.addDocumentAnnotations(sMetaAnnotations, tDocument);
 	}
-	
+
 	public void addTokens(SDocumentGraph sDocumentGraph, Document tDocument) {
 		super.addTokens(sDocumentGraph, tDocument);
 	}
-	
+
 	public void addTokenAnnotations(SToken sToken, Token tToken) {
 		super.addTokenAnnotations(sToken, tToken);
 	}
-	
+
 	public Span createSpan(SSpan sSpan) {
 		return super.createSpan(sSpan);
 	}

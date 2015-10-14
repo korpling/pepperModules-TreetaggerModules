@@ -38,7 +38,10 @@ public class TreetaggerExporterProperties extends PepperModuleProperties {
 	public static final String FILE_ENDING = "tt";
 
 	public static final String PROP_REPLACE_GENERIC_SPAN_NAMES = "treetagger.output.replaceGenericSpanNames";
-	/** Sets the meta tag used to mark the TreeTagger document in the output file(s). **/
+	/**
+	 * Sets the meta tag used to mark the TreeTagger document in the output
+	 * file(s).
+	 **/
 	public static final String PROP_META_TAG = "treetagger.output.metaTag";
 
 	public TreetaggerExporterProperties() {

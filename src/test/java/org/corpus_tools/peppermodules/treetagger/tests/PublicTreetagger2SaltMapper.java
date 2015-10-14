@@ -37,11 +37,11 @@ public class PublicTreetagger2SaltMapper extends Treetagger2SaltMapper {
 		super.setDocument(sDocument);
 		super.mapSDocument();
 	}
-	
+
 	public void addMetaAnnotation(List<Annotation> tAnnotations, SDocument sDocument) {
 		super.addMetaAnnotation(tAnnotations, sDocument);
 	}
-	
+
 	public STextualDS createSTextualDS(List<Token> tTokens, SDocument sDocument) {
 		return super.createSTextualDS(tTokens, sDocument);
 	}
@@ -49,13 +49,13 @@ public class PublicTreetagger2SaltMapper extends Treetagger2SaltMapper {
 	public SToken createSToken(Token tToken) {
 		return super.createSToken(tToken);
 	}
-	
+
 	public SAnnotation createAnnotation(Annotation tAnnotation) {
 		return super.createAnnotation(tAnnotation);
 	}
-	
-	public STextualRelation createSTextualRelation(SToken sToken, STextualDS sText, int start, int end)	{
+
+	public STextualRelation createSTextualRelation(SToken sToken, STextualDS sText, int start, int end) {
 		return super.createSTextualRelation(sToken, sText, start, end);
 	}
-	
+
 }
