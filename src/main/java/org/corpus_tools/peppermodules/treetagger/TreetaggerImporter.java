@@ -94,11 +94,10 @@ public class TreetaggerImporter extends PepperImporterImpl implements PepperImpo
 	 * {@inheritDoc PepperModule#createPepperMapper(Identifier)}
 	 */
 	@Override
-	public PepperMapper createPepperMapper(Identifier sElementId) {
+	public PepperMapper createPepperMapper(Identifier identifier) {
 		Treetagger2SaltMapper mapper = new Treetagger2SaltMapper();
-
-		if (sElementId.getIdentifiableElement() instanceof SDocument) {
-			URI uri = getIdentifier2ResourceTable().get(sElementId);
+		if (identifier.getIdentifiableElement() instanceof SDocument) {
+			URI uri = getIdentifier2ResourceTable().get(identifier);
 			Document tDocument = this.loadFromFile(uri);
 			if (tDocument == null) {
 				mapper = null;
@@ -120,40 +119,6 @@ public class TreetaggerImporter extends PepperImporterImpl implements PepperImpo
 			if (!documents.isEmpty()) {
 				retVal = documents.get(0);
 			}
-
-			// // create resource set and resource
-			// ResourceSet resourceSet = new ResourceSetImpl();
-			//
-			// // Register XML resource factory
-			// resourceSet.getResourceFactoryRegistry().getExtensionToFactoryMap().put("treetagger",
-			// new XMIResourceFactoryImpl());
-			// TabResourceFactory tabResourceFactory = new TabResourceFactory();
-			// resourceSet.getResourceFactoryRegistry().getExtensionToFactoryMap().put("tab",
-			// tabResourceFactory);
-			// resourceSet.getResourceFactoryRegistry().getExtensionToFactoryMap().put("tt",
-			// tabResourceFactory);
-			// resourceSet.getResourceFactoryRegistry().getExtensionToFactoryMap().put("txt",
-			// tabResourceFactory);
-			// Resource resource = null;
-			// try {
-			// // load resource
-			// resource = resourceSet.createResource(uri);
-			//
-			// if (resource == null) {
-			// throw new PepperModuleException(this, "Cannot load The resource
-			// is null.");
-			// }
-			// resource.load(getProperties().getProperties());
-			// } catch (IOException e) {
-			// throw new PepperModuleException(this, "Cannot load resource '" +
-			// uri + "'.", e);
-			// } catch (NullPointerException e) {
-			// throw new PepperModuleException(this, "Cannot load resource '" +
-			// uri + "'.", e);
-			// }
-			// if (resource.getContents().size() > 0) {
-			// retVal = (Document) resource.getContents().get(0);
-			// }
 		}
 		return (retVal);
 	}
