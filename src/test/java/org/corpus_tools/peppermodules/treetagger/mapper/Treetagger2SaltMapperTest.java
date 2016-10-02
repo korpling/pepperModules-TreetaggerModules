@@ -15,17 +15,23 @@
  *
  *
  */
-package org.corpus_tools.peppermodules.treetagger.tests;
+package org.corpus_tools.peppermodules.treetagger.mapper;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-import java.io.IOException;
 import java.util.Hashtable;
 import java.util.List;
 
 import org.corpus_tools.pepper.modules.PepperModuleProperty;
 import org.corpus_tools.peppermodules.treetagger.TreetaggerImporterProperties;
+import org.corpus_tools.peppermodules.treetagger.model.Annotation;
+import org.corpus_tools.peppermodules.treetagger.model.Document;
+import org.corpus_tools.peppermodules.treetagger.model.LemmaAnnotation;
+import org.corpus_tools.peppermodules.treetagger.model.POSAnnotation;
+import org.corpus_tools.peppermodules.treetagger.model.Span;
+import org.corpus_tools.peppermodules.treetagger.model.Token;
+import org.corpus_tools.peppermodules.treetagger.model.TreetaggerFactory;
 import org.corpus_tools.salt.SaltFactory;
 import org.corpus_tools.salt.common.SDocument;
 import org.corpus_tools.salt.common.SDocumentGraph;
@@ -33,20 +39,8 @@ import org.corpus_tools.salt.common.STextualRelation;
 import org.corpus_tools.salt.common.SToken;
 import org.corpus_tools.salt.core.SMetaAnnotation;
 import org.eclipse.emf.common.util.URI;
-import org.eclipse.emf.ecore.resource.Resource;
-import org.eclipse.emf.ecore.resource.ResourceSet;
-import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
 import org.junit.Before;
 import org.junit.Test;
-
-import de.hu_berlin.german.korpling.saltnpepper.misc.treetagger.Annotation;
-import de.hu_berlin.german.korpling.saltnpepper.misc.treetagger.Document;
-import de.hu_berlin.german.korpling.saltnpepper.misc.treetagger.LemmaAnnotation;
-import de.hu_berlin.german.korpling.saltnpepper.misc.treetagger.POSAnnotation;
-import de.hu_berlin.german.korpling.saltnpepper.misc.treetagger.Span;
-import de.hu_berlin.german.korpling.saltnpepper.misc.treetagger.Token;
-import de.hu_berlin.german.korpling.saltnpepper.misc.treetagger.TreetaggerFactory;
-import de.hu_berlin.german.korpling.saltnpepper.misc.treetagger.resources.TabResourceFactory;
 
 /**
  * TestCase for mapping Treetagger to Salt
@@ -98,7 +92,8 @@ public class Treetagger2SaltMapperTest {
 		// create the Tokens and it´s Annotations
 		String[] tokens = exampleText.split(" ");
 		String[] posAnnotations = { "VBZ", "DT", "NN", "ABR", "JJ", "IN", "PRP", "VBZ", "TO", "VB" };
-		String[] lemmaAnnotations = { "be", "this", "example", "more", "complicated", "than", "it", "appear", "to", "be" };
+		String[] lemmaAnnotations = { "be", "this", "example", "more", "complicated", "than", "it", "appear", "to",
+				"be" };
 
 		for (int tokenIndex = 0; tokenIndex < tokens.length; tokenIndex++) {
 			Token token = TreetaggerFactory.eINSTANCE.createToken();
@@ -136,23 +131,26 @@ public class Treetagger2SaltMapperTest {
 		return tDocument;
 	}
 
-	/**
-	 * auxilliary method to save the data to file
-	 */
-	@SuppressWarnings("unused")
-	private void saveDocument() {
-		Document tDoc = this.createDocument();
-		ResourceSet resourceSet = new ResourceSetImpl();
-		TabResourceFactory tabResourceFactory = new TabResourceFactory();
-		resourceSet.getResourceFactoryRegistry().getExtensionToFactoryMap().put("tab", tabResourceFactory);
-		resourceSet.getResourceFactoryRegistry().getExtensionToFactoryMap().put("tt", tabResourceFactory);
-		Resource resourceOut = resourceSet.createResource(URI.createFileURI("./PublicTreetagger2SaltTest.tab"));
-		resourceOut.getContents().add(tDoc);
-		try {
-			resourceOut.save(null);
-		} catch (IOException e) {
-		}
-	}
+	// /**
+	// * auxilliary method to save the data to file
+	// */
+	// @SuppressWarnings("unused")
+	// private void saveDocument() {
+	// Document tDoc = this.createDocument();
+	// ResourceSet resourceSet = new ResourceSetImpl();
+	// TabResourceFactory tabResourceFactory = new TabResourceFactory();
+	// resourceSet.getResourceFactoryRegistry().getExtensionToFactoryMap().put("tab",
+	// tabResourceFactory);
+	// resourceSet.getResourceFactoryRegistry().getExtensionToFactoryMap().put("tt",
+	// tabResourceFactory);
+	// Resource resourceOut =
+	// resourceSet.createResource(URI.createFileURI("./PublicTreetagger2SaltTest.tab"));
+	// resourceOut.getContents().add(tDoc);
+	// try {
+	// resourceOut.save(null);
+	// } catch (IOException e) {
+	// }
+	// }
 
 	/**
 	 * Compares the names of the documents and calls the method for further
@@ -254,7 +252,8 @@ public class Treetagger2SaltMapperTest {
 
 		getFixture().setDocument(SaltFactory.createSDocument());
 
-		PepperModuleProperty<String> prop = (PepperModuleProperty<String>) getFixture().getProperties().getProperty(TreetaggerImporterProperties.PROP_SEPARATOR_AFTER_TOKEN);
+		PepperModuleProperty<String> prop = (PepperModuleProperty<String>) getFixture().getProperties()
+				.getProperty(TreetaggerImporterProperties.PROP_SEPARATOR_AFTER_TOKEN);
 		prop.setValue("");
 
 		getFixture().mapSDocument();
@@ -286,12 +285,14 @@ public class Treetagger2SaltMapperTest {
 
 		getFixture().setDocument(SaltFactory.createSDocument());
 
-		PepperModuleProperty<String> prop = (PepperModuleProperty<String>) getFixture().getProperties().getProperty(TreetaggerImporterProperties.PROP_SEPARATOR_AFTER_TOKEN);
+		PepperModuleProperty<String> prop = (PepperModuleProperty<String>) getFixture().getProperties()
+				.getProperty(TreetaggerImporterProperties.PROP_SEPARATOR_AFTER_TOKEN);
 		prop.setValue(sep);
 
 		getFixture().mapSDocument();
 
-		assertEquals("Is" + sep + "this" + sep + "sample", getFixture().getDocument().getDocumentGraph().getTextualDSs().get(0).getText());
+		assertEquals("Is" + sep + "this" + sep + "sample",
+				getFixture().getDocument().getDocumentGraph().getTextualDSs().get(0).getText());
 	}
 
 	/**
@@ -306,7 +307,8 @@ public class Treetagger2SaltMapperTest {
 		assertEquals(tTokens.size(), sTokens.size());
 		Hashtable<SToken, String> sTokenTextTable = new Hashtable<SToken, String>();
 		for (STextualRelation sTextRel : sDocGraph.getTextualRelations()) {
-			sTokenTextTable.put(sTextRel.getSource(), sTextRel.getTarget().getText().substring(sTextRel.getStart(), sTextRel.getEnd()));
+			sTokenTextTable.put(sTextRel.getSource(),
+					sTextRel.getTarget().getText().substring(sTextRel.getStart(), sTextRel.getEnd()));
 		}
 		for (int index = 0; index < tTokens.size(); index++) {
 			Token tTok = tTokens.get(index);

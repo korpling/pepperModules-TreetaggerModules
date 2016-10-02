@@ -24,6 +24,12 @@ import org.corpus_tools.pepper.common.DOCUMENT_STATUS;
 import org.corpus_tools.pepper.impl.PepperMapperImpl;
 import org.corpus_tools.pepper.modules.PepperMapper;
 import org.corpus_tools.peppermodules.treetagger.TreetaggerImporterProperties;
+import org.corpus_tools.peppermodules.treetagger.model.Annotation;
+import org.corpus_tools.peppermodules.treetagger.model.Document;
+import org.corpus_tools.peppermodules.treetagger.model.LemmaAnnotation;
+import org.corpus_tools.peppermodules.treetagger.model.POSAnnotation;
+import org.corpus_tools.peppermodules.treetagger.model.Span;
+import org.corpus_tools.peppermodules.treetagger.model.Token;
 import org.corpus_tools.salt.SaltFactory;
 import org.corpus_tools.salt.common.SDocument;
 import org.corpus_tools.salt.common.SSpan;
@@ -32,13 +38,6 @@ import org.corpus_tools.salt.common.STextualDS;
 import org.corpus_tools.salt.common.STextualRelation;
 import org.corpus_tools.salt.common.SToken;
 import org.corpus_tools.salt.core.SAnnotation;
-
-import de.hu_berlin.german.korpling.saltnpepper.misc.treetagger.Annotation;
-import de.hu_berlin.german.korpling.saltnpepper.misc.treetagger.Document;
-import de.hu_berlin.german.korpling.saltnpepper.misc.treetagger.LemmaAnnotation;
-import de.hu_berlin.german.korpling.saltnpepper.misc.treetagger.POSAnnotation;
-import de.hu_berlin.german.korpling.saltnpepper.misc.treetagger.Span;
-import de.hu_berlin.german.korpling.saltnpepper.misc.treetagger.Token;
 
 /**
  * This class is for mapping Treetagger to Salt

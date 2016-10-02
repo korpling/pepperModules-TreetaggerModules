@@ -28,6 +28,12 @@ import org.corpus_tools.pepper.exceptions.PepperConvertException;
 import org.corpus_tools.pepper.impl.PepperMapperImpl;
 import org.corpus_tools.pepper.modules.exceptions.PepperModuleException;
 import org.corpus_tools.peppermodules.treetagger.TreetaggerExporterProperties;
+import org.corpus_tools.peppermodules.treetagger.model.Annotation;
+import org.corpus_tools.peppermodules.treetagger.model.Document;
+import org.corpus_tools.peppermodules.treetagger.model.Span;
+import org.corpus_tools.peppermodules.treetagger.model.Token;
+import org.corpus_tools.peppermodules.treetagger.model.TreetaggerFactory;
+import org.corpus_tools.peppermodules.treetagger.model.resources.TabWriter;
 import org.corpus_tools.salt.common.SDocumentGraph;
 import org.corpus_tools.salt.common.SSpan;
 import org.corpus_tools.salt.common.STextualRelation;
@@ -38,19 +44,8 @@ import org.corpus_tools.salt.semantics.SLemmaAnnotation;
 import org.corpus_tools.salt.semantics.SPOSAnnotation;
 import org.corpus_tools.salt.util.SaltUtil;
 import org.eclipse.emf.common.util.URI;
-import org.eclipse.emf.ecore.resource.Resource;
-import org.eclipse.emf.ecore.resource.ResourceSet;
-import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
-import org.eclipse.emf.ecore.xmi.impl.XMIResourceFactoryImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import de.hu_berlin.german.korpling.saltnpepper.misc.treetagger.Annotation;
-import de.hu_berlin.german.korpling.saltnpepper.misc.treetagger.Document;
-import de.hu_berlin.german.korpling.saltnpepper.misc.treetagger.Span;
-import de.hu_berlin.german.korpling.saltnpepper.misc.treetagger.Token;
-import de.hu_berlin.german.korpling.saltnpepper.misc.treetagger.TreetaggerFactory;
-import de.hu_berlin.german.korpling.saltnpepper.misc.treetagger.resources.TabResourceFactory;
 
 /**
  * This class is for mapping Salt to Treetagger
@@ -101,39 +96,50 @@ public class Salt2TreetaggerMapper extends PepperMapperImpl {
 			this.addDocumentAnnotations(getDocument().getMetaAnnotations(), getTTDocument());
 			this.addTokens(getDocument().getDocumentGraph(), getTTDocument());
 			if (this.numOfSTokensWithMultiplePOSAnnos > 0) {
-				logger.warn("There were " + this.numOfSTokensWithMultiplePOSAnnos + " tokens with more than one POS annotation in the document. The first one found for each token was used for it´s POS annotation; the remainder was used for ordinary annotations.");
+				logger.warn("There were " + this.numOfSTokensWithMultiplePOSAnnos
+						+ " tokens with more than one POS annotation in the document. The first one found for each token was used for it´s POS annotation; the remainder was used for ordinary annotations.");
 			}
 			if (this.numOfSTokensWithMultipleLemmaAnnos > 0) {
-				logger.warn("There were " + this.numOfSTokensWithMultipleLemmaAnnos + " tokens with more than one lemma annotation in the document. The first one found for each token was used for it´s lemma annotation; the remainder was used for ordinary annotations.");
+				logger.warn("There were " + this.numOfSTokensWithMultipleLemmaAnnos
+						+ " tokens with more than one lemma annotation in the document. The first one found for each token was used for it´s lemma annotation; the remainder was used for ordinary annotations.");
 			}
 			try {
 				this.saveToFile(getResourceURI(), getTTDocument());
 			} catch (IOException e) {
-				throw new PepperConvertException("Cannot write document with id: '" + getDocument().getId() + "' to: '" + getResourceURI() + "'.", e);
+				throw new PepperConvertException("Cannot write document with id: '" + getDocument().getId() + "' to: '"
+						+ getResourceURI() + "'.", e);
 			}
 		}
 		return (DOCUMENT_STATUS.COMPLETED);
 	}
 
 	private void saveToFile(URI uri, Document tDocument) throws IOException {
-		if (uri == null)
-			throw new PepperModuleException(this, "Cannot save o given uri, because its null for document '" + tDocument + "'.");
-
-		// create resource set and resource
-		ResourceSet resourceSet = new ResourceSetImpl();
-
-		// Register XML resource factory
-		resourceSet.getResourceFactoryRegistry().getExtensionToFactoryMap().put("treetagger", new XMIResourceFactoryImpl());
-		resourceSet.getResourceFactoryRegistry().getExtensionToFactoryMap().put(getProps().getFileEnding(), new TabResourceFactory());
-		// load resource
-		Resource resource = resourceSet.createResource(uri);
-
-		if (resource == null) {
-			throw new PepperConvertException("Cannot save treetagger file, the resource '" + uri + "' is null.");
+		if (uri == null) {
+			throw new PepperModuleException(this,
+					"Cannot save o given uri, because its null for document '" + tDocument + "'.");
 		}
-		resource.getContents().add(tDocument);
 
-		resource.save(getProperties().getProperties());
+		final TabWriter writer = new TabWriter();
+		writer.save(tDocument, uri, getProperties().getProperties());
+
+		// // create resource set and resource
+		// ResourceSet resourceSet = new ResourceSetImpl();
+		//
+		// // Register XML resource factory
+		// resourceSet.getResourceFactoryRegistry().getExtensionToFactoryMap().put("treetagger",
+		// new XMIResourceFactoryImpl());
+		// resourceSet.getResourceFactoryRegistry().getExtensionToFactoryMap().put(getProps().getFileEnding(),
+		// new TabResourceFactory());
+		// // load resource
+		// Resource resource = resourceSet.createResource(uri);
+		//
+		// if (resource == null) {
+		// throw new PepperConvertException("Cannot save treetagger file, the
+		// resource '" + uri + "' is null.");
+		// }
+		// resource.getContents().add(tDocument);
+		//
+		// resource.save(getProperties().getProperties());
 	}
 
 	/*
