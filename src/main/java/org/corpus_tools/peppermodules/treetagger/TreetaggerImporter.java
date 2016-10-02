@@ -18,8 +18,10 @@
 package org.corpus_tools.peppermodules.treetagger;
 
 import java.util.List;
+import java.util.regex.Pattern;
 
 import org.corpus_tools.pepper.common.PepperConfiguration;
+import org.corpus_tools.pepper.core.SelfTestDesc;
 import org.corpus_tools.pepper.impl.PepperImporterImpl;
 import org.corpus_tools.pepper.modules.PepperImporter;
 import org.corpus_tools.pepper.modules.PepperMapper;
@@ -30,6 +32,8 @@ import org.corpus_tools.salt.common.SDocument;
 import org.corpus_tools.salt.graph.Identifier;
 import org.eclipse.emf.common.util.URI;
 import org.osgi.service.component.annotations.Component;
+
+import com.google.common.base.Strings;
 
 /**
  * This class imports data from Treetagger format to Salt
@@ -42,6 +46,7 @@ import org.osgi.service.component.annotations.Component;
 public class TreetaggerImporter extends PepperImporterImpl implements PepperImporter {
 	// ---------------------------------------------------------------------------------------
 	public static final String[] TREETAGGER_FILE_ENDINGS = { "treetagger", "tab", "tt", "txt" };
+	private static final Pattern TREETAGGER_MATCH_PATTERN = Pattern.compile("[a-zA-Z0-9]+(\t[a-zA-Z0-9]+)*");
 
 	public TreetaggerImporter() {
 		super();
@@ -59,6 +64,29 @@ public class TreetaggerImporter extends PepperImporterImpl implements PepperImpo
 		for (String ending : TREETAGGER_FILE_ENDINGS) {
 			this.getDocumentEndings().add(ending);
 		}
+	}
+
+	@Override
+	public Double isImportable(URI corpusPath) {
+		Double retValue = 0.0;
+		for (String content : sampleFileContent(corpusPath, TREETAGGER_FILE_ENDINGS)) {
+			if (Strings.isNullOrEmpty(content)) {
+				continue;
+			}
+			if (TREETAGGER_MATCH_PATTERN.matcher(content).find()) {
+				retValue = 1.0;
+				break;
+			}
+		}
+		return retValue;
+	}
+
+	@Override
+	public SelfTestDesc getSelfTestDesc() {
+		return new SelfTestDesc(
+				getResources().appendSegment("selfTests").appendSegment("treetaggerImporter").appendSegment("in"),
+				getResources().appendSegment("selfTests").appendSegment("treetaggerImporter")
+						.appendSegment("expected"));
 	}
 
 	/**
