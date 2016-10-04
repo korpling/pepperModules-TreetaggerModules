@@ -171,13 +171,14 @@ public class TabWriter {
 								+ columnNamesList.toString());
 			}
 
-			fileWriter.write(String.format("<%s", metaTag));
-			for (int i = 0; i < document.getAnnotations().size(); i++) {
-				Annotation annotation = document.getAnnotations().get(i);
-				fileWriter.write(String.format(" %s=\"%s\"", annotation.getName(), annotation.getValue()));
+			if (documentHasMetaAnnotations(document)) {
+				fileWriter.write(String.format("<%s", metaTag));
+				for (int i = 0; i < document.getAnnotations().size(); i++) {
+					Annotation annotation = document.getAnnotations().get(i);
+					fileWriter.write(String.format(" %s=\"%s\"", annotation.getName(), annotation.getValue()));
+				}
+				fileWriter.write(">\n");
 			}
-			fileWriter.write(">\n");
-
 			ArrayList<Span> spanList = new ArrayList<Span>();
 			HashMap<String, Integer> spanNamesCounts = new HashMap<String, Integer>();
 
@@ -310,8 +311,9 @@ public class TabWriter {
 				spanList.remove(span);
 			}
 
-			// write end of document
-			fileWriter.write(String.format("</%s>\n", metaTag));
+			if (documentHasMetaAnnotations(document)) {
+				fileWriter.write(String.format("</%s>\n", metaTag));
+			}
 
 		} catch (RuntimeException e) {
 			throw e;
@@ -320,6 +322,13 @@ public class TabWriter {
 			fileWriter.close();
 			fileWriter = null;
 		}
+	}
+
+	private boolean documentHasMetaAnnotations(Document document) {
+		if (document == null) {
+			return false;
+		}
+		return !document.getAnnotations().isEmpty();
 	}
 
 	/**
