@@ -350,19 +350,15 @@ public class TabReader {
 	 *            {@link #propertiesKey} respectively as keys
 	 */
 	public List<Document> load(URI location, java.util.Map<?, ?> options) {
-		openSpans.clear();
-		currentDocument = null;
-		fileLineCount = 0;
-		xmlDocumentOpen = false;
+		if (location == null) {
+			throw new PepperModuleException("Cannot load any resource, because no uri is given.");
+		}
+		this.location = location;
 
 		if (options != null) {
 			getProperties().putAll(options);
 		}
 
-		if (location == null) {
-			throw new PepperModuleException("Cannot load any resource, because no uri is given.");
-		}
-		this.location = location;
 		currentFileName = location.toFileString();
 
 		String metaTag = getProperties().getProperty(TreetaggerImporterProperties.PROP_META_TAG, defaultMetaTag);
