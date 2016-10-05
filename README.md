@@ -216,6 +216,8 @@ does	VVZ	do	VDZ	aux
 n't	RB	n't	XX0	neg
 know	VV	know	VVI	ccomp
 ```
+(excerpt comes from the GUM corpus, see: https://corpling.uis.georgetown.edu/gum/)
+
 The corresponding customization properties would look like this:
 ```xml
 <property key="treetagger.input.column1">pos</property>
