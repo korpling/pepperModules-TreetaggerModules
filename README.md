@@ -74,29 +74,6 @@ or
 </exporter>
 ```
 
-## Contribute
-Since this Pepper module is under a free license, please feel free to fork it from github and improve the module. If you even think that others can benefit from your improvements, don't hesitate to make a pull request, so that your changes can be merged.
-If you have found any bugs, or have some feature request, please open an issue on github. If you need any help, please write an e-mail to saltnpepper@lists.hu-berlin.de .
-
-## Funders
-This project has been funded by the [department of corpus linguistics and morphology](https://www.linguistik.hu-berlin.de/institut/professuren/korpuslinguistik/) of the Humboldt-Universität zu Berlin, the Institut national de recherche en informatique et en automatique ([INRIA](www.inria.fr/en/)) and the [Sonderforschungsbereich 632](https://www.sfb632.uni-potsdam.de/en/). 
-
-## License
-  Copyright 2009 Humboldt-Universität zu Berlin, INRIA.
-
-  Licensed under the Apache License, Version 2.0 (the "License");
-  you may not use this file except in compliance with the License.
-  You may obtain a copy of the License at
- 
-  http://www.apache.org/licenses/LICENSE-2.0
-
-  Unless required by applicable law or agreed to in writing, software
-  distributed under the License is distributed on an "AS IS" BASIS,
-  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-  See the License for the specific language governing permissions and
-  limitations under the License.
-
-
 #<a name="details_im"/>TreetaggerImporter
 Input Data
 ----------
@@ -196,6 +173,13 @@ The following table contains an overview of all usable properties to customize t
 <td align="left">optional</td>
 <td align="left">&quot; &quot;</td>
 </tr>
+<tr class="odd">
+<td align="left">treetagger.input.column[1-9][0-9]*</td>
+<td align="left">String</td>
+<td align="left">optional</td>
+<td align="left">&quot; &quot;</td>
+</tr>
+
 </tbody>
 </table>
 
@@ -219,6 +203,26 @@ Determines the separator which should be artificially added after a token, when 
 >
 > The separator sequence, must be surrounded by double quotes. To shut of the adding of a separator, just this property value to "".
 
+#### treetagger.input.column[1-9][0-9]*
+
+This property allows to import more than the three default columns: token, part-of-speech and lemma. You can determine an unbound number of columns and name each column. Imagine the following file, where 1st column is the token itself, the second is the part-of-speech annotation, the third is the lemma annotation, the fourth stands for claws and the third for token function:
+
+```
+This	DT	this	DT0	nsubj
+means	VVZ	mean	VVZ	root
+the	DT	the	AT0	det
+experimenter	NN	experimenter	NN1	nsubj
+does	VVZ	do	VDZ	aux
+n't	RB	n't	XX0	neg
+know	VV	know	VVI	ccomp
+```
+The corresponding customization properties would look like this:
+```xml
+<property key="treetagger.input.column1">pos</property>
+<property key="treetagger.input.column2">lemma</property>
+<property key="treetagger.input.column3">claws</property>
+<property key="treetagger.input.column4">tok_func</property>
+```
 
 #<a name="details_ex"/>TreetaggerExporter
 Mapping to TreeTagger format
@@ -318,3 +322,25 @@ If set true, generic span names like sSpan123 will be replaced with the first an
 ### treetagger.output.flatten
 
 If set true, the output directory structure is flat: all documents are put in the output root directory.
+
+## Contribute
+Since this Pepper module is under a free license, please feel free to fork it from github and improve the module. If you even think that others can benefit from your improvements, don't hesitate to make a pull request, so that your changes can be merged.
+If you have found any bugs, or have some feature request, please open an issue on github. If you need any help, please write an e-mail to saltnpepper@lists.hu-berlin.de .
+
+## Funders
+This project has been funded by the [department of corpus linguistics and morphology](https://www.linguistik.hu-berlin.de/institut/professuren/korpuslinguistik/) of the Humboldt-Universität zu Berlin, the Institut national de recherche en informatique et en automatique ([INRIA](www.inria.fr/en/)) and the [Sonderforschungsbereich 632](https://www.sfb632.uni-potsdam.de/en/). 
+
+## License
+  Copyright 2009 Humboldt-Universität zu Berlin, INRIA.
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+ 
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
