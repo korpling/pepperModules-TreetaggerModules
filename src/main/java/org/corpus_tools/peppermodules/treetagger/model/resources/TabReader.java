@@ -75,11 +75,6 @@ public class TabReader {
 	 */
 	public static final String propertyOutputFileEncoding = "treetagger.output.fileEncoding";
 
-	/**
-	 * property key for the option to export any annotation
-	 */
-	public static final String propertyExportAnyAnnotation = "treetagger.output.exportAnyAnnotation";
-
 	private static final Pattern inputColumnPattern = Pattern.compile("treetagger\\.input\\.column");
 
 	// property default values
