@@ -35,6 +35,10 @@ public class TreetaggerImporterProperties extends PepperModuleProperties {
 	 **/
 	public static final String PROP_META_TAG = PREFIX + "metaTag";
 	/**
+	 * property key for the encoding of input file
+	 */
+	public static final String PROP_FILE_ENCODING = "treetagger.input.fileEncoding";
+	/**
 	 * Name of property to determine the separator which should be artificially
 	 * added after a token, when mapping treetagger token to STextualDS in Salt.
 	 * The default separator is a whitespace given by the character sequence "

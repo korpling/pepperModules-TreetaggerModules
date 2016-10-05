@@ -25,10 +25,12 @@ import java.util.AbstractMap.SimpleEntry;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 import java.util.regex.Pattern;
 
 import org.corpus_tools.pepper.modules.exceptions.PepperModuleException;
+import org.corpus_tools.peppermodules.treetagger.TreetaggerImporterProperties;
 import org.corpus_tools.peppermodules.treetagger.model.AnnotatableElement;
 import org.corpus_tools.peppermodules.treetagger.model.Annotation;
 import org.corpus_tools.peppermodules.treetagger.model.Document;
@@ -49,31 +51,9 @@ import org.slf4j.LoggerFactory;
  */
 public class TabReader {
 	private static final Logger logger = LoggerFactory.getLogger(TabReader.class);
-	// column seperator
-	private String separator = "\t";
-
-	private String POSName = "pos";
-	private String LemmaName = "lemma";
-
-	/**
-	 * property key for the meta tag of input
-	 */
-	public static final String propertyInputMetaTag = "treetagger.input.metaTag";
-
-	/**
-	 * property key for the encoding of input file
-	 */
-	public static final String propertyInputFileEncoding = "treetagger.input.fileEncoding";
-
-	/**
-	 * property key for the meta tag of output
-	 */
-	public static final String propertyOutputMetaTag = "treetagger.output.metaTag";
-
-	/**
-	 * property key for the encoding of output file
-	 */
-	public static final String propertyOutputFileEncoding = "treetagger.output.fileEncoding";
+	private static final String COLUMN_SEPARATOR = "\t";
+	private static final String NAME_POS = "pos";
+	private static final String NAME_LEMMA = "lemma";
 
 	private static final Pattern inputColumnPattern = Pattern.compile("treetagger\\.input\\.column");
 
@@ -106,7 +86,7 @@ public class TabReader {
 	 * auxilliary method for processing input file
 	 */
 	private void addAttributesAsAnnotations(String tag, AnnotatableElement annotatableElement) {
-		ArrayList<SimpleEntry<String, String>> attributeValueList = XMLUtils.getAttributeValueList(tag);
+		List<SimpleEntry<String, String>> attributeValueList = XMLUtils.getAttributeValueList(tag);
 		for (int i = 0; i < attributeValueList.size(); i++) {
 			SimpleEntry<String, String> entry = attributeValueList.get(i);
 			Annotation annotation = TreetaggerFactory.eINSTANCE.createAnnotation();
@@ -117,12 +97,12 @@ public class TabReader {
 	}
 
 	private Document currentDocument = null;
-	private ArrayList<Span> openSpans = new ArrayList<Span>();
+	private List<Span> openSpans = new ArrayList<>();
 	private int fileLineCount = 0;
 	private boolean xmlDocumentOpen = false;
-	private HashMap<Integer, String> columnMap = null;
-	private ArrayList<Integer> dataRowsWithTooMuchColumns = new ArrayList<Integer>();
-	private ArrayList<Integer> dataRowsWithTooLessColumns = new ArrayList<Integer>();
+	private Map<Integer, String> columnMap = null;
+	private List<Integer> dataRowsWithTooMuchColumns = new ArrayList<>();
+	private List<Integer> dataRowsWithTooLessColumns = new ArrayList<>();
 
 	/*
 	 * auxilliary method for processing input file
@@ -225,7 +205,7 @@ public class TabReader {
 		if (this.currentDocument == null) {
 			this.beginDocument(null);
 		}
-		String[] tuple = row.split(separator);
+		String[] tuple = row.split(COLUMN_SEPARATOR);
 		Token token = TreetaggerFactory.eINSTANCE.createToken();
 		this.currentDocument.getTokens().add(token);
 		token.setText(tuple[0]);
@@ -244,10 +224,10 @@ public class TabReader {
 		for (int index = 1; index < Math.min(this.columnMap.size() + 1, tuple.length); index++) {
 			Annotation anno = null;
 			String columnName = this.columnMap.get(index);
-			if (columnName.equalsIgnoreCase(this.POSName)) {
+			if (columnName.equalsIgnoreCase(this.NAME_POS)) {
 				anno = TreetaggerFactory.eINSTANCE.createPOSAnnotation();
 				token.setPosAnnotation((POSAnnotation) anno);
-			} else if (columnName.equalsIgnoreCase(this.LemmaName)) {
+			} else if (columnName.equalsIgnoreCase(this.NAME_LEMMA)) {
 				anno = TreetaggerFactory.eINSTANCE.createLemmaAnnotation();
 				token.setLemmaAnnotation((LemmaAnnotation) anno);
 			} else {
@@ -292,8 +272,8 @@ public class TabReader {
 	 * validates and return the input columns definition from the properties
 	 * file
 	 */
-	protected HashMap<Integer, String> getColumns() {
-		HashMap<Integer, String> retVal = new HashMap<Integer, String>();
+	protected Map<Integer, String> getColumns() {
+		Map<Integer, String> retVal = new HashMap<>();
 		Object[] keyArray = this.getProperties().keySet().toArray();
 		int numOfKeys = this.getProperties().size();
 		String errorMessage = null;
@@ -344,8 +324,8 @@ public class TabReader {
 
 		// return defaults if nothing is set in the properties file
 		if (retVal.size() == 0) {
-			retVal.put(1, this.POSName);
-			retVal.put(2, this.LemmaName);
+			retVal.put(1, this.NAME_POS);
+			retVal.put(2, this.NAME_LEMMA);
 			return retVal;
 		}
 
@@ -385,10 +365,11 @@ public class TabReader {
 		this.location = location;
 		this.currentFileName = location.toFileString();
 
-		String metaTag = getProperties().getProperty(propertyInputMetaTag, defaultMetaTag);
+		String metaTag = getProperties().getProperty(TreetaggerImporterProperties.PROP_META_TAG, defaultMetaTag);
 		logger.info("using meta tag '{}'", metaTag);
 
-		String fileEncoding = getProperties().getProperty(propertyInputFileEncoding, defaultInputFileEncoding);
+		String fileEncoding = getProperties().getProperty(TreetaggerImporterProperties.PROP_FILE_ENCODING,
+				defaultInputFileEncoding);
 		logger.info("using input file encoding '{}'", fileEncoding);
 
 		this.columnMap = getColumns();
