@@ -23,11 +23,8 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.AbstractMap.SimpleEntry;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
-import java.util.regex.Pattern;
 
 import org.corpus_tools.pepper.modules.exceptions.PepperModuleException;
 import org.corpus_tools.peppermodules.treetagger.TreetaggerImporterProperties;
@@ -54,32 +51,93 @@ public class TabReader {
 	private static final String COLUMN_SEPARATOR = "\t";
 	private static final String NAME_POS = "pos";
 	private static final String NAME_LEMMA = "lemma";
-
-	private static final Pattern inputColumnPattern = Pattern.compile("treetagger\\.input\\.column");
-
-	// property default values
-	private static final String defaultInputFileEncoding = "UTF-8";
-	private static final String defaultMetaTag = "meta";
-
-	// BOM character
 	private static final Character utf8BOM = new Character((char) 0xFEFF);
-
-	String currentFileName = "";
 	private URI location = null;
-
-	private Properties properties = null;
+	private TreetaggerImporterProperties properties = null;
 	private List<Document> documents = new ArrayList<>();
+	private Document currentDocument = null;
+	private List<Span> openSpans = new ArrayList<>();
+	private int fileLineCount = 0;
+	private boolean xmlDocumentOpen = false;
+	private Map<Integer, String> columnMap = null;
+	private List<Integer> dataRowsWithTooMuchColumns = new ArrayList<>();
+	private List<Integer> dataRowsWithTooLessColumns = new ArrayList<>();
 
 	/**
-	 * Getter for the Properties
+	 * Loads a resource into treetagger model from tab separated file.
 	 * 
-	 * @return properties
+	 * @param options
+	 *            a map that may contain an instance of LogService and an
+	 *            instance of Properties, with {@link #logServiceKey} and
+	 *            {@link #propertiesKey} respectively as keys
 	 */
-	public Properties getProperties() {
-		if (properties == null) {
-			properties = new Properties();
+	public List<Document> load(URI location, TreetaggerImporterProperties properties) {
+		if (location == null) {
+			throw new PepperModuleException("Cannot load any resource, because no uri is given.");
 		}
-		return properties;
+		this.location = location;
+		this.properties = properties;
+
+		String metaTag = properties.getProperty(TreetaggerImporterProperties.PROP_META_TAG).getValue().toString();
+		logger.info("using meta tag '{}'", metaTag);
+
+		String fileEncoding = properties.getProperty(TreetaggerImporterProperties.PROP_FILE_ENCODING).getValue()
+				.toString();
+		logger.info("using input file encoding '{}'", fileEncoding);
+
+		columnMap = properties.getColumns();
+
+		try (BufferedReader fileReader = new BufferedReader(
+				new InputStreamReader(new FileInputStream(location.toFileString()), fileEncoding));) {
+			String line = null;
+			fileLineCount = 0;
+			while ((line = fileReader.readLine()) != null) {
+				if (line.trim().length() > 0) {
+					// delete BOM if exists
+					if ((fileLineCount == 0) && (line.startsWith(utf8BOM.toString()))) {
+						line = line.substring(utf8BOM.toString().length());
+						logger.info("BOM recognised and ignored");
+					}
+					fileLineCount++;
+					if (XMLUtils.isProcessingInstructionTag(line)) {
+						// do nothing; ignore processing instructions
+					} else if (XMLUtils.isStartTag(line)) {
+						String startTagName = XMLUtils.getName(line);
+						if (startTagName.equalsIgnoreCase(metaTag)) {
+							beginDocument(line);
+						} else {
+							beginSpan(startTagName, line);
+						}
+					} else if (XMLUtils.isEndTag(line)) {
+						String endTagName = XMLUtils.getName(line);
+						if (endTagName.equalsIgnoreCase(metaTag)) {
+							xmlDocumentOpen = false;
+							endDocument();
+						} else {
+							endSpan(endTagName);
+						}
+					} else {
+						addDataRow(line);
+					}
+				}
+			}
+			endDocument();
+		} catch (IOException e) {
+			throw new PepperModuleException("Cannot read treetagger file '" + location + "'. ", e);
+		}
+
+		setDocumentNames();
+
+		if (dataRowsWithTooLessColumns.size() > 0) {
+			logger.warn(String.format("%s rows in input file had less data columns than expected! (Rows %s)",
+					dataRowsWithTooLessColumns.size(), dataRowsWithTooLessColumns.toString()));
+		}
+		if (dataRowsWithTooMuchColumns.size() > 0) {
+			logger.warn(String.format(
+					"%s rows in input file had more data columns than expected! Additional data was ignored! (Rows %s)",
+					dataRowsWithTooMuchColumns.size(), dataRowsWithTooMuchColumns.toString()));
+		}
+		return documents;
 	}
 
 	/*
@@ -95,14 +153,6 @@ public class TabReader {
 			annotatableElement.getAnnotations().add(annotation);
 		}
 	}
-
-	private Document currentDocument = null;
-	private List<Span> openSpans = new ArrayList<>();
-	private int fileLineCount = 0;
-	private boolean xmlDocumentOpen = false;
-	private Map<Integer, String> columnMap = null;
-	private List<Integer> dataRowsWithTooMuchColumns = new ArrayList<>();
-	private List<Integer> dataRowsWithTooLessColumns = new ArrayList<>();
 
 	/*
 	 * auxilliary method for processing input file
@@ -266,160 +316,5 @@ public class TabReader {
 			}
 			break;
 		}
-	}
-
-	/**
-	 * validates and return the input columns definition from the properties
-	 * file
-	 */
-	protected Map<Integer, String> getColumns() {
-		Map<Integer, String> retVal = new HashMap<>();
-		Object[] keyArray = getProperties().keySet().toArray();
-		int numOfKeys = getProperties().size();
-		String errorMessage = null;
-
-		for (int keyIndex = 0; keyIndex < numOfKeys; keyIndex++) {
-
-			String key = (String) keyArray[keyIndex];
-			if (inputColumnPattern.matcher(key).find()) {
-
-				// try to extract the number at the end of the key
-				String indexStr = key.substring("treetagger.input.column".length());
-				String name = getProperties().getProperty(key);
-				Integer index = null;
-
-				try {
-					index = Integer.valueOf(indexStr);
-				} catch (NumberFormatException e) {
-					errorMessage = "Invalid property name '" + key + "': " + indexStr + " is not a valid number!";
-					logger.error(errorMessage);
-					throw new PepperModuleException(errorMessage, e);
-				}
-
-				// minimal index is 1
-				if (index <= 0) {
-					errorMessage = "Invalid settings in properties file: no column index less than 1 allowed!";
-					logger.error(errorMessage);
-					throw new PepperModuleException(errorMessage);
-				}
-
-				// with the standard Properties class, this can never happen...
-				if (retVal.containsKey(index)) {
-					errorMessage = "Invalid settings in properties file:  More than one column is defined for index '"
-							+ index + "'";
-					logger.error(errorMessage);
-					throw new PepperModuleException(errorMessage);
-				}
-
-				if (retVal.containsValue(name)) {
-					errorMessage = "Invalid settings in properties file:  More than one column is defined for name '"
-							+ name + "'";
-					logger.error(errorMessage);
-					throw new PepperModuleException(errorMessage);
-				}
-
-				retVal.put(index, name);
-			}
-		}
-
-		// return defaults if nothing is set in the properties file
-		if (retVal.size() == 0) {
-			retVal.put(1, NAME_POS);
-			retVal.put(2, NAME_LEMMA);
-			return retVal;
-		}
-
-		// check consecutivity of indexes
-		for (int index = 1; index <= retVal.size(); index++) {
-			if (!retVal.containsKey(index)) {
-				errorMessage = "Invalid settings in properties file: column indexes are not consecutive, column" + index
-						+ " missing!";
-				logger.error(errorMessage);
-				throw new PepperModuleException(errorMessage);
-			}
-		}
-		return retVal;
-	}
-
-	/**
-	 * Loads a resource into treetagger model from tab separated file.
-	 * 
-	 * @param options
-	 *            a map that may contain an instance of LogService and an
-	 *            instance of Properties, with {@link #logServiceKey} and
-	 *            {@link #propertiesKey} respectively as keys
-	 */
-	public List<Document> load(URI location, java.util.Map<?, ?> options) {
-		if (location == null) {
-			throw new PepperModuleException("Cannot load any resource, because no uri is given.");
-		}
-		this.location = location;
-
-		if (options != null) {
-			getProperties().putAll(options);
-		}
-
-		currentFileName = location.toFileString();
-
-		String metaTag = getProperties().getProperty(TreetaggerImporterProperties.PROP_META_TAG, defaultMetaTag);
-		logger.info("using meta tag '{}'", metaTag);
-
-		String fileEncoding = getProperties().getProperty(TreetaggerImporterProperties.PROP_FILE_ENCODING,
-				defaultInputFileEncoding);
-		logger.info("using input file encoding '{}'", fileEncoding);
-
-		columnMap = getColumns();
-
-		try (BufferedReader fileReader = new BufferedReader(
-				new InputStreamReader(new FileInputStream(currentFileName), fileEncoding));) {
-			String line = null;
-			fileLineCount = 0;
-			while ((line = fileReader.readLine()) != null) {
-				if (line.trim().length() > 0) {
-					// delete BOM if exists
-					if ((fileLineCount == 0) && (line.startsWith(utf8BOM.toString()))) {
-						line = line.substring(utf8BOM.toString().length());
-						logger.info("BOM recognised and ignored");
-					}
-					fileLineCount++;
-					if (XMLUtils.isProcessingInstructionTag(line)) {
-						// do nothing; ignore processing instructions
-					} else if (XMLUtils.isStartTag(line)) {
-						String startTagName = XMLUtils.getName(line);
-						if (startTagName.equalsIgnoreCase(metaTag)) {
-							beginDocument(line);
-						} else {
-							beginSpan(startTagName, line);
-						}
-					} else if (XMLUtils.isEndTag(line)) {
-						String endTagName = XMLUtils.getName(line);
-						if (endTagName.equalsIgnoreCase(metaTag)) {
-							xmlDocumentOpen = false;
-							endDocument();
-						} else {
-							endSpan(endTagName);
-						}
-					} else {
-						addDataRow(line);
-					}
-				}
-			}
-			endDocument();
-		} catch (IOException e) {
-			throw new PepperModuleException("Cannot read treetagger file '" + location + "'. ", e);
-		}
-
-		setDocumentNames();
-
-		if (dataRowsWithTooLessColumns.size() > 0) {
-			logger.warn(String.format("%s rows in input file had less data columns than expected! (Rows %s)",
-					dataRowsWithTooLessColumns.size(), dataRowsWithTooLessColumns.toString()));
-		}
-		if (dataRowsWithTooMuchColumns.size() > 0) {
-			logger.warn(String.format(
-					"%s rows in input file had more data columns than expected! Additional data was ignored! (Rows %s)",
-					dataRowsWithTooMuchColumns.size(), dataRowsWithTooMuchColumns.toString()));
-		}
-		return documents;
 	}
 }

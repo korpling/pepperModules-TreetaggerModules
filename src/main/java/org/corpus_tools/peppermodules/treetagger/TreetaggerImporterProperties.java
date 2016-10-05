@@ -17,8 +17,13 @@
  */
 package org.corpus_tools.peppermodules.treetagger;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.regex.Pattern;
+
 import org.corpus_tools.pepper.modules.PepperModuleProperties;
 import org.corpus_tools.pepper.modules.PepperModuleProperty;
+import org.corpus_tools.pepper.modules.exceptions.PepperModulePropertyException;
 import org.corpus_tools.salt.common.SToken;
 
 public class TreetaggerImporterProperties extends PepperModuleProperties {
@@ -47,6 +52,10 @@ public class TreetaggerImporterProperties extends PepperModuleProperties {
 	 **/
 	public static final String PROP_SEPARATOR_AFTER_TOKEN = PREFIX + "separatorAfterToken";
 
+	private static final Pattern PATTERN_PROP_INPUT_COLUMNS = Pattern.compile("treetagger\\.input\\.column");
+	private static final String DEFAULT_POS_NAME = "pos";
+	private static final String DEFAULT_LEMMA_NAME = "lemma";
+
 	public TreetaggerImporterProperties() {
 		this.addProperty(new PepperModuleProperty<Boolean>(PROP_ANNOTATE_UNANNOTATED_SPANS, Boolean.class,
 				"If set true, this switch will cause the module to annotate all spans without attributes with their name as attribute and value.",
@@ -59,6 +68,8 @@ public class TreetaggerImporterProperties extends PepperModuleProperties {
 		this.addProperty(new PepperModuleProperty<String>(PROP_SEPARATOR_AFTER_TOKEN, String.class,
 				"Determines the separator which should be artificially added after a token, when mapping treetagger token to STextualDS in Salt. The default separator is a whitespace given by the character sequence \" \". Note, the separator sequence, must be surrunded by double quotes. To shut of the adding of a separator, just this property value to \"\"",
 				" ", false));
+		this.addProperty(new PepperModuleProperty<String>(PROP_FILE_ENCODING, String.class,
+				"Determines the encoding of the input files. ", "UTF-8", false));
 	}
 
 	public Boolean getAnnotateUnannotatedSpans() {
@@ -81,4 +92,66 @@ public class TreetaggerImporterProperties extends PepperModuleProperties {
 		return (separator);
 	}
 
+	/**
+	 * validates and return the input columns definition from the properties
+	 * file
+	 */
+	public Map<Integer, String> getColumns() {
+		Map<Integer, String> retVal = new HashMap<>();
+		for (Map.Entry<Object, Object> property : getProperties().entrySet()) {
+			String key = property.getKey().toString();
+			if (PATTERN_PROP_INPUT_COLUMNS.matcher(key).find()) {
+
+				// try to extract the number at the end of the key
+				String indexStr = key.substring("treetagger.input.column".length());
+				String name = property.getValue().toString();
+				Integer index = null;
+
+				try {
+					index = Integer.valueOf(indexStr);
+				} catch (NumberFormatException e) {
+					throw new PepperModulePropertyException(
+							"Invalid property name '" + key + "': " + indexStr + " is not a valid number!", e);
+				}
+
+				// minimal index is 1
+				if (index <= 0) {
+					throw new PepperModulePropertyException(
+							"Invalid settings in properties file: no column index less than 1 allowed!");
+				}
+
+				// with the standard Properties class, this can never happen...
+				if (retVal.containsKey(index)) {
+					throw new PepperModulePropertyException(
+							"Invalid settings in properties file:  More than one column is defined for index '" + index
+									+ "'");
+				}
+
+				if (retVal.containsValue(name)) {
+					throw new PepperModulePropertyException(
+							"Invalid settings in properties file:  More than one column is defined for name '" + name
+									+ "'");
+				}
+
+				retVal.put(index, name);
+			}
+		}
+
+		// return defaults if nothing is set in the properties file
+		if (retVal.size() == 0) {
+			retVal.put(1, DEFAULT_POS_NAME);
+			retVal.put(2, DEFAULT_LEMMA_NAME);
+			return retVal;
+		}
+
+		// check consecutivity of indexes
+		for (int expectedColumnNo = 1; expectedColumnNo <= retVal.size(); expectedColumnNo++) {
+			if (!retVal.containsKey(expectedColumnNo)) {
+				throw new PepperModulePropertyException(
+						"Invalid settings in properties file: column indexes are not consecutive, column" + expectedColumnNo
+								+ " missing!");
+			}
+		}
+		return retVal;
+	}
 }
