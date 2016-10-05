@@ -108,13 +108,13 @@ public class TabReader {
 	 * auxilliary method for processing input file
 	 */
 	private void beginDocument(String startTag) {
-		if (this.currentDocument != null) {
-			this.endDocument();
+		if (currentDocument != null) {
+			endDocument();
 		}
-		this.currentDocument = TreetaggerFactory.eINSTANCE.createDocument();
-		this.xmlDocumentOpen = (startTag != null);
-		if (this.xmlDocumentOpen) {
-			addAttributesAsAnnotations(startTag, this.currentDocument);
+		currentDocument = TreetaggerFactory.eINSTANCE.createDocument();
+		xmlDocumentOpen = (startTag != null);
+		if (xmlDocumentOpen) {
+			addAttributesAsAnnotations(startTag, currentDocument);
 		}
 	}
 
@@ -122,11 +122,11 @@ public class TabReader {
 	 * auxilliary method for processing input file
 	 */
 	private void endDocument() {
-		if (this.currentDocument != null) {
-			if (!this.openSpans.isEmpty()) {
+		if (currentDocument != null) {
+			if (!openSpans.isEmpty()) {
 				String openSpanNames = "";
-				for (int spanIndex = 0; spanIndex < this.openSpans.size(); spanIndex++) {
-					Span span = this.openSpans.get(spanIndex);
+				for (int spanIndex = 0; spanIndex < openSpans.size(); spanIndex++) {
+					Span span = openSpans.get(spanIndex);
 					openSpanNames += ",</" + span.getName() + ">";
 					for (int tokenIndex = span.getTokens().size() - 1; tokenIndex >= 0; tokenIndex--) {
 						Token token = span.getTokens().get(tokenIndex);
@@ -138,31 +138,31 @@ public class TabReader {
 					}
 				}
 				logger.warn(String.format("input file '%s' (line %d): missing end tag(s) '%s'. tag(s) will be ignored!",
-						location.lastSegment(), this.fileLineCount, openSpanNames.substring(1)));
+						location.lastSegment(), fileLineCount, openSpanNames.substring(1)));
 			}
-			if (this.xmlDocumentOpen) {
+			if (xmlDocumentOpen) {
 				logger.warn(
 						String.format("input file '%s' (line %d): missing document end tag. document will be ignored!",
-								location.lastSegment(), this.fileLineCount));
+								location.lastSegment(), fileLineCount));
 			} else {
-				documents.add(this.currentDocument);
+				documents.add(currentDocument);
 			}
 
-			this.currentDocument = null;
-			this.xmlDocumentOpen = false;
+			currentDocument = null;
+			xmlDocumentOpen = false;
 		}
-		this.openSpans.clear();
+		openSpans.clear();
 	}
 
 	/*
 	 * auxilliary method for processing input file
 	 */
 	private void beginSpan(String spanName, String startTag) {
-		if (this.currentDocument == null) {
-			this.beginDocument(null);
+		if (currentDocument == null) {
+			beginDocument(null);
 		}
 		Span span = TreetaggerFactory.eINSTANCE.createSpan();
-		this.openSpans.add(0, span);
+		openSpans.add(0, span);
 		span.setName(spanName);
 		addAttributesAsAnnotations(startTag, span);
 	}
@@ -171,29 +171,29 @@ public class TabReader {
 	 * auxilliary method for processing input file
 	 */
 	private void endSpan(String spanName) {
-		if (this.currentDocument == null) {
+		if (currentDocument == null) {
 			logger.warn(
 					String.format("input file '%s' (line '%d'): end tag '</%s>' out of nowhere. tag will be ignored!",
-							location.lastSegment(), this.fileLineCount, spanName));
+							location.lastSegment(), fileLineCount, spanName));
 		} else {
 			boolean matchingStartTagExists = false;
-			for (int i = 0; i < this.openSpans.size(); i++) {
-				Span openSpan = this.openSpans.get(i);
+			for (int i = 0; i < openSpans.size(); i++) {
+				Span openSpan = openSpans.get(i);
 				if (openSpan.getName().equalsIgnoreCase(spanName)) {
 					matchingStartTagExists = true;
 					if (openSpan.getTokens().isEmpty()) {
 						logger.warn(String.format(
 								"input file '%s' (line %d): no tokens contained in span '<%s>'. span will be ignored!",
-								location.lastSegment(), this.fileLineCount, openSpan.getName()));
+								location.lastSegment(), fileLineCount, openSpan.getName()));
 					}
-					this.openSpans.remove(i);
+					openSpans.remove(i);
 					break;
 				}
 			}
 			if (!matchingStartTagExists) {
 				logger.warn(String.format(
 						"input file '%s' (line %d): no corresponding opening tag found for end tag '</%s>'. tag will be ignored!",
-						location.lastSegment(), this.fileLineCount, spanName));
+						location.lastSegment(), fileLineCount, spanName));
 			}
 		}
 	}
@@ -202,32 +202,32 @@ public class TabReader {
 	 * auxilliary method for processing input file
 	 */
 	private void addDataRow(String row) {
-		if (this.currentDocument == null) {
-			this.beginDocument(null);
+		if (currentDocument == null) {
+			beginDocument(null);
 		}
 		String[] tuple = row.split(COLUMN_SEPARATOR);
 		Token token = TreetaggerFactory.eINSTANCE.createToken();
-		this.currentDocument.getTokens().add(token);
+		currentDocument.getTokens().add(token);
 		token.setText(tuple[0]);
-		for (int i = 0; i < this.openSpans.size(); i++) {
+		for (int i = 0; i < openSpans.size(); i++) {
 			Span span = openSpans.get(i);
 			token.getSpans().add(span);
 			span.getTokens().add(token);
 		}
 
-		if (tuple.length > this.columnMap.size() + 1) {
-			this.dataRowsWithTooMuchColumns.add(this.fileLineCount);
-		} else if (tuple.length <= this.columnMap.size()) {
-			this.dataRowsWithTooLessColumns.add(this.fileLineCount);
+		if (tuple.length > columnMap.size() + 1) {
+			dataRowsWithTooMuchColumns.add(fileLineCount);
+		} else if (tuple.length <= columnMap.size()) {
+			dataRowsWithTooLessColumns.add(fileLineCount);
 		}
 
-		for (int index = 1; index < Math.min(this.columnMap.size() + 1, tuple.length); index++) {
+		for (int index = 1; index < Math.min(columnMap.size() + 1, tuple.length); index++) {
 			Annotation anno = null;
-			String columnName = this.columnMap.get(index);
-			if (columnName.equalsIgnoreCase(this.NAME_POS)) {
+			String columnName = columnMap.get(index);
+			if (columnName.equalsIgnoreCase(NAME_POS)) {
 				anno = TreetaggerFactory.eINSTANCE.createPOSAnnotation();
 				token.setPosAnnotation((POSAnnotation) anno);
-			} else if (columnName.equalsIgnoreCase(this.NAME_LEMMA)) {
+			} else if (columnName.equalsIgnoreCase(NAME_LEMMA)) {
 				anno = TreetaggerFactory.eINSTANCE.createLemmaAnnotation();
 				token.setLemmaAnnotation((LemmaAnnotation) anno);
 			} else {
@@ -274,8 +274,8 @@ public class TabReader {
 	 */
 	protected Map<Integer, String> getColumns() {
 		Map<Integer, String> retVal = new HashMap<>();
-		Object[] keyArray = this.getProperties().keySet().toArray();
-		int numOfKeys = this.getProperties().size();
+		Object[] keyArray = getProperties().keySet().toArray();
+		int numOfKeys = getProperties().size();
 		String errorMessage = null;
 
 		for (int keyIndex = 0; keyIndex < numOfKeys; keyIndex++) {
@@ -285,7 +285,7 @@ public class TabReader {
 
 				// try to extract the number at the end of the key
 				String indexStr = key.substring("treetagger.input.column".length());
-				String name = this.getProperties().getProperty(key);
+				String name = getProperties().getProperty(key);
 				Integer index = null;
 
 				try {
@@ -324,8 +324,8 @@ public class TabReader {
 
 		// return defaults if nothing is set in the properties file
 		if (retVal.size() == 0) {
-			retVal.put(1, this.NAME_POS);
-			retVal.put(2, this.NAME_LEMMA);
+			retVal.put(1, NAME_POS);
+			retVal.put(2, NAME_LEMMA);
 			return retVal;
 		}
 
@@ -350,10 +350,10 @@ public class TabReader {
 	 *            {@link #propertiesKey} respectively as keys
 	 */
 	public List<Document> load(URI location, java.util.Map<?, ?> options) {
-		this.openSpans.clear();
-		this.currentDocument = null;
-		this.fileLineCount = 0;
-		this.xmlDocumentOpen = false;
+		openSpans.clear();
+		currentDocument = null;
+		fileLineCount = 0;
+		xmlDocumentOpen = false;
 
 		if (options != null) {
 			getProperties().putAll(options);
@@ -363,7 +363,7 @@ public class TabReader {
 			throw new PepperModuleException("Cannot load any resource, because no uri is given.");
 		}
 		this.location = location;
-		this.currentFileName = location.toFileString();
+		currentFileName = location.toFileString();
 
 		String metaTag = getProperties().getProperty(TreetaggerImporterProperties.PROP_META_TAG, defaultMetaTag);
 		logger.info("using meta tag '{}'", metaTag);
@@ -372,57 +372,57 @@ public class TabReader {
 				defaultInputFileEncoding);
 		logger.info("using input file encoding '{}'", fileEncoding);
 
-		this.columnMap = getColumns();
+		columnMap = getColumns();
 
 		try (BufferedReader fileReader = new BufferedReader(
-				new InputStreamReader(new FileInputStream(this.currentFileName), fileEncoding));) {
+				new InputStreamReader(new FileInputStream(currentFileName), fileEncoding));) {
 			String line = null;
-			this.fileLineCount = 0;
+			fileLineCount = 0;
 			while ((line = fileReader.readLine()) != null) {
 				if (line.trim().length() > 0) {
 					// delete BOM if exists
-					if ((this.fileLineCount == 0) && (line.startsWith(utf8BOM.toString()))) {
+					if ((fileLineCount == 0) && (line.startsWith(utf8BOM.toString()))) {
 						line = line.substring(utf8BOM.toString().length());
 						logger.info("BOM recognised and ignored");
 					}
-					this.fileLineCount++;
+					fileLineCount++;
 					if (XMLUtils.isProcessingInstructionTag(line)) {
 						// do nothing; ignore processing instructions
 					} else if (XMLUtils.isStartTag(line)) {
 						String startTagName = XMLUtils.getName(line);
 						if (startTagName.equalsIgnoreCase(metaTag)) {
-							this.beginDocument(line);
+							beginDocument(line);
 						} else {
-							this.beginSpan(startTagName, line);
+							beginSpan(startTagName, line);
 						}
 					} else if (XMLUtils.isEndTag(line)) {
 						String endTagName = XMLUtils.getName(line);
 						if (endTagName.equalsIgnoreCase(metaTag)) {
-							this.xmlDocumentOpen = false;
-							this.endDocument();
+							xmlDocumentOpen = false;
+							endDocument();
 						} else {
-							this.endSpan(endTagName);
+							endSpan(endTagName);
 						}
 					} else {
-						this.addDataRow(line);
+						addDataRow(line);
 					}
 				}
 			}
-			this.endDocument();
+			endDocument();
 		} catch (IOException e) {
 			throw new PepperModuleException("Cannot read treetagger file '" + location + "'. ", e);
 		}
 
-		this.setDocumentNames();
+		setDocumentNames();
 
-		if (this.dataRowsWithTooLessColumns.size() > 0) {
+		if (dataRowsWithTooLessColumns.size() > 0) {
 			logger.warn(String.format("%s rows in input file had less data columns than expected! (Rows %s)",
-					this.dataRowsWithTooLessColumns.size(), this.dataRowsWithTooLessColumns.toString()));
+					dataRowsWithTooLessColumns.size(), dataRowsWithTooLessColumns.toString()));
 		}
-		if (this.dataRowsWithTooMuchColumns.size() > 0) {
+		if (dataRowsWithTooMuchColumns.size() > 0) {
 			logger.warn(String.format(
 					"%s rows in input file had more data columns than expected! Additional data was ignored! (Rows %s)",
-					this.dataRowsWithTooMuchColumns.size(), this.dataRowsWithTooMuchColumns.toString()));
+					dataRowsWithTooMuchColumns.size(), dataRowsWithTooMuchColumns.toString()));
 		}
 		return documents;
 	}
