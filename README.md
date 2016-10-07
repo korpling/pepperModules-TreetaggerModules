@@ -213,7 +213,6 @@ Determines the separator which should be artificially added after a token, when 
 >
 > The separator sequence, must be surrounded by double quotes. To shut of the adding of a separator, just this property value to "".
 
-<<<<<<< HEAD
 ### treetagger.input.prefixElementToAttributes
 
 Choose whether to prefix the element name to all span annotation attributes. For example, if set to true, then for a span <date when="2016">, the 'when' annotation becomes date_when (the default separator is `_` and can be configured).
@@ -222,7 +221,6 @@ Choose whether to prefix the element name to all span annotation attributes. For
 
 The string to use to separate element and attribute name when using the prefixElementToAttributes option. By default this is '_' ,so that for a span <date when="2016">, the 'when' annotation becomes date_when="2016".
 
-=======
 #### treetagger.input.column[1-9][0-9]*
 
 This property allows to import more than the three default columns: token, part-of-speech and lemma. You can determine an unbound number of columns and name each column. Imagine the following file, where 1st column is the token itself, the second is the part-of-speech annotation, the third is the lemma annotation, the fourth stands for claws and the third for token function:
@@ -245,7 +243,6 @@ The corresponding customization properties would look like this:
 <property key="treetagger.input.column3">claws</property>
 <property key="treetagger.input.column4">tok_func</property>
 ```
->>>>>>> refs/heads/develop
 
 #<a name="details_ex"/>TreetaggerExporter
 Mapping to TreeTagger format
