@@ -15,20 +15,19 @@
  *
  *
  */
-package org.corpus_tools.peppermodules.treetagger.tests;
+package org.corpus_tools.peppermodules.treetagger.mapper;
 
 import java.util.List;
 
 import org.corpus_tools.peppermodules.treetagger.mapper.Treetagger2SaltMapper;
+import org.corpus_tools.peppermodules.treetagger.model.Annotation;
+import org.corpus_tools.peppermodules.treetagger.model.Document;
+import org.corpus_tools.peppermodules.treetagger.model.Token;
 import org.corpus_tools.salt.common.SDocument;
 import org.corpus_tools.salt.common.STextualDS;
 import org.corpus_tools.salt.common.STextualRelation;
 import org.corpus_tools.salt.common.SToken;
 import org.corpus_tools.salt.core.SAnnotation;
-
-import de.hu_berlin.german.korpling.saltnpepper.misc.treetagger.Annotation;
-import de.hu_berlin.german.korpling.saltnpepper.misc.treetagger.Document;
-import de.hu_berlin.german.korpling.saltnpepper.misc.treetagger.Token;
 
 public class PublicTreetagger2SaltMapper extends Treetagger2SaltMapper {
 
@@ -38,22 +37,27 @@ public class PublicTreetagger2SaltMapper extends Treetagger2SaltMapper {
 		super.mapSDocument();
 	}
 
+	@Override
 	public void addMetaAnnotation(List<Annotation> tAnnotations, SDocument sDocument) {
 		super.addMetaAnnotation(tAnnotations, sDocument);
 	}
 
+	@Override
 	public STextualDS createSTextualDS(List<Token> tTokens, SDocument sDocument) {
 		return super.createSTextualDS(tTokens, sDocument);
 	}
 
+	@Override
 	public SToken createSToken(Token tToken) {
 		return super.createSToken(tToken);
 	}
 
+	@Override
 	public SAnnotation createAnnotation(Annotation tAnnotation) {
 		return super.createAnnotation(tAnnotation);
 	}
 
+	@Override
 	public STextualRelation createSTextualRelation(SToken sToken, STextualDS sText, int start, int end) {
 		return super.createSTextualRelation(sToken, sText, start, end);
 	}
