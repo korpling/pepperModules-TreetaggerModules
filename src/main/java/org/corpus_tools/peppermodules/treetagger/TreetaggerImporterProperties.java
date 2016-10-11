@@ -17,6 +17,8 @@
  */
 package org.corpus_tools.peppermodules.treetagger;
 
+import java.util.Hashtable;
+import java.util.Map;
 import org.corpus_tools.pepper.modules.PepperModuleProperties;
 import org.corpus_tools.pepper.modules.PepperModuleProperty;
 import org.corpus_tools.salt.common.SToken;
@@ -49,6 +51,17 @@ public class TreetaggerImporterProperties extends PepperModuleProperties {
         public static final String PROP_PREFIX_SPAN_ANNOS_WITH_ELEMENT = PREFIX + "prefixElementToAttributes";
         public static final String PROP_PREFIX_ELEMENT_SEPARATOR = PREFIX + "prefixElementSeparator";
 
+        /**
+         * Property of find+replace string pairs to alter specific token values. Useful
+         * for incorporating XML escapes into an imported file's tokens.
+         */
+        public static final String PROP_TOKEN_REPLACEMENTS = PREFIX + "replaceTokens";
+        
+        /**
+         * Whether to apply token replacement patterns to annotations too. Only effective
+         * if token replacements have been defined, true by default.
+         */
+        public static final String PROP_ANNO_REPLACEMENTS = PREFIX + "replacementsInAnnos";
         
 	public TreetaggerImporterProperties() {
 		this.addProperty(new PepperModuleProperty<Boolean>(PROP_ANNOTATE_UNANNOTATED_SPANS, Boolean.class,
@@ -64,6 +77,8 @@ public class TreetaggerImporterProperties extends PepperModuleProperties {
 				" ", false));
 		this.addProperty(new PepperModuleProperty<Boolean>(PROP_PREFIX_SPAN_ANNOS_WITH_ELEMENT, Boolean.class, "Set to true to add the element name as a prefix to all span element attribute annotations.", false, false));
 		this.addProperty(new PepperModuleProperty<String>(PROP_PREFIX_ELEMENT_SEPARATOR, String.class, "Separator to use when prefixing span attribute annotations with element name.", "_", false));
+		this.addProperty(new PepperModuleProperty<String>(PROP_TOKEN_REPLACEMENTS, String.class, "Specify values to find and replace in tokens. This value is a comma separated list of mappings: \"REPLACED_STRING\" : \"REPLACEMENT\" (, \"REPLACED_STRING\" : \"REPLACEMENT\")*", ""));
+		this.addProperty(new PepperModuleProperty<Boolean>(PROP_ANNO_REPLACEMENTS, Boolean.class, "If true, make token replacement patterns apply to annotations as well.", true, false));
 	}
 
 	public Boolean getAnnotateUnannotatedSpans() {
@@ -93,6 +108,51 @@ public class TreetaggerImporterProperties extends PepperModuleProperties {
 		String separator = (String) this.getProperty(PROP_SEPARATOR_AFTER_TOKEN).getValue();
 		separator.replace("\"", "");
 		return (separator);
+	}
+        
+        
+        /**
+	 * a map of Strings to be replaced and the corresponding replacement
+	 * String.
+	 **/
+	private Map<String, String> replacementMapping = null;
+
+	/**
+	 * Returns a map of Strings to be escaped and the corresponding
+	 * replacement Strings. This map is computed from the property
+	 * {@link #PROP_TOKEN_REPLACEMENTS}, which has the form: \"REPLACED_STRING\"
+	 * : \"REPLACEMENT\" (, \"REPLACED_STRING\" : \"REPLACEMENT\").
+         * It is applied to token values, and if {@link #PROP_ANNO_REPLACEMENTS} is
+         * true, then also to annotation values.
+	 * 
+	 * @return
+	 */
+	public Map<String, String> getReplacementMapping() {
+		if (replacementMapping == null) {
+			PepperModuleProperty<String> prop = (PepperModuleProperty<String>) getProperty(PROP_TOKEN_REPLACEMENTS);
+
+			String replacements = prop.getValue();
+			if ((replacements != null) && (!replacements.isEmpty())) {
+				replacementMapping = new Hashtable<String, String>();
+
+				String[] singleMappings = replacements.split(",");
+				if (singleMappings.length > 0) {
+					for (String singleMapping : singleMappings) {
+						String[] parts = singleMapping.split(":");
+						{
+							if (parts.length == 2) {
+								replacementMapping.put(parts[0].trim().replace("\"", ""), parts[1].trim().replace("\"", ""));
+							}
+						}
+					}
+				}
+			}
+		}
+		return (replacementMapping);
+	}
+        
+        public Boolean getReplaceInAnnos() {
+            return ((Boolean) this.getProperty(PROP_ANNO_REPLACEMENTS).getValue());
 	}
 
 }
