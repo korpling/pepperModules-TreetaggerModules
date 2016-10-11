@@ -1,0 +1,18 @@
+<meta testDoc1="testDoc1">
+token#0.Text	token#0.Annotation#0	token#0.Annotation#1
+<SPAN span="spanFromToken1ToToken3">
+token#1.Text	token#1.Annotation#0	token#1.Annotation#1
+token#2.Text	token#2.Annotation#0	token#2.Annotation#1
+token#3.Text	token#3.Annotation#0	token#3.Annotation#1
+</SPAN>
+token#4.Text	token#4.Annotation#0	token#4.Annotation#1
+<SPAN span="spanFromToken5ToToken8">
+token#5.Text	token#5.Annotation#0	token#5.Annotation#1
+<SPAN span="spanFromToken6ToToken7">
+token#6.Text	token#6.Annotation#0	token#6.Annotation#1
+token#7.Text	token#7.Annotation#0	token#7.Annotation#1
+</SPAN>
+token#8.Text	token#8.Annotation#0	token#8.Annotation#1
+</SPAN>
+token#9.Text	token#9.Annotation#0	token#9.Annotation#1
+</meta>

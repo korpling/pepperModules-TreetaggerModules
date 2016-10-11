@@ -17,25 +17,19 @@
  */
 package org.corpus_tools.peppermodules.treetagger;
 
-import java.io.IOException;
+import java.util.List;
 
 import org.corpus_tools.pepper.common.PepperConfiguration;
 import org.corpus_tools.pepper.impl.PepperImporterImpl;
 import org.corpus_tools.pepper.modules.PepperImporter;
 import org.corpus_tools.pepper.modules.PepperMapper;
-import org.corpus_tools.pepper.modules.exceptions.PepperModuleException;
 import org.corpus_tools.peppermodules.treetagger.mapper.Treetagger2SaltMapper;
+import org.corpus_tools.peppermodules.treetagger.model.Document;
+import org.corpus_tools.peppermodules.treetagger.model.resources.TabReader;
 import org.corpus_tools.salt.common.SDocument;
 import org.corpus_tools.salt.graph.Identifier;
 import org.eclipse.emf.common.util.URI;
-import org.eclipse.emf.ecore.resource.Resource;
-import org.eclipse.emf.ecore.resource.ResourceSet;
-import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
-import org.eclipse.emf.ecore.xmi.impl.XMIResourceFactoryImpl;
 import org.osgi.service.component.annotations.Component;
-
-import de.hu_berlin.german.korpling.saltnpepper.misc.treetagger.Document;
-import de.hu_berlin.german.korpling.saltnpepper.misc.treetagger.resources.TabResourceFactory;
 
 /**
  * This class imports data from Treetagger format to Salt
@@ -68,8 +62,8 @@ public class TreetaggerImporter extends PepperImporterImpl implements PepperImpo
 	}
 
 	/**
-	 * Creates a mapper of type {@link PAULA2SaltMapper}. {@inheritDoc
-	 * PepperModule#createPepperMapper(Identifier)}
+	 * Creates a mapper of type {@link PAULA2SaltMapper}.
+	 * {@inheritDoc PepperModule#createPepperMapper(Identifier)}
 	 */
 	@Override
 	public PepperMapper createPepperMapper(Identifier sElementId) {
@@ -91,32 +85,47 @@ public class TreetaggerImporter extends PepperImporterImpl implements PepperImpo
 	private Document loadFromFile(URI uri) {
 		Document retVal = null;
 		if (uri != null) {
-			// create resource set and resource
-			ResourceSet resourceSet = new ResourceSetImpl();
 
-			// Register XML resource factory
-			resourceSet.getResourceFactoryRegistry().getExtensionToFactoryMap().put("treetagger", new XMIResourceFactoryImpl());
-			TabResourceFactory tabResourceFactory = new TabResourceFactory();
-			resourceSet.getResourceFactoryRegistry().getExtensionToFactoryMap().put("tab", tabResourceFactory);
-			resourceSet.getResourceFactoryRegistry().getExtensionToFactoryMap().put("tt", tabResourceFactory);
-			resourceSet.getResourceFactoryRegistry().getExtensionToFactoryMap().put("txt", tabResourceFactory);
-			Resource resource = null;
-			try {
-				// load resource
-				resource = resourceSet.createResource(uri);
+			TabReader reader = new TabReader();
+			List<Document> documents = reader.load(uri, getProperties().getProperties());
 
-				if (resource == null) {
-					throw new PepperModuleException(this, "Cannot load The resource is null.");
-				}
-				resource.load(getProperties().getProperties());
-			} catch (IOException e) {
-				throw new PepperModuleException(this, "Cannot load resource '" + uri + "'.", e);
-			} catch (NullPointerException e) {
-				throw new PepperModuleException(this, "Cannot load resource '" + uri + "'.", e);
+			if (!documents.isEmpty()) {
+				retVal = documents.get(0);
 			}
-			if (resource.getContents().size() > 0) {
-				retVal = (Document) resource.getContents().get(0);
-			}
+
+			// // create resource set and resource
+			// ResourceSet resourceSet = new ResourceSetImpl();
+			//
+			// // Register XML resource factory
+			// resourceSet.getResourceFactoryRegistry().getExtensionToFactoryMap().put("treetagger",
+			// new XMIResourceFactoryImpl());
+			// TabResourceFactory tabResourceFactory = new TabResourceFactory();
+			// resourceSet.getResourceFactoryRegistry().getExtensionToFactoryMap().put("tab",
+			// tabResourceFactory);
+			// resourceSet.getResourceFactoryRegistry().getExtensionToFactoryMap().put("tt",
+			// tabResourceFactory);
+			// resourceSet.getResourceFactoryRegistry().getExtensionToFactoryMap().put("txt",
+			// tabResourceFactory);
+			// Resource resource = null;
+			// try {
+			// // load resource
+			// resource = resourceSet.createResource(uri);
+			//
+			// if (resource == null) {
+			// throw new PepperModuleException(this, "Cannot load The resource
+			// is null.");
+			// }
+			// resource.load(getProperties().getProperties());
+			// } catch (IOException e) {
+			// throw new PepperModuleException(this, "Cannot load resource '" +
+			// uri + "'.", e);
+			// } catch (NullPointerException e) {
+			// throw new PepperModuleException(this, "Cannot load resource '" +
+			// uri + "'.", e);
+			// }
+			// if (resource.getContents().size() > 0) {
+			// retVal = (Document) resource.getContents().get(0);
+			// }
 		}
 		return (retVal);
 	}

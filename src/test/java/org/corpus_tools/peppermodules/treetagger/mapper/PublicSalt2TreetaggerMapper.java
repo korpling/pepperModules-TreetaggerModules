@@ -15,34 +15,36 @@
  *
  *
  */
-package org.corpus_tools.peppermodules.treetagger.tests;
+package org.corpus_tools.peppermodules.treetagger.mapper;
 
 import java.util.Set;
 
-import org.corpus_tools.peppermodules.treetagger.mapper.Salt2TreetaggerMapper;
+import org.corpus_tools.peppermodules.treetagger.model.Document;
+import org.corpus_tools.peppermodules.treetagger.model.Span;
+import org.corpus_tools.peppermodules.treetagger.model.Token;
 import org.corpus_tools.salt.common.SDocumentGraph;
 import org.corpus_tools.salt.common.SSpan;
 import org.corpus_tools.salt.common.SToken;
 import org.corpus_tools.salt.core.SMetaAnnotation;
 
-import de.hu_berlin.german.korpling.saltnpepper.misc.treetagger.Document;
-import de.hu_berlin.german.korpling.saltnpepper.misc.treetagger.Span;
-import de.hu_berlin.german.korpling.saltnpepper.misc.treetagger.Token;
-
 public class PublicSalt2TreetaggerMapper extends Salt2TreetaggerMapper {
 
+	@Override
 	public void addDocumentAnnotations(Set<SMetaAnnotation> sMetaAnnotations, Document tDocument) {
 		super.addDocumentAnnotations(sMetaAnnotations, tDocument);
 	}
 
+	@Override
 	public void addTokens(SDocumentGraph sDocumentGraph, Document tDocument) {
 		super.addTokens(sDocumentGraph, tDocument);
 	}
 
+	@Override
 	public void addTokenAnnotations(SToken sToken, Token tToken) {
 		super.addTokenAnnotations(sToken, tToken);
 	}
 
+	@Override
 	public Span createSpan(SSpan sSpan) {
 		return super.createSpan(sSpan);
 	}

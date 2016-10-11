@@ -15,7 +15,7 @@
  *
  *
  */
-package org.corpus_tools.peppermodules.treetagger.tests;
+package org.corpus_tools.peppermodules.treetagger.mapper;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -29,6 +29,13 @@ import java.util.List;
 import java.util.Set;
 
 import org.corpus_tools.peppermodules.treetagger.TreetaggerExporterProperties;
+import org.corpus_tools.peppermodules.treetagger.model.Annotation;
+import org.corpus_tools.peppermodules.treetagger.model.Document;
+import org.corpus_tools.peppermodules.treetagger.model.LemmaAnnotation;
+import org.corpus_tools.peppermodules.treetagger.model.POSAnnotation;
+import org.corpus_tools.peppermodules.treetagger.model.Span;
+import org.corpus_tools.peppermodules.treetagger.model.Token;
+import org.corpus_tools.peppermodules.treetagger.model.TreetaggerFactory;
 import org.corpus_tools.salt.SaltFactory;
 import org.corpus_tools.salt.common.SDocument;
 import org.corpus_tools.salt.common.SDocumentGraph;
@@ -47,14 +54,6 @@ import org.corpus_tools.salt.util.SaltUtil;
 import org.eclipse.emf.common.util.URI;
 import org.junit.Before;
 import org.junit.Test;
-
-import de.hu_berlin.german.korpling.saltnpepper.misc.treetagger.Annotation;
-import de.hu_berlin.german.korpling.saltnpepper.misc.treetagger.Document;
-import de.hu_berlin.german.korpling.saltnpepper.misc.treetagger.LemmaAnnotation;
-import de.hu_berlin.german.korpling.saltnpepper.misc.treetagger.POSAnnotation;
-import de.hu_berlin.german.korpling.saltnpepper.misc.treetagger.Span;
-import de.hu_berlin.german.korpling.saltnpepper.misc.treetagger.Token;
-import de.hu_berlin.german.korpling.saltnpepper.misc.treetagger.TreetaggerFactory;
 
 /**
  * TestCase for mapping from Salt to Treetagger
@@ -100,7 +99,7 @@ public class Salt2TreetaggerMapperTest {
 				sTextualDS.setText("Is this example more complicated than it appears to be?");
 				// adding the text to the document-graph
 				sDocGraph.addNode(sTextualDS);
-			}// creating the primary text
+			} // creating the primary text
 
 			{// creating tokenization (token objects and relations between
 				// tokens and the primary data object)
@@ -229,9 +228,10 @@ public class Salt2TreetaggerMapperTest {
 					sTextRel.setStart(52);
 					sTextRel.setEnd(54);
 					sDocGraph.addRelation(sTextRel);
-				}// creating the rest of the tokenization, this can also be done
+				} // creating the rest of the tokenization, this can also be
+					// done
 					// automatically
-			}// creating tokenization (token objects and relations between
+			} // creating tokenization (token objects and relations between
 				// tokens and the primary data object)
 
 			// a synchronized list of all tokens to walk through
@@ -251,24 +251,26 @@ public class Salt2TreetaggerMapperTest {
 						sPOSAnno.setValue(posAnnotations[i]);
 						sTokens.get(i).addAnnotation(sPOSAnno);
 					}
-				}// adding part-of speech annotations
+				} // adding part-of speech annotations
 
 				{// adding lemma annotations
 					SLemmaAnnotation sLemmaAnno = null;
 
 					// a list of all lemma annotations for the words Is (be),
 					// this (this) ... be (be)
-					String[] lemmaAnnotations = { "be", "this", "example", "more", "complicated", "than", "it", "appear", "to", "be" };
+					String[] lemmaAnnotations = { "be", "this", "example", "more", "complicated", "than", "it",
+							"appear", "to", "be" };
 					for (int i = 0; i < sTokens.size(); i++) {
 						sLemmaAnno = SaltFactory.createSLemmaAnnotation();
 						sLemmaAnno.setValue(lemmaAnnotations[i]);
 						sTokens.get(i).addAnnotation(sLemmaAnno);
 					}
-				}// adding lemma annotations
+				} // adding lemma annotations
 
 				{// creating annotations for information structure with the use
 					// of spans: "Is"=
-					// contrast-focus,"this example more complicated than it appears to be"=
+					// contrast-focus,"this example more complicated than it
+					// appears to be"=
 					// Topic
 					SSpan sSpan = null;
 					SSpanningRelation sSpanRel = null;
@@ -310,12 +312,12 @@ public class Salt2TreetaggerMapperTest {
 							sSpanRel.setTarget(sTokens.get(i));
 							sDocGraph.addRelation(sSpanRel);
 						}
-					}// creating the second span
+					} // creating the second span
 
-				}// creating annotations for information structure with the use
+				} // creating annotations for information structure with the use
 					// of spans
 
-			}// adding some annotations, part-of-speech and lemma (for part-of
+			} // adding some annotations, part-of-speech and lemma (for part-of
 				// speech and lemma annotations a special annotation in Salt
 				// exists)
 
@@ -352,18 +354,13 @@ public class Salt2TreetaggerMapperTest {
 				sAnno.setValue("antecedent");
 				// adding the annotation to the relation
 				sPointingRelation.addAnnotation(sAnno);
-			}// creating an anaphoric relation with the use of pointing
+			} // creating an anaphoric relation with the use of pointing
 				// relations between the Tokens {"it"} and {"this", "example"}
 
-		}// creating the document structure
+		} // creating the document structure
 		return sDocument;
 	}
 
-	/**
-	 * Test method for
-	 * {@link org.corpus_tools.peppermodules.treetagger.tests.PublicSalt2TreetaggerMapper#addDocumentAnnotations(org.eclipse.emf.common.util.EList, de.hu_berlin.german.korpling.saltnpepper.misc.treetagger.Document)}
-	 * .
-	 */
 	@Test
 	public void testAddDocumentAnnotations() {
 		Document tDoc = TreetaggerFactory.eINSTANCE.createDocument();
@@ -387,7 +384,7 @@ public class Salt2TreetaggerMapperTest {
 
 	/**
 	 * Test method for
-	 * {@link org.corpus_tools.peppermodules.treetagger.tests.PublicSalt2TreetaggerMapper#addTokens(de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SDocumentGraph, de.hu_berlin.german.korpling.saltnpepper.misc.treetagger.Document)}
+	 * {@link org.corpus_tools.peppermodules.treetagger.mapper.PublicSalt2TreetaggerMapper#addTokens(de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SDocumentGraph, de.hu_berlin.german.korpling.saltnpepper.misc.treetagger.Document)}
 	 * .
 	 */
 	@Test
@@ -458,12 +455,14 @@ public class Salt2TreetaggerMapperTest {
 		for (int annoIndex = 0; annoIndex < container.getAnnotations().size(); annoIndex++) {
 			Annotation tAnno = tAnnos.get(annoIndex);
 			if (tAnno instanceof POSAnnotation) {
-				SAnnotation sAnno = container.getAnnotation(SaltUtil.createQName(SaltUtil.SALT_NAMESPACE, SaltUtil.SEMANTICS_POS));
+				SAnnotation sAnno = container
+						.getAnnotation(SaltUtil.createQName(SaltUtil.SALT_NAMESPACE, SaltUtil.SEMANTICS_POS));
 				assertTrue(sAnno.getClass().getName(), sAnno instanceof SPOSAnnotation);
 				// do not compare SName and Name, they are set automatically
 				assertEquals(sAnno.getValue_STEXT(), tAnno.getValue());
 			} else if (tAnno instanceof LemmaAnnotation) {
-				SAnnotation sAnno = container.getAnnotation(SaltUtil.createQName(SaltUtil.SALT_NAMESPACE, SaltUtil.SEMANTICS_LEMMA));
+				SAnnotation sAnno = container
+						.getAnnotation(SaltUtil.createQName(SaltUtil.SALT_NAMESPACE, SaltUtil.SEMANTICS_LEMMA));
 				assertTrue(sAnno instanceof SLemmaAnnotation);
 				// do not compare SName and Name, they are set automatically
 				assertEquals(sAnno.getValue_STEXT(), tAnno.getValue());
