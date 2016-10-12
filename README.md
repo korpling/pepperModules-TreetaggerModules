@@ -184,10 +184,24 @@ The following table contains an overview of all usable properties to customize t
 <td align="left">String</td>
 <td align="left">optional</td>
 <td align="left">_</td>
+</tr>
+<tr class="odd">
 <td align="left">treetagger.input.column[1-9][0-9]*</td>
 <td align="left">String</td>
 <td align="left">optional</td>
 <td align="left">&quot; &quot;</td>
+</tr>
+<tr class="even">
+<td align="left">treetagger.input.replaceTokens</td>
+<td align="left">String</td>
+<td align="left">optional</td>
+<td align="left">--</td>
+<tr class="odd">
+<td align="left">treetagger.input.replacementsInAnnos</td>
+<td align="left">Boolean</td>
+<td align="left">optional</td>
+<td align="left">true</td>
+</tr>
 </tr>
 
 </tbody>
@@ -243,6 +257,22 @@ The corresponding customization properties would look like this:
 <property key="treetagger.input.column3">claws</property>
 <property key="treetagger.input.column4">tok_func</property>
 ```
+
+
+#### treetagger.input.replaceTokens
+
+Specify values to find and replace in tokens. This value is a comma separated list of mappings: "REPLACED_STRING" : "REPLACEMENT" (, "REPLACED_STRING" : "REPLACEMENT")*
+
+This property can be helpful including XML escapes in TT tokens. For example, if we have tokens like `&amp;` but we would like them to be imported as `&`, we can use:
+
+```
+<property key="treetagger.input.replaceTokens">"&amp;amp;":"&amp;"</property>
+```
+
+#### treetagger.input.replacementsInAnnos
+
+If true, make token replacement patterns apply to annotations as well. This means that a lemma like `&amp;` could be made to work in the same way as with treetagger.input.replaceTokens.
+
 
 #<a name="details_ex"/>TreetaggerExporter
 Mapping to TreeTagger format

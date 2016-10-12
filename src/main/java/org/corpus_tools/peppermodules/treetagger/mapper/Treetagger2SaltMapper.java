@@ -19,6 +19,7 @@ package org.corpus_tools.peppermodules.treetagger.mapper;
 
 import java.util.Hashtable;
 import java.util.List;
+import java.util.Map;
 
 import org.corpus_tools.pepper.common.DOCUMENT_STATUS;
 import org.corpus_tools.pepper.impl.PepperMapperImpl;
@@ -113,9 +114,22 @@ public class Treetagger2SaltMapper extends PepperMapperImpl implements PepperMap
 		String text = null;
 		int start = 0;
 		int end = 0;
+                Map<String, String> replMap = ((TreetaggerImporterProperties) getProperties()).getReplacementMapping();
+             
 		// for (Token tToken: tTokens) {
 		for (int tokenIndex = 0; tokenIndex < tTokens.size(); tokenIndex++) {
 			Token tToken = tTokens.get(tokenIndex);
+                        if (replMap != null){
+                            for (Map.Entry<String, String> entry : replMap.entrySet())
+                            {
+                                tToken.setText(tToken.getText().replace(entry.getKey(), entry.getValue()));
+                                if (this.getProps().getReplaceInAnnos()){
+                                    for (Annotation tAnnotation : tToken.getAnnotations()) {
+                                            tAnnotation.setValue(tAnnotation.getValue().replace(entry.getKey(), entry.getValue()));
+                                    }
+                                }
+                            }
+                        }
 			if (text == null) {
 				start = 0;
 				end = tToken.getText().length();
