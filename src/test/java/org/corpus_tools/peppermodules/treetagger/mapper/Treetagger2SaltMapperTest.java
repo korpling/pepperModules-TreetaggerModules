@@ -131,27 +131,6 @@ public class Treetagger2SaltMapperTest {
 		return tDocument;
 	}
 
-	// /**
-	// * auxilliary method to save the data to file
-	// */
-	// @SuppressWarnings("unused")
-	// private void saveDocument() {
-	// Document tDoc = this.createDocument();
-	// ResourceSet resourceSet = new ResourceSetImpl();
-	// TabResourceFactory tabResourceFactory = new TabResourceFactory();
-	// resourceSet.getResourceFactoryRegistry().getExtensionToFactoryMap().put("tab",
-	// tabResourceFactory);
-	// resourceSet.getResourceFactoryRegistry().getExtensionToFactoryMap().put("tt",
-	// tabResourceFactory);
-	// Resource resourceOut =
-	// resourceSet.createResource(URI.createFileURI("./PublicTreetagger2SaltTest.tab"));
-	// resourceOut.getContents().add(tDoc);
-	// try {
-	// resourceOut.save(null);
-	// } catch (IOException e) {
-	// }
-	// }
-
 	/**
 	 * Compares the names of the documents and calls the method for further
 	 * comparions
