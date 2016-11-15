@@ -31,8 +31,6 @@ import org.corpus_tools.peppermodules.treetagger.TreetaggerImporterProperties;
 import org.corpus_tools.peppermodules.treetagger.model.AnnotatableElement;
 import org.corpus_tools.peppermodules.treetagger.model.Annotation;
 import org.corpus_tools.peppermodules.treetagger.model.Document;
-import org.corpus_tools.peppermodules.treetagger.model.LemmaAnnotation;
-import org.corpus_tools.peppermodules.treetagger.model.POSAnnotation;
 import org.corpus_tools.peppermodules.treetagger.model.Span;
 import org.corpus_tools.peppermodules.treetagger.model.Token;
 import org.corpus_tools.peppermodules.treetagger.model.TreetaggerFactory;
@@ -48,20 +46,32 @@ import org.slf4j.LoggerFactory;
  */
 public class TabReader {
 	private static final Logger logger = LoggerFactory.getLogger(TabReader.class);
-	private static final String COLUMN_SEPARATOR = "\t";
-	private static final String NAME_POS = "pos";
-	private static final String NAME_LEMMA = "lemma";
+	public static final String COLUMN_SEPARATOR = "\t";
+	public static final String NAME_POS = "pos";
+	public static final String NAME_LEMMA = "lemma";
 	private static final Character utf8BOM = new Character((char) 0xFEFF);
 	private URI location = null;
 	private TreetaggerImporterProperties properties = null;
 	private List<Document> documents = new ArrayList<>();
 	private Document currentDocument = null;
 	private List<Span> openSpans = new ArrayList<>();
-	private int fileLineCount = 0;
+	int lineNumber = 0;
 	private boolean xmlDocumentOpen = false;
+
+	// TODO remove this, replaced by
 	private Map<Integer, String> columnMap = null;
-	private List<Integer> dataRowsWithTooMuchColumns = new ArrayList<>();
-	private List<Integer> dataRowsWithTooLessColumns = new ArrayList<>();
+
+	List<String> columnNames = new ArrayList<>();
+
+	public void setColumnNames(List<String> annotationOrder) {
+		this.columnNames = annotationOrder;
+		if (this.columnNames == null) {
+			this.columnNames = new ArrayList<>();
+		}
+	}
+
+	List<Integer> rowsWithTooMuchColumns = new ArrayList<>();
+	List<Integer> rowsWithTooLessColumns = new ArrayList<>();
 
 	/**
 	 * Loads a resource into treetagger model from tab separated file.
@@ -90,15 +100,15 @@ public class TabReader {
 		try (BufferedReader fileReader = new BufferedReader(
 				new InputStreamReader(new FileInputStream(location.toFileString()), fileEncoding));) {
 			String line = null;
-			fileLineCount = 0;
+			lineNumber = 0;
 			while ((line = fileReader.readLine()) != null) {
 				if (line.trim().length() > 0) {
 					// delete BOM if exists
-					if ((fileLineCount == 0) && (line.startsWith(utf8BOM.toString()))) {
+					if ((lineNumber == 0) && (line.startsWith(utf8BOM.toString()))) {
 						line = line.substring(utf8BOM.toString().length());
 						logger.info("BOM recognised and ignored");
 					}
-					fileLineCount++;
+					lineNumber++;
 					if (XMLUtils.isProcessingInstructionTag(line)) {
 						// do nothing; ignore processing instructions
 					} else if (XMLUtils.isStartTag(line)) {
@@ -128,14 +138,14 @@ public class TabReader {
 
 		setDocumentNames();
 
-		if (dataRowsWithTooLessColumns.size() > 0) {
+		if (rowsWithTooLessColumns.size() > 0) {
 			logger.warn(String.format("%s rows in input file had less data columns than expected! (Rows %s)",
-					dataRowsWithTooLessColumns.size(), dataRowsWithTooLessColumns.toString()));
+					rowsWithTooLessColumns.size(), rowsWithTooLessColumns.toString()));
 		}
-		if (dataRowsWithTooMuchColumns.size() > 0) {
+		if (rowsWithTooMuchColumns.size() > 0) {
 			logger.warn(String.format(
 					"%s rows in input file had more data columns than expected! Additional data was ignored! (Rows %s)",
-					dataRowsWithTooMuchColumns.size(), dataRowsWithTooMuchColumns.toString()));
+					rowsWithTooMuchColumns.size(), rowsWithTooMuchColumns.toString()));
 		}
 		return documents;
 	}
@@ -188,12 +198,12 @@ public class TabReader {
 					}
 				}
 				logger.warn(String.format("input file '%s' (line %d): missing end tag(s) '%s'. tag(s) will be ignored!",
-						location.lastSegment(), fileLineCount, openSpanNames.substring(1)));
+						location.lastSegment(), lineNumber, openSpanNames.substring(1)));
 			}
 			if (xmlDocumentOpen) {
 				logger.warn(
 						String.format("input file '%s' (line %d): missing document end tag. document will be ignored!",
-								location.lastSegment(), fileLineCount));
+								location.lastSegment(), lineNumber));
 			} else {
 				documents.add(currentDocument);
 			}
@@ -224,7 +234,7 @@ public class TabReader {
 		if (currentDocument == null) {
 			logger.warn(
 					String.format("input file '%s' (line '%d'): end tag '</%s>' out of nowhere. tag will be ignored!",
-							location.lastSegment(), fileLineCount, spanName));
+							location.lastSegment(), lineNumber, spanName));
 		} else {
 			boolean matchingStartTagExists = false;
 			for (int i = 0; i < openSpans.size(); i++) {
@@ -234,7 +244,7 @@ public class TabReader {
 					if (openSpan.getTokens().isEmpty()) {
 						logger.warn(String.format(
 								"input file '%s' (line %d): no tokens contained in span '<%s>'. span will be ignored!",
-								location.lastSegment(), fileLineCount, openSpan.getName()));
+								location.lastSegment(), lineNumber, openSpan.getName()));
 					}
 					openSpans.remove(i);
 					break;
@@ -243,9 +253,29 @@ public class TabReader {
 			if (!matchingStartTagExists) {
 				logger.warn(String.format(
 						"input file '%s' (line %d): no corresponding opening tag found for end tag '</%s>'. tag will be ignored!",
-						location.lastSegment(), fileLineCount, spanName));
+						location.lastSegment(), lineNumber, spanName));
 			}
 		}
+	}
+
+	void doesTupleHasExpectedNumOfColumns(String... tuple) {
+		if (tuple.length > columnNames.size()) {
+			rowsWithTooMuchColumns.add(lineNumber);
+		} else if (tuple.length < columnNames.size()) {
+			rowsWithTooLessColumns.add(lineNumber);
+		}
+	}
+
+	public static final String DEFAULT_ANNOTATION_NAME = "anyAnno";
+
+	String findColumnName(int colNumber) {
+		final String annoName;
+		if (colNumber >= columnNames.size()) {
+			annoName = DEFAULT_ANNOTATION_NAME;
+		} else {
+			annoName = columnNames.get(colNumber);
+		}
+		return annoName;
 	}
 
 	/*
@@ -256,7 +286,13 @@ public class TabReader {
 			beginDocument(null);
 		}
 		String[] tuple = row.split(COLUMN_SEPARATOR);
-		Token token = TreetaggerFactory.eINSTANCE.createToken();
+		doesTupleHasExpectedNumOfColumns(tuple);
+		Token token = createToken(tuple);
+		createAnnotationsForToken(token);
+	}
+
+	Token createToken(String... tuple) {
+		final Token token = TreetaggerFactory.eINSTANCE.createToken();
 		currentDocument.getTokens().add(token);
 		token.setText(tuple[0]);
 		for (int i = 0; i < openSpans.size(); i++) {
@@ -264,29 +300,28 @@ public class TabReader {
 			token.getSpans().add(span);
 			span.getTokens().add(token);
 		}
+		return token;
+	}
 
-		if (tuple.length > columnMap.size() + 1) {
-			dataRowsWithTooMuchColumns.add(fileLineCount);
-		} else if (tuple.length <= columnMap.size()) {
-			dataRowsWithTooLessColumns.add(fileLineCount);
+	void createAnnotationsForToken(Token token, String... tuple) {
+		for (int columnNumber = 1; columnNumber < tuple.length; columnNumber++) {
+			Annotation anno = createAnnotation(findColumnName(columnNumber), tuple[columnNumber]);
+			token.getAnnotations().add(anno);
 		}
+	}
 
-		for (int index = 1; index < Math.min(columnMap.size() + 1, tuple.length); index++) {
-			Annotation anno = null;
-			String columnName = columnMap.get(index);
-			if (columnName.equalsIgnoreCase(NAME_POS)) {
-				anno = TreetaggerFactory.eINSTANCE.createPOSAnnotation();
-				token.setPosAnnotation((POSAnnotation) anno);
-			} else if (columnName.equalsIgnoreCase(NAME_LEMMA)) {
-				anno = TreetaggerFactory.eINSTANCE.createLemmaAnnotation();
-				token.setLemmaAnnotation((LemmaAnnotation) anno);
-			} else {
-				anno = TreetaggerFactory.eINSTANCE.createAnyAnnotation();
-				anno.setName(columnName);
-				token.getAnnotations().add(anno);
-			}
-			anno.setValue(tuple[index]);
+	Annotation createAnnotation(String columnName, String cellValue) {
+		final Annotation anno;
+		if (NAME_POS.equalsIgnoreCase(columnName)) {
+			anno = TreetaggerFactory.eINSTANCE.createPOSAnnotation();
+		} else if (NAME_LEMMA.equalsIgnoreCase(columnName)) {
+			anno = TreetaggerFactory.eINSTANCE.createLemmaAnnotation();
+		} else {
+			anno = TreetaggerFactory.eINSTANCE.createAnyAnnotation();
+			anno.setName(columnName);
 		}
+		anno.setValue(cellValue);
+		return anno;
 	}
 
 	/*
