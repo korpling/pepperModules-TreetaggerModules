@@ -45,10 +45,12 @@ import org.slf4j.LoggerFactory;
  * 
  */
 public class TabReader {
-	private static final Logger logger = LoggerFactory.getLogger(TabReader.class);
+	public static final String DEFAULT_ANNOTATION_NAME = "anyAnno";
 	public static final String COLUMN_SEPARATOR = "\t";
 	public static final String NAME_POS = "pos";
 	public static final String NAME_LEMMA = "lemma";
+
+	private static final Logger logger = LoggerFactory.getLogger(TabReader.class);
 	private static final Character utf8BOM = new Character((char) 0xFEFF);
 	private URI location = null;
 	private TreetaggerImporterProperties properties = null;
@@ -265,8 +267,6 @@ public class TabReader {
 			rowsWithTooLessColumns.add(lineNumber);
 		}
 	}
-
-	public static final String DEFAULT_ANNOTATION_NAME = "anyAnno";
 
 	String findColumnName(int colNumber) {
 		final String annoName;
