@@ -114,6 +114,7 @@ public class TreetaggerImporter extends PepperImporterImpl implements PepperImpo
 		if (uri != null) {
 
 			TabReader reader = new TabReader();
+			reader.setColumnNames(((TreetaggerImporterProperties) getProperties()).getColumnNames());
 			List<Document> documents = reader.load(uri, (TreetaggerImporterProperties) getProperties());
 
 			if (!documents.isEmpty()) {

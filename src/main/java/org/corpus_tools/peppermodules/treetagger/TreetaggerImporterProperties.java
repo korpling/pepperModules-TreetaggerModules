@@ -17,14 +17,14 @@
  */
 package org.corpus_tools.peppermodules.treetagger;
 
-import java.util.HashMap;
+import java.util.ArrayList;
 import java.util.Hashtable;
+import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
 
 import org.corpus_tools.pepper.modules.PepperModuleProperties;
 import org.corpus_tools.pepper.modules.PepperModuleProperty;
-import org.corpus_tools.pepper.modules.exceptions.PepperModulePropertyException;
 import org.corpus_tools.salt.common.SToken;
 
 public class TreetaggerImporterProperties extends PepperModuleProperties {
@@ -37,7 +37,8 @@ public class TreetaggerImporterProperties extends PepperModuleProperties {
 
 	public static final String PROP_ANNOTATE_ALL_SPANS_WITH_NAME = PREFIX + "annotateAllSpansWithSpanName";
 	/**
-	 * States the meta tag used to mark the TreeTagger document in the input file(s).
+	 * States the meta tag used to mark the TreeTagger document in the input
+	 * file(s).
 	 *
 	 */
 	public static final String PROP_META_TAG = PREFIX + "metaTag";
@@ -45,11 +46,21 @@ public class TreetaggerImporterProperties extends PepperModuleProperties {
 	 * property key for the encoding of input file
 	 */
 	public static final String PROP_FILE_ENCODING = "treetagger.input.fileEncoding";
+
 	/**
-	 * Name of property to determine the separator which should be artificially added after a token, when mapping
-	 * treetagger token to STextualDS in Salt. The default separator is a whitespace given by the character sequence "
-	 * ". Note, the separator sequence, must be surrounded by double quotes. To shut of the adding of a separator, just
-	 * this property value to "".
+	 * property to determine the column names. The value is a comma separated
+	 * list, starting with the value 'tok'. The default value is 'tok, pos,
+	 * lemma'.
+	 */
+	public static final String PROP_COLUMN_NAMES = "columnNames";
+	public static final String COLUMN_NAMES_SEPARATOR = ",";
+	public static final String COLUMN_NAMES_TOK = "tok";
+	/**
+	 * Name of property to determine the separator which should be artificially
+	 * added after a token, when mapping treetagger token to STextualDS in Salt.
+	 * The default separator is a whitespace given by the character sequence "
+	 * ". Note, the separator sequence, must be surrounded by double quotes. To
+	 * shut of the adding of a separator, just this property value to "".
 	 *
 	 */
 	public static final String PROP_SEPARATOR_AFTER_TOKEN = PREFIX + "separatorAfterToken";
@@ -59,50 +70,52 @@ public class TreetaggerImporterProperties extends PepperModuleProperties {
 	private static final String DEFAULT_LEMMA_NAME = "lemma";
 
 	/**
-	 * Set to true to add the element name as a prefix to all span element attribute annotations.
-        *
+	 * Set to true to add the element name as a prefix to all span element
+	 * attribute annotations.
+	 *
 	 */
 	public static final String PROP_PREFIX_SPAN_ANNOS_WITH_ELEMENT = PREFIX + "prefixElementToAttributes";
 	public static final String PROP_PREFIX_ELEMENT_SEPARATOR = PREFIX + "prefixElementSeparator";
 
 	/**
-	 * Property of find+replace string pairs to alter specific token values. Useful for incorporating XML escapes into
-	 * an imported file's tokens.
+	 * Property of find+replace string pairs to alter specific token values.
+	 * Useful for incorporating XML escapes into an imported file's tokens.
 	 */
 	public static final String PROP_TOKEN_REPLACEMENTS = PREFIX + "replaceTokens";
 
 	/**
-	 * Whether to apply token replacement patterns to annotations too. Only effective if token replacements have been
-	 * defined, true by default.
+	 * Whether to apply token replacement patterns to annotations too. Only
+	 * effective if token replacements have been defined, true by default.
 	 */
 	public static final String PROP_ANNO_REPLACEMENTS = PREFIX + "replacementsInAnnos";
 
 	public TreetaggerImporterProperties() {
 		this.addProperty(new PepperModuleProperty<Boolean>(PROP_ANNOTATE_UNANNOTATED_SPANS, Boolean.class,
-			"If set true, this switch will cause the module to annotate all spans without attributes with their name as attribute and value.",
-			false, false));
+				"If set true, this switch will cause the module to annotate all spans without attributes with their name as attribute and value.",
+				false, false));
 		this.addProperty(new PepperModuleProperty<Boolean>(PROP_ANNOTATE_ALL_SPANS_WITH_NAME, Boolean.class,
-			"If set true, this switch will cause the module to annotate all spans with their name as attribute and value.",
-			false, false));
+				"If set true, this switch will cause the module to annotate all spans with their name as attribute and value.",
+				false, false));
 		this.addProperty(new PepperModuleProperty<String>(PROP_META_TAG, String.class,
-			"States the meta tag used to mark the TreeTagger document in the input file(s).", "meta", false));
+				"States the meta tag used to mark the TreeTagger document in the input file(s).", "meta", false));
 		this.addProperty(new PepperModuleProperty<String>(PROP_SEPARATOR_AFTER_TOKEN, String.class,
-			"Determines the separator which should be artificially added after a token, when mapping treetagger token to STextualDS in Salt. The default separator is a whitespace given by the character sequence \" \". Note, the separator sequence, must be surrunded by double quotes. To shut of the adding of a separator, just this property value to \"\"",
-			" ", false));
-
+				"Determines the separator which should be artificially added after a token, when mapping treetagger token to STextualDS in Salt. The default separator is a whitespace given by the character sequence \" \". Note, the separator sequence, must be surrunded by double quotes. To shut of the adding of a separator, just this property value to \"\"",
+				" ", false));
 		this.addProperty(new PepperModuleProperty<String>(PROP_FILE_ENCODING, String.class,
-			"Determines the encoding of the input files. ", "UTF-8", false));
-
+				"Determines the encoding of the input files. ", "UTF-8", false));
 		this.addProperty(new PepperModuleProperty<Boolean>(PROP_PREFIX_SPAN_ANNOS_WITH_ELEMENT, Boolean.class,
-			"Set to true to add the element name as a prefix to all span element attribute annotations.", false, false));
+				"Set to true to add the element name as a prefix to all span element attribute annotations.", false,
+				false));
 		this.addProperty(new PepperModuleProperty<String>(PROP_PREFIX_ELEMENT_SEPARATOR, String.class,
-			"Separator to use when prefixing span attribute annotations with element name.", "_", false));
+				"Separator to use when prefixing span attribute annotations with element name.", "_", false));
 		this.addProperty(new PepperModuleProperty<String>(PROP_TOKEN_REPLACEMENTS, String.class,
-			"Specify values to find and replace in tokens. This value is a comma separated list of mappings: \"REPLACED_STRING\" : \"REPLACEMENT\" (, \"REPLACED_STRING\" : \"REPLACEMENT\")*",
-			""));
+				"Specify values to find and replace in tokens. This value is a comma separated list of mappings: \"REPLACED_STRING\" : \"REPLACEMENT\" (, \"REPLACED_STRING\" : \"REPLACEMENT\")*",
+				""));
 		this.addProperty(new PepperModuleProperty<Boolean>(PROP_ANNO_REPLACEMENTS, Boolean.class,
-			"If true, make token replacement patterns apply to annotations as well.", true, false));
-
+				"If true, make token replacement patterns apply to annotations as well.", true, false));
+		this.addProperty(new PepperModuleProperty<String>(PROP_COLUMN_NAMES, String.class,
+				"Property to determine the column names. The value is a comma separated list, starting with the value 'tok'. The default value is 'tok, pos, lemma'.",
+				"tok, pos, lemma", false));
 	}
 
 	public Boolean getAnnotateUnannotatedSpans() {
@@ -122,7 +135,8 @@ public class TreetaggerImporterProperties extends PepperModuleProperties {
 	}
 
 	/**
-	 * Returns the separator to be used to separate the text covered by {@link SToken}.
+	 * Returns the separator to be used to separate the text covered by
+	 * {@link SToken}.
 	 *
 	 * @return
 	 */
@@ -139,10 +153,12 @@ public class TreetaggerImporterProperties extends PepperModuleProperties {
 	private Map<String, String> replacementMapping = null;
 
 	/**
-	 * Returns a map of Strings to be escaped and the corresponding replacement Strings. This map is computed from the
-	 * property {@link #PROP_TOKEN_REPLACEMENTS}, which has the form: \"REPLACED_STRING\" : \"REPLACEMENT\" (,
-	 * \"REPLACED_STRING\" : \"REPLACEMENT\"). It is applied to token values, and if {@link #PROP_ANNO_REPLACEMENTS} is
-	 * true, then also to annotation values.
+	 * Returns a map of Strings to be escaped and the corresponding replacement
+	 * Strings. This map is computed from the property
+	 * {@link #PROP_TOKEN_REPLACEMENTS}, which has the form: \"REPLACED_STRING\"
+	 * : \"REPLACEMENT\" (, \"REPLACED_STRING\" : \"REPLACEMENT\"). It is
+	 * applied to token values, and if {@link #PROP_ANNO_REPLACEMENTS} is true,
+	 * then also to annotation values.
 	 *
 	 * @return
 	 */
@@ -160,8 +176,8 @@ public class TreetaggerImporterProperties extends PepperModuleProperties {
 						String[] parts = singleMapping.split(":");
 						{
 							if (parts.length == 2) {
-								replacementMapping.put(parts[0].trim().replace("\"", ""), parts[1].trim().replace("\"",
-									""));
+								replacementMapping.put(parts[0].trim().replace("\"", ""),
+										parts[1].trim().replace("\"", ""));
 							}
 						}
 					}
@@ -176,64 +192,31 @@ public class TreetaggerImporterProperties extends PepperModuleProperties {
 	}
 
 	/**
-	 * validates and return the input columns definition from the properties file
+	 * Returns a list of all column names, which is given by
+	 * {@link #PROP_COLUMN_NAMES}. The first entry is always 'tok'.
+	 * 
+	 * @return
 	 */
-	public Map<Integer, String> getColumns() {
-		Map<Integer, String> retVal = new HashMap<>();
-		for (Map.Entry<Object, Object> property : getProperties().entrySet()) {
-			String key = property.getKey().toString();
-			if (PATTERN_PROP_INPUT_COLUMNS.matcher(key).find()) {
+	public List<String> getColumnNames() {
+		final String columnNamesAsString = getProperty(PROP_COLUMN_NAMES).getValue().toString();
+		List<String> columnNames = splitStringByAndTrim(columnNamesAsString, COLUMN_NAMES_SEPARATOR);
+		columnNames = whenColumnNamesDoesNotStartWithTokThenAddTok(columnNames);
+		return columnNames;
+	}
 
-				// try to extract the number at the end of the key
-				String indexStr = key.substring("treetagger.input.column".length());
-				String name = property.getValue().toString();
-				Integer index = null;
-
-				try {
-					index = Integer.valueOf(indexStr);
-				} catch (NumberFormatException e) {
-					throw new PepperModulePropertyException(
-						"Invalid property name '" + key + "': " + indexStr + " is not a valid number!", e);
-				}
-
-				// minimal index is 1
-				if (index <= 0) {
-					throw new PepperModulePropertyException(
-						"Invalid settings in properties file: no column index less than 1 allowed!");
-				}
-
-				// with the standard Properties class, this can never happen...
-				if (retVal.containsKey(index)) {
-					throw new PepperModulePropertyException(
-						"Invalid settings in properties file:  More than one column is defined for index '" + index
-						+ "'");
-				}
-
-				if (retVal.containsValue(name)) {
-					throw new PepperModulePropertyException(
-						"Invalid settings in properties file:  More than one column is defined for name '" + name
-						+ "'");
-				}
-
-				retVal.put(index, name);
-			}
+	List<String> whenColumnNamesDoesNotStartWithTokThenAddTok(List<String> columnNames) {
+		if (!COLUMN_NAMES_TOK.equalsIgnoreCase(columnNames.get(0))) {
+			columnNames.add(0, COLUMN_NAMES_TOK);
 		}
+		return columnNames;
+	}
 
-		// return defaults if nothing is set in the properties file
-		if (retVal.size() == 0) {
-			retVal.put(1, DEFAULT_POS_NAME);
-			retVal.put(2, DEFAULT_LEMMA_NAME);
-			return retVal;
+	List<String> splitStringByAndTrim(String columnNamesAsString, String separator) {
+		final List<String> entries = new ArrayList<>();
+		final String[] entriesAsArray = columnNamesAsString.split(separator);
+		for (String entry : entriesAsArray) {
+			entries.add(entry.trim());
 		}
-
-		// check consecutivity of indexes
-		for (int expectedColumnNo = 1; expectedColumnNo <= retVal.size(); expectedColumnNo++) {
-			if (!retVal.containsKey(expectedColumnNo)) {
-				throw new PepperModulePropertyException(
-					"Invalid settings in properties file: column indexes are not consecutive, column" + expectedColumnNo
-					+ " missing!");
-			}
-		}
-		return retVal;
+		return entries;
 	}
 }

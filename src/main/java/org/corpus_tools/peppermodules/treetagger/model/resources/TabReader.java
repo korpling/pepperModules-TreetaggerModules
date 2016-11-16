@@ -24,7 +24,6 @@ import java.io.InputStreamReader;
 import java.util.AbstractMap.SimpleEntry;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import org.corpus_tools.pepper.modules.exceptions.PepperModuleException;
 import org.corpus_tools.peppermodules.treetagger.TreetaggerImporterProperties;
@@ -53,15 +52,11 @@ public class TabReader {
 	private static final Logger logger = LoggerFactory.getLogger(TabReader.class);
 	private static final Character utf8BOM = new Character((char) 0xFEFF);
 	private URI location = null;
-	private TreetaggerImporterProperties properties = null;
 	private List<Document> documents = new ArrayList<>();
 	private Document currentDocument = null;
 	private List<Span> openSpans = new ArrayList<>();
 	int lineNumber = 0;
 	private boolean xmlDocumentOpen = false;
-
-	// TODO remove this, replaced by
-	private Map<Integer, String> columnMap = null;
 
 	List<String> columnNames = new ArrayList<>();
 
@@ -88,7 +83,6 @@ public class TabReader {
 			throw new PepperModuleException("Cannot load any resource, because no uri is given.");
 		}
 		this.location = location;
-		this.properties = properties;
 
 		String metaTag = properties.getProperty(TreetaggerImporterProperties.PROP_META_TAG).getValue().toString();
 		logger.info("using meta tag '{}'", metaTag);
@@ -96,8 +90,6 @@ public class TabReader {
 		String fileEncoding = properties.getProperty(TreetaggerImporterProperties.PROP_FILE_ENCODING).getValue()
 				.toString();
 		logger.info("using input file encoding '{}'", fileEncoding);
-
-		columnMap = properties.getColumns();
 
 		try (BufferedReader fileReader = new BufferedReader(
 				new InputStreamReader(new FileInputStream(location.toFileString()), fileEncoding));) {
@@ -289,17 +281,20 @@ public class TabReader {
 		doesTupleHasExpectedNumOfColumns(tuple);
 		Token token = createToken(tuple);
 		createAnnotationsForToken(token);
+		connectTokenWithOpenSpans(token);
+	}
+
+	void connectTokenWithOpenSpans(Token token) {
+		for (Span span : openSpans) {
+			token.getSpans().add(span);
+			span.getTokens().add(token);
+		}
 	}
 
 	Token createToken(String... tuple) {
 		final Token token = TreetaggerFactory.eINSTANCE.createToken();
 		currentDocument.getTokens().add(token);
 		token.setText(tuple[0]);
-		for (int i = 0; i < openSpans.size(); i++) {
-			Span span = openSpans.get(i);
-			token.getSpans().add(span);
-			span.getTokens().add(token);
-		}
 		return token;
 	}
 
