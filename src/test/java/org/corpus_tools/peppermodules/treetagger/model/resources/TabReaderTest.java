@@ -114,16 +114,5 @@ public class TabReaderTest {
 		final Document actualModel = actualModels.get(0);
 
 		assertThat(actualModel).isEqualTo(expectedModel);
-		//
-		//
-		//
-		// assertThat(documents).hasSize(1);
-		// final Document treetaggerModel = documents.get(0);
-		// assertThat(treetaggerModel.getTokens()).hasSize(7);
-		// assertThat(treetaggerModel.getTokens().get(0).getText()).isEqualTo("The");
-		// assertThat(treetaggerModel.getTokens().get(0).getAnnotations().get(0).getName()).isEqualTo("pos");
-		// assertThat(treetaggerModel.getTokens().get(0).getAnnotations().get(0).getValue()).isEqualTo("DT");
-		// assertThat(treetaggerModel.getTokens().get(0).getAnnotations().get(1).getName()).isEqualTo("lemma");
-		// assertThat(treetaggerModel.getTokens().get(0).getAnnotations().get(1).getValue()).isEqualTo("the");
 	}
 }
