@@ -46,49 +46,35 @@ public class SpanImpl extends AnnotatableElementImpl implements Span {
 		return tokens;
 	}
 
-	/**
-	 * Checks this and given object for equality. Conditions for equality:
-	 * Object must be instance of Span, have the same name as this,
-	 * getTokens().size() must be equal and annotations must be equal.
-	 * 
-	 * @param obj
-	 *            An object
-	 * @return true or false
-	 */
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = super.hashCode();
+		result = prime * result + ((name == null) ? 0 : name.hashCode());
+		result = prime * result + ((tokens == null) ? 0 : tokens.hashCode());
+		return result;
+	}
+
 	@Override
 	public boolean equals(Object obj) {
-		if (this == obj) {
+		if (this == obj)
 			return true;
-		}
-
-		if (!(obj instanceof Span)) {
+		if (!super.equals(obj))
 			return false;
-		}
-
-		Span span = (Span) obj;
-
-		// ##### compare names #####
-		if (((this.getName() != null) && (!(this.getName().equals(span.getName()))))
-				|| ((span.getName() != null) && (!(span.getName().equals(this.getName()))))) {
+		if (getClass() != obj.getClass())
 			return false;
-		}
-
-		// ##### compare tokens (mind order) #####
-		if (this.getTokens().size() != span.getTokens().size()) {
+		SpanImpl other = (SpanImpl) obj;
+		if (name == null) {
+			if (other.name != null)
+				return false;
+		} else if (!name.equals(other.name))
 			return false;
-		}
-
-		// this would cause stack overflow, because spans test tokens and tokens
-		// test spans
-		// iteration via counter (not iterator) -> threadsave!
-		// for (int i=0;i<this.getTokens().size();i++) {
-		// if (!this.getTokens().get(i).equals(span.getTokens().get(i))) {
-		// return false;
-		// }
-		// }
-
-		// okay fine, check super to compare Annotations
-		return super.equals(obj);
+		if (tokens == null) {
+			if (other.tokens != null)
+				return false;
+		} else if (!tokens.equals(other.tokens))
+			return false;
+		return true;
 	}
 
 } // SpanImpl

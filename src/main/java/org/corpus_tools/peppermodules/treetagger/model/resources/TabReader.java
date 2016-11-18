@@ -64,14 +64,14 @@ public class TabReader {
 
 	List<String> columnNames = new ArrayList<>();
 
-	public TabReader(){
+	public TabReader() {
 		setDefaultColumnNames();
 	}
-	
-	public void setDefaultColumnNames(){
+
+	public void setDefaultColumnNames() {
 		setColumnNames(Arrays.asList(COLUMN_TOKEN_TEXT, COLUMN_POS, COLUMN_LEMMA));
 	}
-	
+
 	public void setColumnNames(List<String> annotationOrder) {
 		this.columnNames = annotationOrder;
 		if (this.columnNames == null) {
@@ -335,22 +335,9 @@ public class TabReader {
 
 	void createAnnotationsForToken(Token token, String... tuple) {
 		for (int columnNumber = 1; columnNumber < tuple.length; columnNumber++) {
-			final Annotation anno = createAnnotation(findColumnName(columnNumber), tuple[columnNumber].trim());
+			final Annotation anno = TreetaggerFactory.eINSTANCE.createAnnotation(findColumnName(columnNumber),
+					tuple[columnNumber].trim());
 			token.getAnnotations().add(anno);
 		}
-	}
-
-	Annotation createAnnotation(String columnName, String cellValue) {
-		final Annotation anno;
-		if (COLUMN_POS.equalsIgnoreCase(columnName)) {
-			anno = TreetaggerFactory.eINSTANCE.createPOSAnnotation();
-		} else if (COLUMN_LEMMA.equalsIgnoreCase(columnName)) {
-			anno = TreetaggerFactory.eINSTANCE.createLemmaAnnotation();
-		} else {
-			anno = TreetaggerFactory.eINSTANCE.createAnyAnnotation();
-			anno.setName(columnName);
-		}
-		anno.setValue(cellValue);
-		return anno;
 	}
 }

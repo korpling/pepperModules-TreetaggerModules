@@ -211,7 +211,7 @@ public class Salt2TreetaggerMapper extends PepperMapperImpl {
 					donePOSAnno = true;
 				} else {
 					this.numOfSTokensWithMultiplePOSAnnos++;
-					tAnno = TreetaggerFactory.eINSTANCE.createAnyAnnotation();
+					tAnno = TreetaggerFactory.eINSTANCE.createAnnotation();
 				}
 			} else if (sAnno instanceof SLemmaAnnotation) {
 				if (!doneLemmaAnno) {
@@ -219,7 +219,7 @@ public class Salt2TreetaggerMapper extends PepperMapperImpl {
 					doneLemmaAnno = true;
 				} else {
 					this.numOfSTokensWithMultipleLemmaAnnos++;
-					tAnno = TreetaggerFactory.eINSTANCE.createAnyAnnotation();
+					tAnno = TreetaggerFactory.eINSTANCE.createAnnotation();
 				}
 			}
 
@@ -229,16 +229,16 @@ public class Salt2TreetaggerMapper extends PepperMapperImpl {
 					if (!donePOSAnno) {
 						possiblePOSAnnos.add(sAnno);
 					} else {
-						tAnno = TreetaggerFactory.eINSTANCE.createAnyAnnotation();
+						tAnno = TreetaggerFactory.eINSTANCE.createAnnotation();
 					}
 				} else if (SaltUtil.SEMANTICS_LEMMA.equalsIgnoreCase(sAnno.getName())) {
 					if (!doneLemmaAnno) {
 						possibleLemmaAnnos.add(sAnno);
 					} else {
-						tAnno = TreetaggerFactory.eINSTANCE.createAnyAnnotation();
+						tAnno = TreetaggerFactory.eINSTANCE.createAnnotation();
 					}
 				} else {
-					tAnno = TreetaggerFactory.eINSTANCE.createAnyAnnotation();
+					tAnno = TreetaggerFactory.eINSTANCE.createAnnotation();
 				}
 			}
 

@@ -22,7 +22,7 @@ import org.corpus_tools.peppermodules.treetagger.model.POSAnnotation;
 public class POSAnnotationImpl extends AnnotationImpl implements POSAnnotation {
 	protected POSAnnotationImpl() {
 		super();
-		super.name = "pos";
+		super.name = NAME;
 	}
 
 	/**
@@ -30,7 +30,7 @@ public class POSAnnotationImpl extends AnnotationImpl implements POSAnnotation {
 	 */
 	@Override
 	public void setName(String newValue) {
-		super.setName("pos");
+		super.setName(NAME);
 	}
 
 }

@@ -18,7 +18,6 @@
 package org.corpus_tools.peppermodules.treetagger.model.impl;
 
 import org.corpus_tools.peppermodules.treetagger.model.Annotation;
-import org.corpus_tools.peppermodules.treetagger.model.AnyAnnotation;
 import org.corpus_tools.peppermodules.treetagger.model.Document;
 import org.corpus_tools.peppermodules.treetagger.model.LemmaAnnotation;
 import org.corpus_tools.peppermodules.treetagger.model.POSAnnotation;
@@ -58,6 +57,21 @@ public class TreetaggerFactoryImpl implements TreetaggerFactory {
 		AnnotationImpl annotation = new AnnotationImpl();
 		return annotation;
 	}
+	
+	@Override
+	public Annotation createAnnotation(String name, String value) {
+		final Annotation anno;
+		if (POSAnnotation.NAME.equalsIgnoreCase(name)) {
+			anno = TreetaggerFactory.eINSTANCE.createPOSAnnotation();
+		} else if (LemmaAnnotation.NAME.equalsIgnoreCase(name)) {
+			anno = TreetaggerFactory.eINSTANCE.createLemmaAnnotation();
+		} else {
+			anno = TreetaggerFactory.eINSTANCE.createAnnotation();
+			anno.setName(name);
+		}
+		anno.setValue(value);
+		return anno;
+	}
 
 	@Override
 	public POSAnnotation createPOSAnnotation() {
@@ -69,12 +83,6 @@ public class TreetaggerFactoryImpl implements TreetaggerFactory {
 	public LemmaAnnotation createLemmaAnnotation() {
 		LemmaAnnotationImpl lemmaAnnotation = new LemmaAnnotationImpl();
 		return lemmaAnnotation;
-	}
-
-	@Override
-	public AnyAnnotation createAnyAnnotation() {
-		AnyAnnotationImpl anyAnnotation = new AnyAnnotationImpl();
-		return anyAnnotation;
 	}
 
 	@Override

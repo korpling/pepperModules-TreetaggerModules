@@ -26,12 +26,11 @@ public interface TreetaggerFactory {
 
 	Annotation createAnnotation();
 
+	Annotation createAnnotation(String name, String value);
+
 	POSAnnotation createPOSAnnotation();
 
 	LemmaAnnotation createLemmaAnnotation();
 
-	AnyAnnotation createAnyAnnotation();
-
 	Span createSpan();
-
 }

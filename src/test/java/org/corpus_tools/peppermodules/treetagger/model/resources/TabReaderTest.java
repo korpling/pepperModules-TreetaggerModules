@@ -8,6 +8,7 @@ import java.util.List;
 import org.corpus_tools.peppermodules.treetagger.model.Document;
 import org.corpus_tools.peppermodules.treetagger.model.Token;
 import org.corpus_tools.peppermodules.treetagger.model.TreetaggerFactory;
+import org.corpus_tools.peppermodules.treetagger.model.impl.Treetagger;
 import org.eclipse.emf.common.util.URI;
 import org.junit.Before;
 import org.junit.Test;
@@ -86,20 +87,43 @@ public class TabReaderTest {
 		assertThat(token.getAnnotations().get(3).getName()).isEqualTo(TabReader.DEFAULT_ANNOTATION_NAME);
 		assertThat(token.getAnnotations().get(3).getValue()).isEqualTo("additionalColumn2");
 	}
-	
+
 	@Test
-	public void whenDeserializingTreetaggerFile_thenModelShouldBeEqualToExpected(){
-		final URI treetaggerFile= URI.createFileURI("./src/test/resources/deserializer/simpleDocument/onlyTokPosAndLemma.tt");
-		
-		final List<Document> documents= fixture.load(treetaggerFile, null);
-		
-		assertThat(documents).hasSize(1);
-		final Document treetaggerModel= documents.get(0);
-		assertThat(treetaggerModel.getTokens()).hasSize(7);
-		assertThat(treetaggerModel.getTokens().get(0).getText()).isEqualTo("The");
-		assertThat(treetaggerModel.getTokens().get(0).getAnnotations().get(0).getName()).isEqualTo("pos");
-		assertThat(treetaggerModel.getTokens().get(0).getAnnotations().get(0).getValue()).isEqualTo("DT");
-		assertThat(treetaggerModel.getTokens().get(0).getAnnotations().get(1).getName()).isEqualTo("lemma");
-		assertThat(treetaggerModel.getTokens().get(0).getAnnotations().get(1).getValue()).isEqualTo("the");
+	public void whenDeserializingTreetaggerFile_thenModelShouldBeEqualToExpected() {
+		final URI treetaggerFile = URI
+				.createFileURI("./src/test/resources/deserializer/simpleDocument/onlyTokPosAndLemma.tt");
+		final Document expectedModel = Treetagger.buildDocument().withName("onlyTokPosAndLemma")
+				.withToken(Treetagger.buildToken().withText("The").withAnnotation("pos", "DT")
+						.withAnnotation("lemma", "the").build())
+				.withToken(Treetagger.buildToken().withText("TreeTagger").withAnnotation("pos", "NP")
+						.withAnnotation("lemma", "TreeTagger").build())
+				.withToken(Treetagger.buildToken().withText("is").withAnnotation("pos", "VBZ")
+						.withAnnotation("lemma", "be").build())
+				.withToken(Treetagger.buildToken().withText("easy").withAnnotation("pos", "JJ")
+						.withAnnotation("lemma", "easy").build())
+				.withToken(Treetagger.buildToken().withText("to").withAnnotation("pos", "TO")
+						.withAnnotation("lemma", "to").build())
+				.withToken(Treetagger.buildToken().withText("use").withAnnotation("pos", "VB")
+						.withAnnotation("lemma", "use").build())
+				.withToken(Treetagger.buildToken().withText(".").withAnnotation("pos", "SENT")
+						.withAnnotation("lemma", ".").build())
+				.build();
+
+		final List<Document> actualModels = fixture.load(treetaggerFile, null);
+		assertThat(actualModels).hasSize(1);
+		final Document actualModel = actualModels.get(0);
+
+		assertThat(actualModel).isEqualTo(expectedModel);
+		//
+		//
+		//
+		// assertThat(documents).hasSize(1);
+		// final Document treetaggerModel = documents.get(0);
+		// assertThat(treetaggerModel.getTokens()).hasSize(7);
+		// assertThat(treetaggerModel.getTokens().get(0).getText()).isEqualTo("The");
+		// assertThat(treetaggerModel.getTokens().get(0).getAnnotations().get(0).getName()).isEqualTo("pos");
+		// assertThat(treetaggerModel.getTokens().get(0).getAnnotations().get(0).getValue()).isEqualTo("DT");
+		// assertThat(treetaggerModel.getTokens().get(0).getAnnotations().get(1).getName()).isEqualTo("lemma");
+		// assertThat(treetaggerModel.getTokens().get(0).getAnnotations().get(1).getValue()).isEqualTo("the");
 	}
 }

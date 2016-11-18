@@ -93,45 +93,34 @@ public class TokenImpl extends AnnotatableElementImpl implements Token {
 		return spans;
 	}
 
-	/**
-	 * Checks this and given object for equality. Conditions for equality:
-	 * Object must be instance of Span, have the same name as this,
-	 * getSpans().size() must be equal, all Spans must correspond and
-	 * annotations must be equal.
-	 * 
-	 * @param obj
-	 *            An object
-	 * @return true or false
-	 */
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = super.hashCode();
+		result = prime * result + ((text == null) ? 0 : text.hashCode());
+		return result;
+	}
+
 	@Override
 	public boolean equals(Object obj) {
-		if (this == obj) {
+		if (this == obj)
 			return true;
-		}
-		if (!(obj instanceof Token)) {
+		if (!super.equals(obj))
 			return false;
-		}
-		Token tok = (Token) obj;
-
-		// ##### compare text #####
-		if (((this.getText() != null) && (!(this.getText().equals(tok.getText()))))
-				|| ((tok.getText() != null) && (!(tok.getText().equals(this.getText()))))) {
+		if (getClass() != obj.getClass())
 			return false;
-		}
-
-		// ##### compare span count #####
-		if (this.getSpans().size() != tok.getSpans().size()) {
-			return false;
-		}
-
-		// ##### compare spans #####
-		for (int i = 0; i < this.getSpans().size(); i++) {
-			if (!(this.getSpans().get(i).equals(tok.getSpans().get(i)))) {
+		TokenImpl other = (TokenImpl) obj;
+		if (text == null) {
+			if (other.text != null)
 				return false;
-			}
-		}
-
-		// okay fine, check super to compare Annotations
-		return super.equals(obj);
+		} else if (!text.equals(other.text))
+			return false;
+		return true;
 	}
+
+	@Override
+	public String toString() {
+		return "Token [text=" + text + super.toString() + "]";
+	}
+
 } // TokenImpl

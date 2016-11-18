@@ -22,7 +22,7 @@ import org.corpus_tools.peppermodules.treetagger.model.LemmaAnnotation;
 public class LemmaAnnotationImpl extends AnnotationImpl implements LemmaAnnotation {
 	protected LemmaAnnotationImpl() {
 		super();
-		super.name = "lemma";
+		super.name = NAME;
 	}
 
 	/**
@@ -30,7 +30,7 @@ public class LemmaAnnotationImpl extends AnnotationImpl implements LemmaAnnotati
 	 */
 	@Override
 	public void setName(String newValue) {
-		super.setName("lemma");
+		super.setName(NAME);
 	}
 
 }

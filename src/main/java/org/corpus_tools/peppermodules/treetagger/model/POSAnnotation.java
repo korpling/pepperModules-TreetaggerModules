@@ -18,4 +18,5 @@
 package org.corpus_tools.peppermodules.treetagger.model;
 
 public interface POSAnnotation extends Annotation {
+	public static final String NAME= "pos";
 } // POSAnnotation

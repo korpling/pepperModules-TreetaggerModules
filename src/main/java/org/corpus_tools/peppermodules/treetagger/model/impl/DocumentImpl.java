@@ -48,51 +48,39 @@ public class DocumentImpl extends AnnotatableElementImpl implements Document {
 		return tokens;
 	}
 
-	/**
-	 * Checks this and given object for equality. Conditions for equality:
-	 * Object must be instance of Document, getTokens().size() must be equal,
-	 * all Tokens must be equal and all annotations must correspond.
-	 * 
-	 * @param obj
-	 *            An object
-	 * @return true or false
-	 */
 	@Override
-	public boolean equals(Object obj) {
-		if (this == obj) {
-			return true;
-		}
-
-		if (!(obj instanceof Document)) {
-			return false;
-		}
-
-		Document doc = (Document) obj;
-
-		// this can only be used if documents are really identical (including
-		// names), but this method only has to check for equality of contents
-		// //##### compare names #####
-		// if
-		// (((this.getName()!=null)&&(!(this.getName().equals(doc.getName()))))
-		// ||((doc.getName()!=null)&&(!(doc.getName().equals(this.getName())))))
-		// {
-		// return false;
-		// }
-
-		// ##### compare tokens (mind order) #####
-		if (this.getTokens().size() != doc.getTokens().size()) {
-			return false;
-		}
-
-		// iteration via counter (not iterator) -> threadsave!
-		for (int i = 0; i < this.getTokens().size(); i++) {
-			if (!this.getTokens().get(i).equals(doc.getTokens().get(i))) {
-				return false;
-			}
-		}
-
-		// okay fine, check super to compare Annotations
-		return super.equals(obj);
+	public int hashCode() {
+		final int prime = 31;
+		int result = super.hashCode();
+		result = prime * result + ((name == null) ? 0 : name.hashCode());
+		result = prime * result + ((tokens == null) ? 0 : tokens.hashCode());
+		return result;
 	}
 
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (!super.equals(obj))
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		DocumentImpl other = (DocumentImpl) obj;
+		if (name == null) {
+			if (other.name != null)
+				return false;
+		} else if (!name.equals(other.name))
+			return false;
+		if (tokens == null) {
+			if (other.tokens != null)
+				return false;
+		} else if (!tokens.equals(other.tokens))
+			return false;
+		return true;
+	}
+
+	@Override
+	public String toString() {
+		return "DocumentImpl [name=" + name + ", tokens=" + tokens + "]";
+	}
 } // DocumentImpl
