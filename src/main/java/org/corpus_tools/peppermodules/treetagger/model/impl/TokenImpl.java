@@ -134,5 +134,4 @@ public class TokenImpl extends AnnotatableElementImpl implements Token {
 		// okay fine, check super to compare Annotations
 		return super.equals(obj);
 	}
-
 } // TokenImpl

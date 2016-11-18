@@ -204,14 +204,14 @@ public class TreetaggerImporterProperties extends PepperModuleProperties {
 		return columnNames;
 	}
 
-	List<String> whenColumnNamesDoesNotStartWithTokThenAddTok(List<String> columnNames) {
+	private List<String> whenColumnNamesDoesNotStartWithTokThenAddTok(List<String> columnNames) {
 		if (!COLUMN_NAMES_TOK.equalsIgnoreCase(columnNames.get(0))) {
 			columnNames.add(0, COLUMN_NAMES_TOK);
 		}
 		return columnNames;
 	}
 
-	List<String> splitStringByAndTrim(String columnNamesAsString, String separator) {
+	private List<String> splitStringByAndTrim(String columnNamesAsString, String separator) {
 		final List<String> entries = new ArrayList<>();
 		final String[] entriesAsArray = columnNamesAsString.split(separator);
 		for (String entry : entriesAsArray) {

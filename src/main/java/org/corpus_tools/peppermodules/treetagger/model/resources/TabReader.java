@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.AbstractMap.SimpleEntry;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.corpus_tools.pepper.modules.exceptions.PepperModuleException;
@@ -46,11 +47,14 @@ import org.slf4j.LoggerFactory;
 public class TabReader {
 	public static final String DEFAULT_ANNOTATION_NAME = "anyAnno";
 	public static final String COLUMN_SEPARATOR = "\t";
-	public static final String NAME_POS = "pos";
-	public static final String NAME_LEMMA = "lemma";
+	public static final String COLUMN_TOKEN_TEXT = "pos";
+	public static final String COLUMN_POS = "pos";
+	public static final String COLUMN_LEMMA = "lemma";
 
 	private static final Logger logger = LoggerFactory.getLogger(TabReader.class);
 	private static final Character utf8BOM = new Character((char) 0xFEFF);
+	private String encoding = "UTF-8";
+	private String metaTag = "meta";
 	private URI location = null;
 	private List<Document> documents = new ArrayList<>();
 	private Document currentDocument = null;
@@ -60,6 +64,14 @@ public class TabReader {
 
 	List<String> columnNames = new ArrayList<>();
 
+	public TabReader(){
+		setDefaultColumnNames();
+	}
+	
+	public void setDefaultColumnNames(){
+		setColumnNames(Arrays.asList(COLUMN_TOKEN_TEXT, COLUMN_POS, COLUMN_LEMMA));
+	}
+	
 	public void setColumnNames(List<String> annotationOrder) {
 		this.columnNames = annotationOrder;
 		if (this.columnNames == null) {
@@ -84,15 +96,15 @@ public class TabReader {
 		}
 		this.location = location;
 
-		String metaTag = properties.getProperty(TreetaggerImporterProperties.PROP_META_TAG).getValue().toString();
-		logger.info("using meta tag '{}'", metaTag);
-
-		String fileEncoding = properties.getProperty(TreetaggerImporterProperties.PROP_FILE_ENCODING).getValue()
-				.toString();
-		logger.info("using input file encoding '{}'", fileEncoding);
+		if (properties != null) {
+			metaTag = properties.getProperty(TreetaggerImporterProperties.PROP_META_TAG).getValue().toString();
+			logger.info("using meta tag '{}'", metaTag);
+			encoding = properties.getProperty(TreetaggerImporterProperties.PROP_FILE_ENCODING).getValue().toString();
+			logger.info("using input file encoding '{}'", encoding);
+		}
 
 		try (BufferedReader fileReader = new BufferedReader(
-				new InputStreamReader(new FileInputStream(location.toFileString()), fileEncoding));) {
+				new InputStreamReader(new FileInputStream(location.toFileString()), encoding));) {
 			String line = null;
 			lineNumber = 0;
 			while ((line = fileReader.readLine()) != null) {
@@ -252,76 +264,6 @@ public class TabReader {
 		}
 	}
 
-	void doesTupleHasExpectedNumOfColumns(String... tuple) {
-		if (tuple.length > columnNames.size()) {
-			rowsWithTooMuchColumns.add(lineNumber);
-		} else if (tuple.length < columnNames.size()) {
-			rowsWithTooLessColumns.add(lineNumber);
-		}
-	}
-
-	String findColumnName(int colNumber) {
-		final String annoName;
-		if (colNumber >= columnNames.size()) {
-			annoName = DEFAULT_ANNOTATION_NAME;
-		} else {
-			annoName = columnNames.get(colNumber);
-		}
-		return annoName;
-	}
-
-	/*
-	 * auxilliary method for processing input file
-	 */
-	private void addDataRow(String row) {
-		if (currentDocument == null) {
-			beginDocument(null);
-		}
-		String[] tuple = row.split(COLUMN_SEPARATOR);
-		doesTupleHasExpectedNumOfColumns(tuple);
-		Token token = createToken(tuple);
-		createAnnotationsForToken(token);
-		connectTokenWithOpenSpans(token);
-	}
-
-	void connectTokenWithOpenSpans(Token token) {
-		for (Span span : openSpans) {
-			token.getSpans().add(span);
-			span.getTokens().add(token);
-		}
-	}
-
-	Token createToken(String... tuple) {
-		final Token token = TreetaggerFactory.eINSTANCE.createToken();
-		currentDocument.getTokens().add(token);
-		token.setText(tuple[0]);
-		return token;
-	}
-
-	void createAnnotationsForToken(Token token, String... tuple) {
-		for (int columnNumber = 1; columnNumber < tuple.length; columnNumber++) {
-			Annotation anno = createAnnotation(findColumnName(columnNumber), tuple[columnNumber]);
-			token.getAnnotations().add(anno);
-		}
-	}
-
-	Annotation createAnnotation(String columnName, String cellValue) {
-		final Annotation anno;
-		if (NAME_POS.equalsIgnoreCase(columnName)) {
-			anno = TreetaggerFactory.eINSTANCE.createPOSAnnotation();
-		} else if (NAME_LEMMA.equalsIgnoreCase(columnName)) {
-			anno = TreetaggerFactory.eINSTANCE.createLemmaAnnotation();
-		} else {
-			anno = TreetaggerFactory.eINSTANCE.createAnyAnnotation();
-			anno.setName(columnName);
-		}
-		anno.setValue(cellValue);
-		return anno;
-	}
-
-	/*
-	 * auxilliary method for processing input file
-	 */
 	private void setDocumentNames() {
 		String documentBaseName = location.lastSegment().split("[.]")[0];
 		int documentCount = documents.size();
@@ -346,5 +288,69 @@ public class TabReader {
 			}
 			break;
 		}
+	}
+
+	void doesTupleHasExpectedNumOfColumns(String... tuple) {
+		if (tuple.length > columnNames.size()) {
+			rowsWithTooMuchColumns.add(lineNumber);
+		} else if (tuple.length < columnNames.size()) {
+			rowsWithTooLessColumns.add(lineNumber);
+		}
+	}
+
+	String findColumnName(int colNumber) {
+		final String annoName;
+		if (colNumber >= columnNames.size()) {
+			annoName = DEFAULT_ANNOTATION_NAME;
+		} else {
+			annoName = columnNames.get(colNumber);
+		}
+		return annoName;
+	}
+
+	private void addDataRow(String row) {
+		if (currentDocument == null) {
+			beginDocument(null);
+		}
+		String[] tuple = row.split(COLUMN_SEPARATOR);
+		doesTupleHasExpectedNumOfColumns(tuple);
+		Token token = createToken(tuple);
+		createAnnotationsForToken(token, tuple);
+		connectTokenWithOpenSpans(token);
+	}
+
+	void connectTokenWithOpenSpans(Token token) {
+		for (Span span : openSpans) {
+			token.getSpans().add(span);
+			span.getTokens().add(token);
+		}
+	}
+
+	Token createToken(final String... tuple) {
+		final Token token = TreetaggerFactory.eINSTANCE.createToken();
+		currentDocument.getTokens().add(token);
+		token.setText(tuple[0].trim());
+		return token;
+	}
+
+	void createAnnotationsForToken(Token token, String... tuple) {
+		for (int columnNumber = 1; columnNumber < tuple.length; columnNumber++) {
+			final Annotation anno = createAnnotation(findColumnName(columnNumber), tuple[columnNumber].trim());
+			token.getAnnotations().add(anno);
+		}
+	}
+
+	Annotation createAnnotation(String columnName, String cellValue) {
+		final Annotation anno;
+		if (COLUMN_POS.equalsIgnoreCase(columnName)) {
+			anno = TreetaggerFactory.eINSTANCE.createPOSAnnotation();
+		} else if (COLUMN_LEMMA.equalsIgnoreCase(columnName)) {
+			anno = TreetaggerFactory.eINSTANCE.createLemmaAnnotation();
+		} else {
+			anno = TreetaggerFactory.eINSTANCE.createAnyAnnotation();
+			anno.setName(columnName);
+		}
+		anno.setValue(cellValue);
+		return anno;
 	}
 }

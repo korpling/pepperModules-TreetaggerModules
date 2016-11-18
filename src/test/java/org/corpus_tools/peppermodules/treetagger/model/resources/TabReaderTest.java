@@ -3,9 +3,12 @@ package org.corpus_tools.peppermodules.treetagger.model.resources;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Arrays;
+import java.util.List;
 
+import org.corpus_tools.peppermodules.treetagger.model.Document;
 import org.corpus_tools.peppermodules.treetagger.model.Token;
 import org.corpus_tools.peppermodules.treetagger.model.TreetaggerFactory;
+import org.eclipse.emf.common.util.URI;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -74,13 +77,29 @@ public class TabReaderTest {
 		fixture.createAnnotationsForToken(token, tuple);
 
 		assertThat(token.getAnnotations()).hasSize(4);
-		assertThat(token.getAnnotations().get(0).getName()).isEqualTo(TabReader.NAME_POS);
+		assertThat(token.getAnnotations().get(0).getName()).isEqualTo(TabReader.COLUMN_POS);
 		assertThat(token.getAnnotations().get(0).getValue()).isEqualTo("NP");
-		assertThat(token.getAnnotations().get(1).getName()).isEqualTo(TabReader.NAME_LEMMA);
+		assertThat(token.getAnnotations().get(1).getName()).isEqualTo(TabReader.COLUMN_LEMMA);
 		assertThat(token.getAnnotations().get(1).getValue()).isEqualTo("TreeTagger");
 		assertThat(token.getAnnotations().get(2).getName()).isEqualTo(TabReader.DEFAULT_ANNOTATION_NAME);
 		assertThat(token.getAnnotations().get(2).getValue()).isEqualTo("additionalColumn1");
 		assertThat(token.getAnnotations().get(3).getName()).isEqualTo(TabReader.DEFAULT_ANNOTATION_NAME);
 		assertThat(token.getAnnotations().get(3).getValue()).isEqualTo("additionalColumn2");
+	}
+	
+	@Test
+	public void whenDeserializingTreetaggerFile_thenModelShouldBeEqualToExpected(){
+		final URI treetaggerFile= URI.createFileURI("./src/test/resources/deserializer/simpleDocument/onlyTokPosAndLemma.tt");
+		
+		final List<Document> documents= fixture.load(treetaggerFile, null);
+		
+		assertThat(documents).hasSize(1);
+		final Document treetaggerModel= documents.get(0);
+		assertThat(treetaggerModel.getTokens()).hasSize(7);
+		assertThat(treetaggerModel.getTokens().get(0).getText()).isEqualTo("The");
+		assertThat(treetaggerModel.getTokens().get(0).getAnnotations().get(0).getName()).isEqualTo("pos");
+		assertThat(treetaggerModel.getTokens().get(0).getAnnotations().get(0).getValue()).isEqualTo("DT");
+		assertThat(treetaggerModel.getTokens().get(0).getAnnotations().get(1).getName()).isEqualTo("lemma");
+		assertThat(treetaggerModel.getTokens().get(0).getAnnotations().get(1).getValue()).isEqualTo("the");
 	}
 }
