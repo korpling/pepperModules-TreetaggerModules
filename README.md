@@ -186,10 +186,10 @@ The following table contains an overview of all usable properties to customize t
 <td align="left">_</td>
 </tr>
 <tr class="odd">
-<td align="left">treetagger.input.column[1-9][0-9]*</td>
-<td align="left">String</td>
+<td align="left">columnNames</td>
+<td align="left">comma separated Strings</td>
 <td align="left">optional</td>
-<td align="left">&quot; &quot;</td>
+<td align="left">tok, pos, lemma</td>
 </tr>
 <tr class="even">
 <td align="left">treetagger.input.replaceTokens</td>
@@ -235,9 +235,21 @@ Choose whether to prefix the element name to all span annotation attributes. For
 
 The string to use to separate element and attribute name when using the prefixElementToAttributes option. By default this is '_' ,so that for a span <date when="2016">, the 'when' annotation becomes date_when="2016".
 
-#### treetagger.input.column[1-9][0-9]*
+#### columnNames
 
-This property allows to import more than the three default columns: token, part-of-speech and lemma. You can determine an unbound number of columns and name each column. Imagine the following file, where 1st column is the token itself, the second is the part-of-speech annotation, the third is the lemma annotation, the fourth stands for claws and the third for token function:
+This property allows to change the default columns of the TreeTagger format, which is: token, part-of-speech annotation, lemma annotation. 
+
+```
+This	DT	this
+means	VVZ	mean
+the	DT	the
+experimenter	NN	experimenter
+does	VVZ	do
+n't	RB	n't
+know	VV	know
+```
+(excerpt comes from the GUM corpus, see: https://corpling.uis.georgetown.edu/gum/)
+You can determine an unbound number of columns and name each column. Imagine the following file, where 1st column is the token itself, the second is the part-of-speech annotation, the third is the lemma annotation, the fourth stands for claws and the third for token function:
 
 ```
 This	DT	this	DT0	nsubj
@@ -252,12 +264,9 @@ know	VV	know	VVI	ccomp
 
 The corresponding customization properties would look like this:
 ```xml
-<property key="treetagger.input.column1">pos</property>
-<property key="treetagger.input.column2">lemma</property>
-<property key="treetagger.input.column3">claws</property>
-<property key="treetagger.input.column4">tok_func</property>
+<property key="columnNames">pos, lemma, claws, tok_func</property>
 ```
-
+Note: the first column is always the tokenization. 
 
 #### treetagger.input.replaceTokens
 
