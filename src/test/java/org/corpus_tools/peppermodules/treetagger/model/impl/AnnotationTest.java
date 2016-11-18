@@ -31,7 +31,7 @@ public class AnnotationTest extends TestCase {
 	@Override
 	@Before
 	protected void setUp() throws Exception {
-		fixture = TreetaggerFactory.eINSTANCE.createAnnotation();
+		fixture = TreetaggerFactory.eINSTANCE.createAnyAnnotation();
 	}
 
 	/**
@@ -43,9 +43,9 @@ public class AnnotationTest extends TestCase {
 		Annotation anno2 = null;
 		assertEquals(anno1, anno2);
 
-		anno1 = TreetaggerFactory.eINSTANCE.createAnnotation();
+		anno1 = TreetaggerFactory.eINSTANCE.createAnyAnnotation();
 		assertNotSame(anno1, anno2);
-		anno2 = TreetaggerFactory.eINSTANCE.createAnnotation();
+		anno2 = TreetaggerFactory.eINSTANCE.createAnyAnnotation();
 		assertEquals(anno1, anno2);
 
 		assertNull(anno1.getName());

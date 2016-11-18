@@ -20,7 +20,7 @@ package org.corpus_tools.peppermodules.treetagger.model.impl;
 import org.corpus_tools.peppermodules.treetagger.model.AnnotatableElement;
 import org.corpus_tools.peppermodules.treetagger.model.Annotation;
 
-public class AnnotationImpl implements Annotation {
+public abstract class AnnotationImpl implements Annotation {
 	protected String name = null;
 	protected String value = null;
 	protected AnnotatableElement annotatableElement;

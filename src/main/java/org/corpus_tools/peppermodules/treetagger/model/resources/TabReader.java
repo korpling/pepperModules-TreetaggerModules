@@ -163,7 +163,7 @@ public class TabReader {
 		List<SimpleEntry<String, String>> attributeValueList = XMLUtils.getAttributeValueList(tag);
 		for (int i = 0; i < attributeValueList.size(); i++) {
 			SimpleEntry<String, String> entry = attributeValueList.get(i);
-			Annotation annotation = TreetaggerFactory.eINSTANCE.createAnnotation();
+			Annotation annotation = TreetaggerFactory.eINSTANCE.createAnyAnnotation();
 			annotation.setName(entry.getKey());
 			annotation.setValue(entry.getValue());
 			annotatableElement.getAnnotations().add(annotation);
