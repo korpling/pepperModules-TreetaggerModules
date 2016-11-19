@@ -34,6 +34,7 @@ import org.corpus_tools.peppermodules.treetagger.model.Document;
 import org.corpus_tools.peppermodules.treetagger.model.Span;
 import org.corpus_tools.peppermodules.treetagger.model.Token;
 import org.corpus_tools.peppermodules.treetagger.model.TreetaggerFactory;
+import org.corpus_tools.peppermodules.treetagger.model.impl.Treetagger;
 import org.eclipse.emf.common.util.URI;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -133,7 +134,12 @@ public class TabReader {
 							endSpan(endTagName);
 						}
 					} else {
-						addDataRow(line);
+						if (currentDocument == null) {
+							beginDocument(null);
+						}
+						final Token token = createTokenFromLine(line);
+						connectTokenWithOpenSpans(token);
+						currentDocument.getTokens().add(token);
 					}
 				}
 			}
@@ -290,11 +296,41 @@ public class TabReader {
 		}
 	}
 
+	Token createToken(final String... tuple) {
+		final Token token = TreetaggerFactory.eINSTANCE.createToken();
+		currentDocument.getTokens().add(token);
+		token.setText(tuple[0].trim());
+		return token;
+	}
+
+	private Token createTokenFromLine(String line) {
+		final String[] tuple = line.split(COLUMN_SEPARATOR);
+		doesTupleHasExpectedNumOfColumns(tuple);
+		final Token token = Treetagger.buildToken().withText(tuple[0].trim()).build();
+		createAnnotationsForToken(token, tuple);
+		return token;
+	}
+
 	void doesTupleHasExpectedNumOfColumns(String... tuple) {
 		if (tuple.length > columnNames.size()) {
 			rowsWithTooMuchColumns.add(lineNumber);
 		} else if (tuple.length < columnNames.size()) {
 			rowsWithTooLessColumns.add(lineNumber);
+		}
+	}
+
+	void connectTokenWithOpenSpans(Token token) {
+		for (Span span : openSpans) {
+			token.getSpans().add(span);
+			span.getTokens().add(token);
+		}
+	}
+
+	void createAnnotationsForToken(Token token, String... tuple) {
+		for (int columnNumber = 1; columnNumber < tuple.length; columnNumber++) {
+			final Annotation anno = TreetaggerFactory.eINSTANCE.createAnnotation(findColumnName(columnNumber),
+					tuple[columnNumber].trim());
+			token.getAnnotations().add(anno);
 		}
 	}
 
@@ -306,38 +342,5 @@ public class TabReader {
 			annoName = columnNames.get(colNumber);
 		}
 		return annoName;
-	}
-
-	private void addDataRow(String row) {
-		if (currentDocument == null) {
-			beginDocument(null);
-		}
-		String[] tuple = row.split(COLUMN_SEPARATOR);
-		doesTupleHasExpectedNumOfColumns(tuple);
-		Token token = createToken(tuple);
-		createAnnotationsForToken(token, tuple);
-		connectTokenWithOpenSpans(token);
-	}
-
-	void connectTokenWithOpenSpans(Token token) {
-		for (Span span : openSpans) {
-			token.getSpans().add(span);
-			span.getTokens().add(token);
-		}
-	}
-
-	Token createToken(final String... tuple) {
-		final Token token = TreetaggerFactory.eINSTANCE.createToken();
-		currentDocument.getTokens().add(token);
-		token.setText(tuple[0].trim());
-		return token;
-	}
-
-	void createAnnotationsForToken(Token token, String... tuple) {
-		for (int columnNumber = 1; columnNumber < tuple.length; columnNumber++) {
-			final Annotation anno = TreetaggerFactory.eINSTANCE.createAnnotation(findColumnName(columnNumber),
-					tuple[columnNumber].trim());
-			token.getAnnotations().add(anno);
-		}
 	}
 }
