@@ -21,11 +21,10 @@ import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.AbstractMap.SimpleEntry;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
 
 import org.corpus_tools.pepper.modules.exceptions.PepperModuleException;
 import org.corpus_tools.peppermodules.treetagger.model.AnnotatableElement;
@@ -223,11 +222,17 @@ public class Deserializer {
 		openSpans.clear();
 	}
 
+	/*
+	 * auxilliary method for processing input file
+	 */
 	private void addAttributesAsAnnotations(String tag, AnnotatableElement annotatableElement) {
-		final Map<String, String> attributeValuePairs = XMLUtils.extractAttributeValuePairs(tag);
-		for (Entry<String, String> attributeValuePair : attributeValuePairs.entrySet()) {
-			final Annotation annotation = TreetaggerFactory.eINSTANCE.createAnnotation(attributeValuePair.getKey(),
-					attributeValuePair.getValue());
+		final List<SimpleEntry<String, String>> attributeValueList = XMLUtils.getAttributeValueList(tag);
+
+		for (int i = 0; i < attributeValueList.size(); i++) {
+			SimpleEntry<String, String> entry = attributeValueList.get(i);
+			Annotation annotation = TreetaggerFactory.eINSTANCE.createAnyAnnotation();
+			annotation.setName(entry.getKey());
+			annotation.setValue(entry.getValue());
 			annotatableElement.getAnnotations().add(annotation);
 		}
 	}

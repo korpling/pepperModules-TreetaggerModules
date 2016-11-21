@@ -17,8 +17,9 @@
  */
 package org.corpus_tools.peppermodules.treetagger.model.serialization.deserializer;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.AbstractMap.SimpleEntry;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -197,18 +198,18 @@ public class XMLUtils {
 	 *            the expression
 	 * @return the list
 	 */
-	public static final Map<String, String> extractAttributeValuePairs(String input) {
-		final Map<String, String> list = new HashMap<>();
-		final Matcher attrMatcher = attributePattern.matcher(input);
+	public static final List<SimpleEntry<String, String>> getAttributeValueList(String input) {
+		final List<SimpleEntry<String, String>> list = new ArrayList<>();
+		Matcher attrMatcher = attributePattern.matcher(input);
 		while (attrMatcher.find()) {
 			Matcher attrNameMatcher = namePattern.matcher(attrMatcher.group());
 			attrNameMatcher.find();
-			String name = attrNameMatcher.group();
+			String arg0 = attrNameMatcher.group();
 			Matcher attrValueMatcher = attvaluePattern.matcher(attrMatcher.group());
 			attrValueMatcher.find();
-			String value = attrValueMatcher.group();
-			value = value.substring(1, value.length() - 1);
-			list.put(name, value);
+			String arg1 = attrValueMatcher.group();
+			arg1 = arg1.substring(1, arg1.length() - 1);
+			list.add(new SimpleEntry<String, String>(arg0, arg1));
 		}
 		return list;
 	}
