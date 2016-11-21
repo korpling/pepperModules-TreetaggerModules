@@ -129,9 +129,9 @@ public class XMLUtilsTests {
 	 */
 	@Test
 	public final void testGetName() {
-		assertThat(XMLUtils.getName("<TAG>")).isEqualTo("TAG");
-		assertThat(XMLUtils.getName("<TAG >")).isEqualTo("TAG");
-		assertThat(XMLUtils.getName("<TAG att='test'>")).isEqualTo("TAG");
+		assertThat(XMLUtils.extractTagName("<TAG>")).isEqualTo("TAG");
+		assertThat(XMLUtils.extractTagName("<TAG >")).isEqualTo("TAG");
+		assertThat(XMLUtils.extractTagName("<TAG att='test'>")).isEqualTo("TAG");
 	}
 
 	/**

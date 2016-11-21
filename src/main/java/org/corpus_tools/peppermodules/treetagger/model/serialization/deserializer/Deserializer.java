@@ -91,7 +91,6 @@ public class Deserializer {
 		if (location == null) {
 			throw new PepperModuleException("Cannot load any resource, because no uri is given.");
 		}
-		extractDocumentName(location);
 		try (BufferedReader fileReader = new BufferedReader(
 				new InputStreamReader(new FileInputStream(location.toFileString()), fileEncoding));) {
 			String line = null;
@@ -104,9 +103,7 @@ public class Deserializer {
 		} catch (IOException e) {
 			throw new PepperModuleException("Cannot read treetagger file '" + location + "'. ", e);
 		}
-
 		setAllDocumentNames();
-
 		if (rowsWithTooLessColumns.size() > 0) {
 			logger.warn(String.format("%s rows in input file had less data columns than expected! (Rows %s)",
 					rowsWithTooLessColumns.size(), rowsWithTooLessColumns.toString()));
@@ -131,14 +128,14 @@ public class Deserializer {
 		if (XMLUtils.isProcessingInstructionTag(line)) {
 			// do nothing; ignore processing instructions
 		} else if (XMLUtils.isStartTag(line)) {
-			final String startTagName = XMLUtils.getName(line);
+			final String startTagName = XMLUtils.extractTagName(line);
 			if (startTagName.equalsIgnoreCase(metaTagName)) {
 				beginDocument(line);
 			} else {
 				beginSpan(startTagName, line);
 			}
 		} else if (XMLUtils.isEndTag(line)) {
-			String endTagName = XMLUtils.getName(line);
+			String endTagName = XMLUtils.extractTagName(line);
 			if (endTagName.equalsIgnoreCase(metaTagName)) {
 				documentTagIsOpen = false;
 				endDocument();
@@ -187,9 +184,6 @@ public class Deserializer {
 		}
 	}
 
-	/*
-	 * auxilliary method for processing input file
-	 */
 	private void endDocument() {
 		if (currentDocument != null) {
 			if (!openSpans.isEmpty()) {
@@ -232,9 +226,6 @@ public class Deserializer {
 		}
 	}
 
-	/*
-	 * auxilliary method for processing input file
-	 */
 	private void beginSpan(String spanName, String startTag) {
 		if (currentDocument == null) {
 			beginDocument(null);
@@ -245,34 +236,31 @@ public class Deserializer {
 		addAttributesAsAnnotations(startTag, span);
 	}
 
-	/*
-	 * auxilliary method for processing input file
-	 */
 	private void endSpan(String spanName) {
 		if (currentDocument == null) {
 			logger.warn(
 					String.format("input file '%s' (line '%d'): end tag '</%s>' out of nowhere. tag will be ignored!",
 							location.lastSegment(), lineNumber, spanName));
-		} else {
-			boolean matchingStartTagExists = false;
-			for (int i = 0; i < openSpans.size(); i++) {
-				Span openSpan = openSpans.get(i);
-				if (openSpan.getName().equalsIgnoreCase(spanName)) {
-					matchingStartTagExists = true;
-					if (openSpan.getTokens().isEmpty()) {
-						logger.warn(String.format(
-								"input file '%s' (line %d): no tokens contained in span '<%s>'. span will be ignored!",
-								location.lastSegment(), lineNumber, openSpan.getName()));
-					}
-					openSpans.remove(i);
-					break;
+			return;
+		}
+		boolean matchingStartTagExists = false;
+		for (int i = 0; i < openSpans.size(); i++) {
+			Span openSpan = openSpans.get(i);
+			if (openSpan.getName().equalsIgnoreCase(spanName)) {
+				matchingStartTagExists = true;
+				if (openSpan.getTokens().isEmpty()) {
+					logger.warn(String.format(
+							"input file '%s' (line %d): no tokens contained in span '<%s>'. span will be ignored!",
+							location.lastSegment(), lineNumber, openSpan.getName()));
 				}
+				openSpans.remove(i);
+				break;
 			}
-			if (!matchingStartTagExists) {
-				logger.warn(String.format(
-						"input file '%s' (line %d): no corresponding opening tag found for end tag '</%s>'. tag will be ignored!",
-						location.lastSegment(), lineNumber, spanName));
-			}
+		}
+		if (!matchingStartTagExists) {
+			logger.warn(String.format(
+					"input file '%s' (line %d): no corresponding opening tag found for end tag '</%s>'. tag will be ignored!",
+					location.lastSegment(), lineNumber, spanName));
 		}
 	}
 

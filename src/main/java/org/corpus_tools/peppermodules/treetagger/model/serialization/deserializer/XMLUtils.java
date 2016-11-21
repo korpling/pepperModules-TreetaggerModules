@@ -182,7 +182,7 @@ public class XMLUtils {
 	 *            the expression containing the name
 	 * @return the name or <code>null</code>
 	 */
-	public static final String getName(String input) {
+	public static final String extractTagName(String input) {
 		Matcher matcher = namePattern.matcher(input);
 		if (matcher.find()) {
 			return matcher.group();
