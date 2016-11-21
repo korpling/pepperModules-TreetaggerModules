@@ -91,7 +91,6 @@ public class Deserializer {
 		if (location == null) {
 			throw new PepperModuleException("Cannot load any resource, because no uri is given.");
 		}
-		extractDocumentName(location);
 		try (BufferedReader fileReader = new BufferedReader(
 				new InputStreamReader(new FileInputStream(location.toFileString()), fileEncoding));) {
 			String line = null;
@@ -187,11 +186,8 @@ public class Deserializer {
 		}
 	}
 
-	/*
-	 * auxilliary method for processing input file
-	 */
 	private void endDocument() {
-		if (currentDocument != null) {
+		if (currentDocument == null) {
 			if (!openSpans.isEmpty()) {
 				String openSpanNames = "";
 				for (int spanIndex = 0; spanIndex < openSpans.size(); spanIndex++) {
