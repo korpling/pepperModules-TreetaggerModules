@@ -20,8 +20,7 @@ package org.corpus_tools.peppermodules.treetagger.model.serialization.deserializ
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
 
-import java.util.AbstractMap.SimpleEntry;
-import java.util.List;
+import java.util.Map;
 
 import org.junit.Test;
 
@@ -142,11 +141,11 @@ public class XMLUtilsTests {
 	 */
 	@Test
 	public final void testGetAttributeValueList() {
-		final List<SimpleEntry<String, String>> list = XMLUtils
-				.getAttributeValueList("<TAG test='testVal' test2='test2Val' test3=\"test3Val\"    test4='test4Val'");
-		for (int i = 0; i < list.size(); i++) {
-			SimpleEntry<String, String> entry = list.get(i);
-			System.out.println(entry.getKey() + "\t" + entry.getValue());
-		}
+		final Map<String, String> attributes = XMLUtils.extractAttributeValuePairs(
+				"<TAG test='testVal' test2='test2Val' test3=\"test3Val\"    test4='test4Val'");
+		assertThat(attributes.get("test")).isEqualTo("testVal");
+		assertThat(attributes.get("test2")).isEqualTo("test2Val");
+		assertThat(attributes.get("test3")).isEqualTo("test3Val");
+		assertThat(attributes.get("test4")).isEqualTo("test4Val");
 	}
 }
