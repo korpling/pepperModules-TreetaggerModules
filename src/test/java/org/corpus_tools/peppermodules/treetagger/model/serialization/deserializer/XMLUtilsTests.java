@@ -15,14 +15,14 @@
  *
  *
  */
-package org.corpus_tools.peppermodules.treetagger.model.resources;
+package org.corpus_tools.peppermodules.treetagger.model.serialization.deserializer;
 
 import java.util.AbstractMap.SimpleEntry;
 import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.Map.Entry;
 
-import org.corpus_tools.peppermodules.treetagger.model.resources.XMLUtils;
+import org.corpus_tools.peppermodules.treetagger.model.serialization.deserializer.XMLUtils;
 
 import junit.framework.TestCase;
 

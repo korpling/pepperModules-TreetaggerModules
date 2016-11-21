@@ -15,7 +15,7 @@
  *
  *
  */
-package org.corpus_tools.peppermodules.treetagger.model.resources;
+package org.corpus_tools.peppermodules.treetagger.model.serialization.deserializer;
 
 import java.io.BufferedReader;
 import java.io.FileInputStream;
@@ -45,14 +45,14 @@ import org.slf4j.LoggerFactory;
  * @author hildebax
  * 
  */
-public class TabReader {
+public class Deserializer {
 	public static final String DEFAULT_ANNOTATION_NAME = "anyAnno";
 	public static final String COLUMN_SEPARATOR = "\t";
 	public static final String COLUMN_TOKEN_TEXT = "pos";
 	public static final String COLUMN_POS = "pos";
 	public static final String COLUMN_LEMMA = "lemma";
 
-	private static final Logger logger = LoggerFactory.getLogger(TabReader.class);
+	private static final Logger logger = LoggerFactory.getLogger(Deserializer.class);
 	private static final Character utf8BOM = new Character((char) 0xFEFF);
 	private String encoding = "UTF-8";
 	private String metaTag = "meta";
@@ -65,7 +65,7 @@ public class TabReader {
 
 	List<String> columnNames = new ArrayList<>();
 
-	public TabReader() {
+	public Deserializer() {
 		setDefaultColumnNames();
 	}
 
@@ -294,13 +294,6 @@ public class TabReader {
 			}
 			break;
 		}
-	}
-
-	Token createToken(final String... tuple) {
-		final Token token = TreetaggerFactory.eINSTANCE.createToken();
-		currentDocument.getTokens().add(token);
-		token.setText(tuple[0].trim());
-		return token;
 	}
 
 	private Token createTokenFromLine(String line) {

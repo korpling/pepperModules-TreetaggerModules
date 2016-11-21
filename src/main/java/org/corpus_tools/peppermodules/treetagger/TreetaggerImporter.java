@@ -27,7 +27,7 @@ import org.corpus_tools.pepper.modules.PepperImporter;
 import org.corpus_tools.pepper.modules.PepperMapper;
 import org.corpus_tools.peppermodules.treetagger.mapper.Treetagger2SaltMapper;
 import org.corpus_tools.peppermodules.treetagger.model.Document;
-import org.corpus_tools.peppermodules.treetagger.model.resources.TabReader;
+import org.corpus_tools.peppermodules.treetagger.model.serialization.deserializer.Deserializer;
 import org.corpus_tools.salt.common.SDocument;
 import org.corpus_tools.salt.graph.Identifier;
 import org.eclipse.emf.common.util.URI;
@@ -113,7 +113,7 @@ public class TreetaggerImporter extends PepperImporterImpl implements PepperImpo
 		Document retVal = null;
 		if (uri != null) {
 
-			TabReader reader = new TabReader();
+			Deserializer reader = new Deserializer();
 			reader.setColumnNames(((TreetaggerImporterProperties) getProperties()).getColumnNames());
 			List<Document> documents = reader.load(uri, (TreetaggerImporterProperties) getProperties());
 

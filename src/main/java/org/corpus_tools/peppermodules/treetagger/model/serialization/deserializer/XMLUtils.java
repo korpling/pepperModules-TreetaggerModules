@@ -15,7 +15,7 @@
  *
  *
  */
-package org.corpus_tools.peppermodules.treetagger.model.resources;
+package org.corpus_tools.peppermodules.treetagger.model.serialization.deserializer;
 
 import java.util.AbstractMap.SimpleEntry;
 import java.util.ArrayList;

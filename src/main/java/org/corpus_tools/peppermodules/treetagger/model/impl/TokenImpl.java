@@ -120,7 +120,7 @@ public class TokenImpl extends AnnotatableElementImpl implements Token {
 
 	@Override
 	public String toString() {
-		return "Token [text=" + text + super.toString() + "]";
+		return text + super.toString();
 	}
 
 } // TokenImpl

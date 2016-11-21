@@ -18,6 +18,11 @@ public class Treetagger {
 	public static class DocumentBuilder {
 		private final Document document = TreetaggerFactory.eINSTANCE.createDocument();
 
+		public DocumentBuilder withAnnotation(String name, String value) {
+			document.getAnnotations().add(TreetaggerFactory.eINSTANCE.createAnnotation(name, value));
+			return this;
+		}
+
 		public DocumentBuilder withName(String name) {
 			document.setName(name);
 			return this;

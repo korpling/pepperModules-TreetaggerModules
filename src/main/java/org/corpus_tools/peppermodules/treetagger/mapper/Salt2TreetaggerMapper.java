@@ -33,7 +33,7 @@ import org.corpus_tools.peppermodules.treetagger.model.Document;
 import org.corpus_tools.peppermodules.treetagger.model.Span;
 import org.corpus_tools.peppermodules.treetagger.model.Token;
 import org.corpus_tools.peppermodules.treetagger.model.TreetaggerFactory;
-import org.corpus_tools.peppermodules.treetagger.model.resources.TabWriter;
+import org.corpus_tools.peppermodules.treetagger.model.serialization.TabWriter;
 import org.corpus_tools.salt.common.SDocumentGraph;
 import org.corpus_tools.salt.common.SSpan;
 import org.corpus_tools.salt.common.STextualRelation;

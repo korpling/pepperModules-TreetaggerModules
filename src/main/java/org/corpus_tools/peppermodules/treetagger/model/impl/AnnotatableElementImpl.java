@@ -62,7 +62,7 @@ public abstract class AnnotatableElementImpl implements AnnotatableElement {
 
 	@Override
 	public String toString() {
-		return "AnnotatableElementImpl [annotations=" + annotations + "]";
+		return annotations.toString();
 	}
 
 } // AnnotatableElementImpl
