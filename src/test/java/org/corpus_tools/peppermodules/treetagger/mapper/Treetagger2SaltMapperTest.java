@@ -55,19 +55,19 @@ public class Treetagger2SaltMapperTest {
 
 	private String exampleText = "Is this example more complicated than it appears to be";
 
-	private PublicTreetagger2SaltMapper fixture = null;
+	private Treetagger2SaltMapper fixture = null;
 
-	private PublicTreetagger2SaltMapper getFixture() {
+	private Treetagger2SaltMapper getFixture() {
 		return fixture;
 	}
 
-	private void setFixture(PublicTreetagger2SaltMapper fixture) {
+	private void setFixture(Treetagger2SaltMapper fixture) {
 		this.fixture = fixture;
 	}
 
 	@Before
 	public void setUp() {
-		this.setFixture(new PublicTreetagger2SaltMapper());
+		this.setFixture(new Treetagger2SaltMapper());
 		TreetaggerImporterProperties props = new TreetaggerImporterProperties();
 		props.addProperties(URI.createFileURI(propertyFilename));
 		getFixture().setProperties(props);
@@ -157,9 +157,10 @@ public class Treetagger2SaltMapperTest {
 	public final void testAddSMetaAnnotation() {
 		Document tDoc = this.createDocument();
 		SDocument sDoc = SaltFactory.createSDocument();
+		fixture.setDocument(sDoc);
 		sDoc.setDocumentGraph(SaltFactory.createSDocumentGraph());
 		assertTrue(sDoc.getMetaAnnotations().isEmpty());
-		getFixture().addMetaAnnotation(tDoc.getAnnotations(), sDoc);
+		getFixture().addMetaAnnotation(tDoc.getAnnotations());
 		assertEquals(tDoc.getAnnotations().size(), sDoc.getMetaAnnotations().size());
 		for (int i = 0; i < tDoc.getAnnotations().size(); i++) {
 			Annotation tAnno = tDoc.getAnnotations().get(i);
