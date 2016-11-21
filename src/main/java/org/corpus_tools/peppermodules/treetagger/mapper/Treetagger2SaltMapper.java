@@ -81,14 +81,17 @@ public class Treetagger2SaltMapper extends PepperMapperImpl implements PepperMap
 		}
 		getDocument().getDocumentGraph().setName(getTtDocument().getName() + "_graph");
 		getDocument().setName(getTtDocument().getName());
-		this.addMetaAnnotation(getTtDocument().getAnnotations());
+		this.addMetaAnnotation(getTtDocument().getAnnotations(), getDocument());
 		this.createSTextualDS(getTtDocument().getTokens(), getDocument());
 		return (DOCUMENT_STATUS.COMPLETED);
 	}
 
-	protected void addMetaAnnotation(List<Annotation> tAnnotations) {
+	/*
+	 * auxiliary method
+	 */
+	protected void addMetaAnnotation(List<Annotation> tAnnotations, SDocument sDocument) {
 		for (Annotation tAnno : tAnnotations) {
-			getDocument().createMetaAnnotation(null, tAnno.getName(), tAnno.getValue());
+			sDocument.createMetaAnnotation(null, tAnno.getName(), tAnno.getValue());
 		}
 	}
 
@@ -99,8 +102,8 @@ public class Treetagger2SaltMapper extends PepperMapperImpl implements PepperMap
 		boolean annotateUnannotatedSpans = this.getProps().getAnnotateUnannotatedSpans();
 
 		boolean annotateAllSpansWithSpanName = this.getProps().getAnnotateAllSpansWithName();
-		boolean prefixSpanAnnotation = this.getProps().getPrefixSpanAnnotation();
-		String prefixSpanSeparator = this.getProps().getPrefixSpanSeparator();
+                boolean prefixSpanAnnotation = this.getProps().getPrefixSpanAnnotation();
+                String prefixSpanSeparator = this.getProps().getPrefixSpanSeparator();
 
 		// creating and adding STextualDS
 		STextualDS sText = SaltFactory.createSTextualDS();
@@ -111,21 +114,22 @@ public class Treetagger2SaltMapper extends PepperMapperImpl implements PepperMap
 		String text = null;
 		int start = 0;
 		int end = 0;
-		Map<String, String> replMap = ((TreetaggerImporterProperties) getProperties()).getReplacementMapping();
-
+                Map<String, String> replMap = ((TreetaggerImporterProperties) getProperties()).getReplacementMapping();
+             
 		// for (Token tToken: tTokens) {
 		for (int tokenIndex = 0; tokenIndex < tTokens.size(); tokenIndex++) {
 			Token tToken = tTokens.get(tokenIndex);
-			if (replMap != null) {
-				for (Map.Entry<String, String> entry : replMap.entrySet()) {
-					tToken.setText(tToken.getText().replace(entry.getKey(), entry.getValue()));
-					if (this.getProps().getReplaceInAnnos()) {
-						for (Annotation tAnnotation : tToken.getAnnotations()) {
-							tAnnotation.setValue(tAnnotation.getValue().replace(entry.getKey(), entry.getValue()));
-						}
-					}
-				}
-			}
+                        if (replMap != null){
+                            for (Map.Entry<String, String> entry : replMap.entrySet())
+                            {
+                                tToken.setText(tToken.getText().replace(entry.getKey(), entry.getValue()));
+                                if (this.getProps().getReplaceInAnnos()){
+                                    for (Annotation tAnnotation : tToken.getAnnotations()) {
+                                            tAnnotation.setValue(tAnnotation.getValue().replace(entry.getKey(), entry.getValue()));
+                                    }
+                                }
+                            }
+                        }
 			if (text == null) {
 				start = 0;
 				end = tToken.getText().length();
@@ -155,9 +159,9 @@ public class Treetagger2SaltMapper extends PepperMapperImpl implements PepperMap
 					}
 					for (int j = 0; j < tAnnotations.size(); j++) {
 						SAnnotation anno = this.createAnnotation(tSpan.getAnnotations().get(j));
-						if (prefixSpanAnnotation) {
-							anno.setName(tSpan.getName() + prefixSpanSeparator + anno.getName());
-						}
+                                                if (prefixSpanAnnotation){
+                                                    anno.setName(tSpan.getName() + prefixSpanSeparator + anno.getName());
+                                                }
 						sSpan.addAnnotation(anno);
 					}
 				} else {
