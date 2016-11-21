@@ -38,12 +38,6 @@ import org.eclipse.emf.common.util.URI;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- * Resource for loading and saving of treetagger data
- * 
- * @author hildebax
- * 
- */
 public class Deserializer {
 	public static final String DEFAULT_ANNOTATION_NAME = "anyAnno";
 	public static final String COLUMN_SEPARATOR = "\t";
@@ -60,12 +54,12 @@ public class Deserializer {
 	private Document currentDocument = null;
 	private List<Span> openSpans = new ArrayList<>();
 	int lineNumber = 0;
-	private boolean xmlDocumentOpen = false;
+	private boolean documentTagIsOpen = false;
 	List<Integer> rowsWithTooMuchColumns = new ArrayList<>();
 	List<Integer> rowsWithTooLessColumns = new ArrayList<>();
 	List<String> columnNames = new ArrayList<>();
 
-	public Deserializer() {
+	Deserializer() {
 		setDefaultColumnNames();
 	}
 
@@ -96,45 +90,14 @@ public class Deserializer {
 		if (location == null) {
 			throw new PepperModuleException("Cannot load any resource, because no uri is given.");
 		}
-
+		extractDocumentName(location);
 		try (BufferedReader fileReader = new BufferedReader(
 				new InputStreamReader(new FileInputStream(location.toFileString()), fileEncoding));) {
 			String line = null;
-			lineNumber = 0;
+			lineNumber = 1;
 			while ((line = fileReader.readLine()) != null) {
-				if (line.trim().length() > 0) {
-					// delete BOM if exists
-					if ((lineNumber == 0) && (line.startsWith(utf8BOM.toString()))) {
-						line = line.substring(utf8BOM.toString().length());
-						logger.info("BOM recognised and ignored");
-					}
-					lineNumber++;
-					if (XMLUtils.isProcessingInstructionTag(line)) {
-						// do nothing; ignore processing instructions
-					} else if (XMLUtils.isStartTag(line)) {
-						String startTagName = XMLUtils.getName(line);
-						if (startTagName.equalsIgnoreCase(metaTagName)) {
-							beginDocument(line);
-						} else {
-							beginSpan(startTagName, line);
-						}
-					} else if (XMLUtils.isEndTag(line)) {
-						String endTagName = XMLUtils.getName(line);
-						if (endTagName.equalsIgnoreCase(metaTagName)) {
-							xmlDocumentOpen = false;
-							endDocument();
-						} else {
-							endSpan(endTagName);
-						}
-					} else {
-						if (currentDocument == null) {
-							beginDocument(null);
-						}
-						final Token token = createTokenFromLine(line);
-						connectTokenWithOpenSpans(token);
-						currentDocument.getTokens().add(token);
-					}
-				}
+				mapLine(line);
+				lineNumber++;
 			}
 			endDocument();
 		} catch (IOException e) {
@@ -155,30 +118,70 @@ public class Deserializer {
 		return documents;
 	}
 
-	/*
-	 * auxilliary method for processing input file
-	 */
-	private void addAttributesAsAnnotations(String tag, AnnotatableElement annotatableElement) {
-		List<SimpleEntry<String, String>> attributeValueList = XMLUtils.getAttributeValueList(tag);
-		for (int i = 0; i < attributeValueList.size(); i++) {
-			SimpleEntry<String, String> entry = attributeValueList.get(i);
-			Annotation annotation = TreetaggerFactory.eINSTANCE.createAnyAnnotation();
-			annotation.setName(entry.getKey());
-			annotation.setValue(entry.getValue());
-			annotatableElement.getAnnotations().add(annotation);
+	private String extractDocumentName(URI location) {
+		return location.lastSegment().split("[.]")[0];
+	}
+
+	private void mapLine(String line) {
+		if (line.trim().length() == 0) {
+			return;
+		}
+		line = removeBOM(line);
+		if (XMLUtils.isProcessingInstructionTag(line)) {
+			// do nothing; ignore processing instructions
+		} else if (XMLUtils.isStartTag(line)) {
+			final String startTagName = XMLUtils.getName(line);
+			if (startTagName.equalsIgnoreCase(metaTagName)) {
+				beginDocument(line);
+			} else {
+				beginSpan(startTagName, line);
+			}
+		} else if (XMLUtils.isEndTag(line)) {
+			String endTagName = XMLUtils.getName(line);
+			if (endTagName.equalsIgnoreCase(metaTagName)) {
+				documentTagIsOpen = false;
+				endDocument();
+			} else {
+				endSpan(endTagName);
+			}
+		} else {
+			if (currentDocument == null) {
+				beginDocument(null);
+			}
+			final Token token = createTokenFromLine(line);
+			connectTokenWithOpenSpans(token);
+			currentDocument.getTokens().add(token);
 		}
 	}
 
-	/*
-	 * auxilliary method for processing input file
-	 */
+	private String removeBOM(String line) {
+		if ((lineNumber == 0) && (line.startsWith(utf8BOM.toString()))) {
+			line = line.substring(utf8BOM.toString().length());
+			logger.trace("recognised BOM and ignored for file '" + location + "'");
+		}
+		return line;
+	}
+
+	private void setAllDocumentNames() {
+		final String documentName = extractDocumentName(location);
+		if (documents.size() == 1) {
+			documents.get(0).setName(documentName);
+		} else {
+			int numberOfDocuments = 1;
+			for (Document document : documents) {
+				document.setName(documentName + "_" + numberOfDocuments);
+				numberOfDocuments++;
+			}
+		}
+	}
+
 	private void beginDocument(String startTag) {
 		if (currentDocument != null) {
 			endDocument();
 		}
 		currentDocument = TreetaggerFactory.eINSTANCE.createDocument();
-		xmlDocumentOpen = (startTag != null);
-		if (xmlDocumentOpen) {
+		documentTagIsOpen = startTag != null;
+		if (documentTagIsOpen) {
 			addAttributesAsAnnotations(startTag, currentDocument);
 		}
 	}
@@ -205,7 +208,7 @@ public class Deserializer {
 				logger.warn(String.format("input file '%s' (line %d): missing end tag(s) '%s'. tag(s) will be ignored!",
 						location.lastSegment(), lineNumber, openSpanNames.substring(1)));
 			}
-			if (xmlDocumentOpen) {
+			if (documentTagIsOpen) {
 				logger.warn(
 						String.format("input file '%s' (line %d): missing document end tag. document will be ignored!",
 								location.lastSegment(), lineNumber));
@@ -214,9 +217,24 @@ public class Deserializer {
 			}
 
 			currentDocument = null;
-			xmlDocumentOpen = false;
+			documentTagIsOpen = false;
 		}
 		openSpans.clear();
+	}
+
+	/*
+	 * auxilliary method for processing input file
+	 */
+	private void addAttributesAsAnnotations(String tag, AnnotatableElement annotatableElement) {
+		final List<SimpleEntry<String, String>> attributeValueList = XMLUtils.getAttributeValueList(tag);
+
+		for (int i = 0; i < attributeValueList.size(); i++) {
+			SimpleEntry<String, String> entry = attributeValueList.get(i);
+			Annotation annotation = TreetaggerFactory.eINSTANCE.createAnyAnnotation();
+			annotation.setName(entry.getKey());
+			annotation.setValue(entry.getValue());
+			annotatableElement.getAnnotations().add(annotation);
+		}
 	}
 
 	/*
@@ -259,23 +277,6 @@ public class Deserializer {
 				logger.warn(String.format(
 						"input file '%s' (line %d): no corresponding opening tag found for end tag '</%s>'. tag will be ignored!",
 						location.lastSegment(), lineNumber, spanName));
-			}
-		}
-	}
-
-	private String extractDocumentName(URI location) {
-		return location.lastSegment().split("[.]")[0];
-	}
-
-	private void setAllDocumentNames() {
-		final String documentName = extractDocumentName(location);
-		if (documents.size() == 1) {
-			documents.get(0).setName(documentName);
-		} else {
-			int numberOfDocuments = 1;
-			for (Document document : documents) {
-				document.setName(documentName + "_" + numberOfDocuments);
-				numberOfDocuments++;
 			}
 		}
 	}
