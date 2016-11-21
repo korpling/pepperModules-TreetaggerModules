@@ -109,7 +109,7 @@ public class DeserializerTest {
 						.withAnnotation("lemma", ".").build())
 				.build();
 
-		final List<Document> actualModels = fixture.load(treetaggerFile, null);
+		final List<Document> actualModels = Treetagger.deserialize().from(treetaggerFile);
 
 		assertThat(actualModels).hasSize(1);
 		final Document actualModel = actualModels.get(0);
@@ -120,7 +120,7 @@ public class DeserializerTest {
 	public void whenDeserializingTreetaggerFileWithMultipleDOcuments_thenModelShouldBeEqualToExpected() {
 		final URI treetaggerFile = URI
 				.createFileURI("./src/test/resources/deserializer/fileWithMultipleDocuments/englishGerman.tt");
-		final Document expectedModel_en = Treetagger.buildDocument().withName("englishGerman_0")
+		final Document expectedModel_en = Treetagger.buildDocument().withName("englishGerman_1")
 				.withAnnotation("lang", "en")
 				.withToken(Treetagger.buildToken().withText("The").withAnnotation("pos", "DT")
 						.withAnnotation("lemma", "the").build())
@@ -137,7 +137,7 @@ public class DeserializerTest {
 				.withToken(Treetagger.buildToken().withText(".").withAnnotation("pos", "SENT")
 						.withAnnotation("lemma", ".").build())
 				.build();
-		final Document expectedModel_de = Treetagger.buildDocument().withName("englishGerman_1")
+		final Document expectedModel_de = Treetagger.buildDocument().withName("englishGerman_2")
 				.withAnnotation("lang", "de")
 				.withToken(Treetagger.buildToken().withText("Der").withAnnotation("pos", "NP")
 						.withAnnotation("lemma", "Der").build())
@@ -155,7 +155,7 @@ public class DeserializerTest {
 						.withAnnotation("lemma", ".").build())
 				.build();
 
-		final List<Document> actualModels = fixture.load(treetaggerFile, null);
+		final List<Document> actualModels = Treetagger.deserialize().from(treetaggerFile);
 
 		assertThat(actualModels).hasSize(2);
 		assertThat(actualModels.get(0)).isEqualTo(expectedModel_en);

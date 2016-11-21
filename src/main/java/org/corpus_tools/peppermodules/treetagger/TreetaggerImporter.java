@@ -27,7 +27,7 @@ import org.corpus_tools.pepper.modules.PepperImporter;
 import org.corpus_tools.pepper.modules.PepperMapper;
 import org.corpus_tools.peppermodules.treetagger.mapper.Treetagger2SaltMapper;
 import org.corpus_tools.peppermodules.treetagger.model.Document;
-import org.corpus_tools.peppermodules.treetagger.model.serialization.deserializer.Deserializer;
+import org.corpus_tools.peppermodules.treetagger.model.impl.Treetagger;
 import org.corpus_tools.salt.common.SDocument;
 import org.corpus_tools.salt.graph.Identifier;
 import org.eclipse.emf.common.util.URI;
@@ -110,17 +110,20 @@ public class TreetaggerImporter extends PepperImporterImpl implements PepperImpo
 	}
 
 	private Document loadFromFile(URI uri) {
-		Document retVal = null;
-		if (uri != null) {
-
-			Deserializer reader = new Deserializer();
-			reader.setColumnNames(((TreetaggerImporterProperties) getProperties()).getColumnNames());
-			List<Document> documents = reader.load(uri, (TreetaggerImporterProperties) getProperties());
-
-			if (!documents.isEmpty()) {
-				retVal = documents.get(0);
-			}
+		if (uri == null) {
+			return null;
 		}
-		return (retVal);
+		final List<String> columnNames = ((TreetaggerImporterProperties) getProperties()).getColumnNames();
+		final String metaTag = getProperties().getProperty(TreetaggerImporterProperties.PROP_META_TAG).getValue()
+				.toString();
+		final String fileEncoding = getProperties().getProperty(TreetaggerImporterProperties.PROP_FILE_ENCODING)
+				.getValue().toString();
+		final List<Document> documents = Treetagger.deserialize().withFileEncoding(fileEncoding)
+				.withMetaTagName(metaTag).withColumnNames(columnNames).from(uri);
+
+		if (documents.isEmpty()) {
+			return null;
+		}
+		return (documents.get(0));
 	}
 }

@@ -4,6 +4,8 @@ import org.corpus_tools.peppermodules.treetagger.model.Annotation;
 import org.corpus_tools.peppermodules.treetagger.model.Document;
 import org.corpus_tools.peppermodules.treetagger.model.Token;
 import org.corpus_tools.peppermodules.treetagger.model.TreetaggerFactory;
+import org.corpus_tools.peppermodules.treetagger.model.serialization.deserializer.Deserializer;
+import org.corpus_tools.peppermodules.treetagger.model.serialization.deserializer.Deserializer.Builder;
 
 public class Treetagger {
 
@@ -13,6 +15,10 @@ public class Treetagger {
 
 	public static TokenBuilder buildToken() {
 		return new TokenBuilder();
+	}
+
+	public static Builder deserialize() {
+		return new Deserializer.Builder();
 	}
 
 	public static class DocumentBuilder {

@@ -27,7 +27,6 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.corpus_tools.pepper.modules.exceptions.PepperModuleException;
-import org.corpus_tools.peppermodules.treetagger.TreetaggerImporterProperties;
 import org.corpus_tools.peppermodules.treetagger.model.AnnotatableElement;
 import org.corpus_tools.peppermodules.treetagger.model.Annotation;
 import org.corpus_tools.peppermodules.treetagger.model.Document;
@@ -54,15 +53,16 @@ public class Deserializer {
 
 	private static final Logger logger = LoggerFactory.getLogger(Deserializer.class);
 	private static final Character utf8BOM = new Character((char) 0xFEFF);
-	private String encoding = "UTF-8";
-	private String metaTag = "meta";
+	private String fileEncoding = "UTF-8";
+	private String metaTagName = "meta";
 	private URI location = null;
 	private List<Document> documents = new ArrayList<>();
 	private Document currentDocument = null;
 	private List<Span> openSpans = new ArrayList<>();
 	int lineNumber = 0;
 	private boolean xmlDocumentOpen = false;
-
+	List<Integer> rowsWithTooMuchColumns = new ArrayList<>();
+	List<Integer> rowsWithTooLessColumns = new ArrayList<>();
 	List<String> columnNames = new ArrayList<>();
 
 	public Deserializer() {
@@ -73,39 +73,32 @@ public class Deserializer {
 		setColumnNames(Arrays.asList(COLUMN_TOKEN_TEXT, COLUMN_POS, COLUMN_LEMMA));
 	}
 
-	public void setColumnNames(List<String> annotationOrder) {
-		this.columnNames = annotationOrder;
+	public void setMetaTagName(String metaTagName) {
+		this.metaTagName = metaTagName;
+	}
+
+	public void setFileEncoding(String fileEncoding) {
+		this.fileEncoding = fileEncoding;
+	}
+
+	public void setColumnNames(List<String> columnNames) {
+		this.columnNames = columnNames;
 		if (this.columnNames == null) {
 			this.columnNames = new ArrayList<>();
 		}
 	}
 
-	List<Integer> rowsWithTooMuchColumns = new ArrayList<>();
-	List<Integer> rowsWithTooLessColumns = new ArrayList<>();
+	public void setLocation(URI location) {
+		this.location = location;
+	}
 
-	/**
-	 * Loads a resource into treetagger model from tab separated file.
-	 * 
-	 * @param options
-	 *            a map that may contain an instance of LogService and an
-	 *            instance of Properties, with {@link #logServiceKey} and
-	 *            {@link #propertiesKey} respectively as keys
-	 */
-	public List<Document> load(URI location, TreetaggerImporterProperties properties) {
+	public List<Document> deserialize() {
 		if (location == null) {
 			throw new PepperModuleException("Cannot load any resource, because no uri is given.");
 		}
-		this.location = location;
-
-		if (properties != null) {
-			metaTag = properties.getProperty(TreetaggerImporterProperties.PROP_META_TAG).getValue().toString();
-			logger.info("using meta tag '{}'", metaTag);
-			encoding = properties.getProperty(TreetaggerImporterProperties.PROP_FILE_ENCODING).getValue().toString();
-			logger.info("using input file encoding '{}'", encoding);
-		}
 
 		try (BufferedReader fileReader = new BufferedReader(
-				new InputStreamReader(new FileInputStream(location.toFileString()), encoding));) {
+				new InputStreamReader(new FileInputStream(location.toFileString()), fileEncoding));) {
 			String line = null;
 			lineNumber = 0;
 			while ((line = fileReader.readLine()) != null) {
@@ -120,14 +113,14 @@ public class Deserializer {
 						// do nothing; ignore processing instructions
 					} else if (XMLUtils.isStartTag(line)) {
 						String startTagName = XMLUtils.getName(line);
-						if (startTagName.equalsIgnoreCase(metaTag)) {
+						if (startTagName.equalsIgnoreCase(metaTagName)) {
 							beginDocument(line);
 						} else {
 							beginSpan(startTagName, line);
 						}
 					} else if (XMLUtils.isEndTag(line)) {
 						String endTagName = XMLUtils.getName(line);
-						if (endTagName.equalsIgnoreCase(metaTag)) {
+						if (endTagName.equalsIgnoreCase(metaTagName)) {
 							xmlDocumentOpen = false;
 							endDocument();
 						} else {
@@ -148,7 +141,7 @@ public class Deserializer {
 			throw new PepperModuleException("Cannot read treetagger file '" + location + "'. ", e);
 		}
 
-		setDocumentNames();
+		setAllDocumentNames();
 
 		if (rowsWithTooLessColumns.size() > 0) {
 			logger.warn(String.format("%s rows in input file had less data columns than expected! (Rows %s)",
@@ -270,29 +263,20 @@ public class Deserializer {
 		}
 	}
 
-	private void setDocumentNames() {
-		String documentBaseName = location.lastSegment().split("[.]")[0];
-		int documentCount = documents.size();
+	private String extractDocumentName(URI location) {
+		return location.lastSegment().split("[.]")[0];
+	}
 
-		switch (documentCount) {
-		case 0:
-			logger.warn(String.format("no valid document data contained in file '%s'", location.toFileString()));
-			break;
-		case 1:
-			// set simple document name
-			documents.get(0).setName(documentBaseName);
-			break;
-		default:
-			// set document names with leading zeros for number extensions
-			int documentCountDigits = String.valueOf(documentCount).length();
-			for (int docIndex = 0; docIndex < documentCount; docIndex++) {
-				String docNumber = Integer.toString(docIndex);
-				while (docNumber.length() < documentCountDigits) {
-					docNumber = "0" + docNumber;
-				}
-				documents.get(docIndex).setName(documentBaseName + "_" + docNumber);
+	private void setAllDocumentNames() {
+		final String documentName = extractDocumentName(location);
+		if (documents.size() == 1) {
+			documents.get(0).setName(documentName);
+		} else {
+			int numberOfDocuments = 1;
+			for (Document document : documents) {
+				document.setName(documentName + "_" + numberOfDocuments);
+				numberOfDocuments++;
 			}
-			break;
 		}
 	}
 
@@ -335,5 +319,29 @@ public class Deserializer {
 			annoName = columnNames.get(colNumber);
 		}
 		return annoName;
+	}
+
+	public static class Builder {
+		private Deserializer deserializer = new Deserializer();
+
+		public Builder withColumnNames(List<String> columnNames) {
+			deserializer.setColumnNames(columnNames);
+			return this;
+		}
+
+		public Builder withFileEncoding(String fileEncoding) {
+			deserializer.setFileEncoding(fileEncoding);
+			return this;
+		}
+
+		public Builder withMetaTagName(String metaTagName) {
+			deserializer.setMetaTagName(metaTagName);
+			return this;
+		}
+
+		public List<Document> from(URI location) {
+			deserializer.setLocation(location);
+			return deserializer.deserialize();
+		}
 	}
 }
