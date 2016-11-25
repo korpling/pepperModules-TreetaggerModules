@@ -35,44 +35,34 @@ public abstract class AnnotatableElementImpl implements AnnotatableElement {
 		return annotations;
 	}
 
-	/**
-	 * Checks this and given object for equality. Conditions for equality:
-	 * Object must be instance of AnnotatableElement, getAnnotations().size()
-	 * must be equal and all Annotations must correspond.
-	 * 
-	 * @param obj
-	 *            An object
-	 * @return true or false
-	 */
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((annotations == null) ? 0 : annotations.hashCode());
+		return result;
+	}
+
 	@Override
 	public boolean equals(Object obj) {
-		if (this == obj) {
+		if (this == obj)
 			return true;
-		}
-		if (!(obj instanceof AnnotatableElement)) {
+		if (obj == null)
 			return false;
-		}
-
-		AnnotatableElement annotatableElement = (AnnotatableElement) obj;
-
-		// ##### compare annotations (order not relevant) #####
-		if (this.getAnnotations().size() != annotatableElement.getAnnotations().size()) {
+		if (getClass() != obj.getClass())
 			return false;
-		}
-		// iteration via counter (not iterator) -> threadsave!
-		for (int i = 0; i < this.getAnnotations().size(); i++) {
-
-			boolean equalExists = false;
-			for (int j = 0; (j < annotatableElement.getAnnotations().size()) && !equalExists; j++) {
-				equalExists = (annotatableElement.getAnnotations().get(j).equals(this.getAnnotations().get(i)));
-			}
-			if (!equalExists) {
+		AnnotatableElementImpl other = (AnnotatableElementImpl) obj;
+		if (annotations == null) {
+			if (other.annotations != null)
 				return false;
-			}
-		}
-
-		// okay fine
+		} else if (!annotations.equals(other.annotations))
+			return false;
 		return true;
+	}
+
+	@Override
+	public String toString() {
+		return "AnnotatableElementImpl [annotations=" + annotations + "]";
 	}
 
 } // AnnotatableElementImpl

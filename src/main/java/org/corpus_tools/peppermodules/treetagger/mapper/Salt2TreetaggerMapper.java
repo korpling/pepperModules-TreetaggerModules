@@ -147,7 +147,7 @@ public class Salt2TreetaggerMapper extends PepperMapperImpl {
 	 */
 	protected void addDocumentAnnotations(Set<SMetaAnnotation> sMetaAnnotations, Document tDocument) {
 		for (SMetaAnnotation metaAnno : sMetaAnnotations) {
-			Annotation tAnno = TreetaggerFactory.eINSTANCE.createAnnotation();
+			Annotation tAnno = TreetaggerFactory.eINSTANCE.createAnyAnnotation();
 			tAnno.setName(metaAnno.getName());
 			tAnno.setValue(metaAnno.getValue_STEXT());
 			tDocument.getAnnotations().add(tAnno);
@@ -259,7 +259,7 @@ public class Salt2TreetaggerMapper extends PepperMapperImpl {
 				tAnno = TreetaggerFactory.eINSTANCE.createPOSAnnotation();
 				donePOSAnno = true;
 			} else {
-				tAnno = TreetaggerFactory.eINSTANCE.createAnnotation();
+				tAnno = TreetaggerFactory.eINSTANCE.createAnyAnnotation();
 			}
 			// setting the name will only affect instances of AnyAnnotation:
 			// POSAnnotations get the name "pos", LemmaAnnotations get the name
@@ -276,7 +276,7 @@ public class Salt2TreetaggerMapper extends PepperMapperImpl {
 				tAnno = TreetaggerFactory.eINSTANCE.createLemmaAnnotation();
 				doneLemmaAnno = true;
 			} else {
-				tAnno = TreetaggerFactory.eINSTANCE.createAnnotation();
+				tAnno = TreetaggerFactory.eINSTANCE.createAnyAnnotation();
 			}
 			// setting the name will only affect instances of AnyAnnotation:
 			// POSAnnotations get the name "pos", LemmaAnnotations get the name
@@ -296,7 +296,7 @@ public class Salt2TreetaggerMapper extends PepperMapperImpl {
 		Iterator<SAnnotation> it = sSpan.getAnnotations().iterator();
 		while (it.hasNext()) {
 			SAnnotation sAnno = it.next();
-			Annotation tAnno = TreetaggerFactory.eINSTANCE.createAnnotation();
+			Annotation tAnno = TreetaggerFactory.eINSTANCE.createAnyAnnotation();
 			if (alternativeSpanName == null) {
 				alternativeSpanName = sAnno.getName();
 			}

@@ -56,10 +56,8 @@ public class RoundtripTest {
 		final URI out = URI.createFileURI(PepperUtil.getTempTestFile("/roundTrip/").getAbsolutePath());
 		final TreetaggerImporter importer = new TreetaggerImporter();
 		importer.setCorpusDesc(new CorpusDesc.Builder().withCorpusPath(in).build());
-		importer.getProperties().setPropertyValue("treetagger.input.column1", "pos");
-		importer.getProperties().setPropertyValue("treetagger.input.column2", "lemma");
-		importer.getProperties().setPropertyValue("treetagger.input.column3", "claws");
-		importer.getProperties().setPropertyValue("treetagger.input.column4", "tok_func");
+		importer.getProperties().setPropertyValue(TreetaggerImporterProperties.PROP_COLUMN_NAMES,
+				"pos, lemma, claws, tok_func");
 		final TreetaggerExporter exporter = new TreetaggerExporter();
 		exporter.setCorpusDesc(new CorpusDesc.Builder().withCorpusPath(out).build());
 		PepperTestUtil.runPepperForTest(importer, exporter);

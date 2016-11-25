@@ -20,7 +20,7 @@ package org.corpus_tools.peppermodules.treetagger.model.impl;
 import org.corpus_tools.peppermodules.treetagger.model.AnnotatableElement;
 import org.corpus_tools.peppermodules.treetagger.model.Annotation;
 
-public class AnnotationImpl implements Annotation {
+public abstract class AnnotationImpl implements Annotation {
 	protected String name = null;
 	protected String value = null;
 	protected AnnotatableElement annotatableElement;
@@ -59,33 +59,40 @@ public class AnnotationImpl implements Annotation {
 		annotatableElement = newAnnotatableElement;
 	}
 
-	/**
-	 * TODO: describe
-	 */
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((name == null) ? 0 : name.hashCode());
+		result = prime * result + ((value == null) ? 0 : value.hashCode());
+		return result;
+	}
+
 	@Override
 	public boolean equals(Object obj) {
-		if (this == obj) {
+		if (this == obj)
 			return true;
-		}
-		if (!(obj instanceof Annotation)) {
+		if (obj == null)
 			return false;
-		}
-		Annotation anno = (Annotation) obj;
-
-		// ##### compare name #####
-		if (((this.getName() != null) && (!(this.getName().equals(anno.getName()))))
-				|| ((anno.getName() != null) && (!(anno.getName().equals(this.getName()))))) {
+		if (getClass() != obj.getClass())
 			return false;
-		}
-
-		// ##### compare value #####
-		if (((this.getValue() != null) && (!(this.getValue().equals(anno.getValue()))))
-				|| ((anno.getValue() != null) && (!(anno.getValue().equals(this.getValue()))))) {
+		AnnotationImpl other = (AnnotationImpl) obj;
+		if (name == null) {
+			if (other.name != null)
+				return false;
+		} else if (!name.equals(other.name))
 			return false;
-		}
-
-		// okay fine
+		if (value == null) {
+			if (other.value != null)
+				return false;
+		} else if (!value.equals(other.value))
+			return false;
 		return true;
+	}
+
+	@Override
+	public String toString() {
+		return "AnnotationImpl [name=" + name + ", value=" + value + "]";
 	}
 
 } // AnnotationImpl

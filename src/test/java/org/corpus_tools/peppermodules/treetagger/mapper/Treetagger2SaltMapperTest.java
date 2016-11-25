@@ -84,7 +84,7 @@ public class Treetagger2SaltMapperTest {
 		// create the Document
 		Document tDocument = TreetaggerFactory.eINSTANCE.createDocument();
 		tDocument.setName("treetagger2saltTestDocument");
-		Annotation anno = TreetaggerFactory.eINSTANCE.createAnnotation();
+		Annotation anno = TreetaggerFactory.eINSTANCE.createAnyAnnotation();
 		anno.setAnnotatableElement(tDocument);
 		anno.setName("docAnnotation");
 		anno.setValue("docAnnotationValue");
@@ -112,7 +112,7 @@ public class Treetagger2SaltMapperTest {
 		// create the Spans
 		Span span = TreetaggerFactory.eINSTANCE.createSpan();
 		span.setName("FirstSpan");
-		anno = TreetaggerFactory.eINSTANCE.createAnnotation();
+		anno = TreetaggerFactory.eINSTANCE.createAnyAnnotation();
 		anno.setName("Inf-Struct");
 		anno.setValue("contrast-focus");
 		anno.setAnnotatableElement(span);
@@ -120,7 +120,7 @@ public class Treetagger2SaltMapperTest {
 
 		span = TreetaggerFactory.eINSTANCE.createSpan();
 		span.setName("SecondSpan");
-		anno = TreetaggerFactory.eINSTANCE.createAnnotation();
+		anno = TreetaggerFactory.eINSTANCE.createAnyAnnotation();
 		anno.setName("Inf-Struct");
 		anno.setValue("topic");
 		anno.setAnnotatableElement(span);

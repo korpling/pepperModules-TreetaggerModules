@@ -54,9 +54,24 @@ public class TreetaggerFactoryImpl implements TreetaggerFactory {
 	}
 
 	@Override
-	public Annotation createAnnotation() {
-		AnnotationImpl annotation = new AnnotationImpl();
+	public AnyAnnotation createAnyAnnotation() {
+		AnyAnnotation annotation = new AnyAnnotationImpl();
 		return annotation;
+	}
+
+	@Override
+	public Annotation createAnnotation(String name, String value) {
+		final Annotation anno;
+		if (POSAnnotation.NAME.equalsIgnoreCase(name)) {
+			anno = TreetaggerFactory.eINSTANCE.createPOSAnnotation();
+		} else if (LemmaAnnotation.NAME.equalsIgnoreCase(name)) {
+			anno = TreetaggerFactory.eINSTANCE.createLemmaAnnotation();
+		} else {
+			anno = TreetaggerFactory.eINSTANCE.createAnyAnnotation();
+			anno.setName(name);
+		}
+		anno.setValue(value);
+		return anno;
 	}
 
 	@Override
@@ -69,12 +84,6 @@ public class TreetaggerFactoryImpl implements TreetaggerFactory {
 	public LemmaAnnotation createLemmaAnnotation() {
 		LemmaAnnotationImpl lemmaAnnotation = new LemmaAnnotationImpl();
 		return lemmaAnnotation;
-	}
-
-	@Override
-	public AnyAnnotation createAnyAnnotation() {
-		AnyAnnotationImpl anyAnnotation = new AnyAnnotationImpl();
-		return anyAnnotation;
 	}
 
 	@Override

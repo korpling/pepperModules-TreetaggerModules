@@ -24,14 +24,13 @@ public interface TreetaggerFactory {
 
 	Token createToken();
 
-	Annotation createAnnotation();
+	AnyAnnotation createAnyAnnotation();
+
+	Annotation createAnnotation(String name, String value);
 
 	POSAnnotation createPOSAnnotation();
 
 	LemmaAnnotation createLemmaAnnotation();
 
-	AnyAnnotation createAnyAnnotation();
-
 	Span createSpan();
-
 }
