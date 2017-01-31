@@ -15,11 +15,10 @@
  *
  *
  */
-package org.corpus_tools.peppermodules.treetagger.model.resources;
+package org.corpus_tools.peppermodules.treetagger.model.serialization.deserializer;
 
-import java.util.AbstractMap.SimpleEntry;
-import java.util.ArrayList;
-import java.util.Hashtable;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -74,12 +73,16 @@ public class XMLUtils {
 
 	private static final String s = String.format("([%c%c%c%c]+)", x09, x0A, x0D, x20);
 	private static final String eq = "(" + s + "?=" + s + "?" + ")";
-	private static final String namestartchars = String.format(":A-Z_a-z%c-%c%c-%c%c-%c%c-%c%c-%c%c-%c%c-%c%c-%c%c-%c%c-%c%c-%c", xC0, xD6, xD8, xF6, xF8, x02FF, x0370, x037D, x037F, x1FFF, x200C, x200D, x2070, x218F, x2C00, x2FEF, x3001, xD7FF, xF900, xFDCF, xFDF0, xFFFD);
-	private static final String namechars = namestartchars + String.format("-\\.0-9%c%c-%c%c-%c", xB7, x0300, x036F, x203F, x2040);
+	private static final String namestartchars = String.format(
+			":A-Z_a-z%c-%c%c-%c%c-%c%c-%c%c-%c%c-%c%c-%c%c-%c%c-%c%c-%c%c-%c", xC0, xD6, xD8, xF6, xF8, x02FF, x0370,
+			x037D, x037F, x1FFF, x200C, x200D, x2070, x218F, x2C00, x2FEF, x3001, xD7FF, xF900, xFDCF, xFDF0, xFFFD);
+	private static final String namechars = namestartchars
+			+ String.format("-\\.0-9%c%c-%c%c-%c", xB7, x0300, x036F, x203F, x2040);
 	private static final String namestartchar = "([" + namestartchars + "])";
 	private static final String namechar = "([" + namechars + "])";
 	private static final String name = "(" + namestartchar + namechar + "*)";
-	private static final String normalChar = String.format("[%c%c%c%c-%c%c-%c]", x09, x0A, x0D, x20, xD7FF, xE000, xFFFD);
+	private static final String normalChar = String.format("[%c%c%c%c-%c%c-%c]", x09, x0A, x0D, x20, xD7FF, xE000,
+			xFFFD);
 	private static final String entityref = "(&" + name + ";)";
 	private static final String charref = "((&#[0-9]+;)|(&#x[0-9a-fA-F]+;))";
 	private static final String reference = "(" + entityref + "|" + charref + ")";
@@ -94,7 +97,8 @@ public class XMLUtils {
 	// TODO: this is just an approximation to the processing instruction syntax,
 	// could be made more precise
 	private static final String piTarget = name;
-	private static final String processingInstructionTag = "<\\?" + piTarget + "(" + s + normalChar + "*" + ")?" + "\\?>";
+	private static final String processingInstructionTag = "<\\?" + piTarget + "(" + s + normalChar + "*" + ")?"
+			+ "\\?>";
 
 	private static final Pattern sPattern = Pattern.compile(s);
 	private static final Pattern eqPattern = Pattern.compile(eq);
@@ -106,8 +110,8 @@ public class XMLUtils {
 	private static final Pattern processingInstructionTagPattern = Pattern.compile(processingInstructionTag);
 
 	/**
-	 * Returns true if input is a <a
-	 * href="http://www.w3.org/TR/2008/REC-xml-20081126/#NT-S">white space
+	 * Returns true if input is a
+	 * <a href="http://www.w3.org/TR/2008/REC-xml-20081126/#NT-S">white space
 	 * expression</a> according to XML specification.
 	 * 
 	 * @param input
@@ -119,8 +123,8 @@ public class XMLUtils {
 	}
 
 	/**
-	 * Returns true if input is an <a
-	 * href="http://www.w3.org/TR/2008/REC-xml-20081126/#NT-Eq">eq
+	 * Returns true if input is an
+	 * <a href="http://www.w3.org/TR/2008/REC-xml-20081126/#NT-Eq">eq
 	 * expression</a> according to XML specification.
 	 * 
 	 * @param input
@@ -132,8 +136,8 @@ public class XMLUtils {
 	}
 
 	/**
-	 * Returns true if input is a <a
-	 * href="http://www.w3.org/TR/2008/REC-xml-20081126/#sec-starttags">start
+	 * Returns true if input is a
+	 * <a href="http://www.w3.org/TR/2008/REC-xml-20081126/#sec-starttags">start
 	 * tag expression</a> according to XML specification.
 	 * 
 	 * @param input
@@ -145,9 +149,9 @@ public class XMLUtils {
 	}
 
 	/**
-	 * Returns true if input is an <a
-	 * href="http://www.w3.org/TR/2008/REC-xml-20081126/#sec-starttags">end tag
-	 * expression</a> according to XML specification.
+	 * Returns true if input is an
+	 * <a href="http://www.w3.org/TR/2008/REC-xml-20081126/#sec-starttags">end
+	 * tag expression</a> according to XML specification.
 	 * 
 	 * @param input
 	 *            the expression
@@ -169,8 +173,8 @@ public class XMLUtils {
 	}
 
 	/**
-	 * Returns the first match of a <a
-	 * href="http://www.w3.org/TR/2008/REC-xml-20081126/#NT-Name">name</a> in
+	 * Returns the first match of a
+	 * <a href="http://www.w3.org/TR/2008/REC-xml-20081126/#NT-Name">name</a> in
 	 * the input according to the XML specifications. If there is no match,
 	 * <code>null</code> is returned.
 	 * 
@@ -178,7 +182,7 @@ public class XMLUtils {
 	 *            the expression containing the name
 	 * @return the name or <code>null</code>
 	 */
-	public static final String getName(String input) {
+	public static final String extractTagName(String input) {
 		Matcher matcher = namePattern.matcher(input);
 		if (matcher.find()) {
 			return matcher.group();
@@ -193,36 +197,19 @@ public class XMLUtils {
 	 *            the expression
 	 * @return the list
 	 */
-	public static final ArrayList<SimpleEntry<String, String>> getAttributeValueList(String input) {
-		ArrayList<SimpleEntry<String, String>> list = new ArrayList<SimpleEntry<String, String>>();
-		Matcher attrMatcher = attributePattern.matcher(input);
+	public static final Map<String, String> extractAttributeValuePairs(String input) {
+		final Map<String, String> list = new HashMap<>();
+		final Matcher attrMatcher = attributePattern.matcher(input);
 		while (attrMatcher.find()) {
 			Matcher attrNameMatcher = namePattern.matcher(attrMatcher.group());
 			attrNameMatcher.find();
-			String arg0 = attrNameMatcher.group();
+			String name = attrNameMatcher.group();
 			Matcher attrValueMatcher = attvaluePattern.matcher(attrMatcher.group());
 			attrValueMatcher.find();
-			String arg1 = attrValueMatcher.group();
-			arg1 = arg1.substring(1, arg1.length() - 1);
-			list.add(new SimpleEntry<String, String>(arg0, arg1));
+			String value = attrValueMatcher.group();
+			value = value.substring(1, value.length() - 1);
+			list.put(name, value);
 		}
 		return list;
-	}
-
-	/**
-	 * Returns a Hashtable of attribute-value-pairs from the input string
-	 * 
-	 * @param input
-	 *            the expression
-	 * @return the Hashtable
-	 */
-	public static final Hashtable<String, String> getAttributeValueTable(String input) {
-		Hashtable<String, String> table = new Hashtable<String, String>();
-		ArrayList<SimpleEntry<String, String>> list = XMLUtils.getAttributeValueList(input);
-		for (int i = 0; i < list.size(); i++) {
-			SimpleEntry<String, String> entry = list.get(i);
-			table.put(entry.getKey(), entry.getValue());
-		}
-		return table;
 	}
 }

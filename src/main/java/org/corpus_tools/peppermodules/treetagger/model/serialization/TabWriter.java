@@ -15,7 +15,7 @@
  *
  *
  */
-package org.corpus_tools.peppermodules.treetagger.model.resources;
+package org.corpus_tools.peppermodules.treetagger.model.serialization;
 
 import java.io.BufferedWriter;
 import java.io.FileOutputStream;

@@ -92,7 +92,7 @@ public abstract class AnnotationImpl implements Annotation {
 
 	@Override
 	public String toString() {
-		return "AnnotationImpl [name=" + name + ", value=" + value + "]";
+		return name + " = " + value;
 	}
 
 } // AnnotationImpl

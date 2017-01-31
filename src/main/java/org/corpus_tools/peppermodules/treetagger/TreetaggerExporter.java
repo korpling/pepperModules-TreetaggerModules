@@ -67,8 +67,9 @@ public class TreetaggerExporter extends PepperExporterImpl implements PepperExpo
 	@Override
 	public PepperMapper createPepperMapper(Identifier identifier) {
 		Salt2TreetaggerMapper mapper = new Salt2TreetaggerMapper();
-		if (identifier.getIdentifiableElement() instanceof SDocument)
+		if (identifier.getIdentifiableElement() instanceof SDocument) {
 			mapper.setResourceURI(getIdentifier2ResourceTable().get(identifier));
+		}
 		return (mapper);
 	}
 }

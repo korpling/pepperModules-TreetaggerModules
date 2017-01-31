@@ -65,19 +65,19 @@ public class Salt2TreetaggerMapperTest {
 
 	private String propertyFilename = "src/test/resources/salt2treetaggerMapperTest.properties";
 
-	private PublicSalt2TreetaggerMapper fixture = null;
+	private Salt2TreetaggerMapper fixture = null;
 
-	private PublicSalt2TreetaggerMapper getFixture() {
+	private Salt2TreetaggerMapper getFixture() {
 		return fixture;
 	}
 
-	private void setFixture(PublicSalt2TreetaggerMapper fixture) {
+	private void setFixture(Salt2TreetaggerMapper fixture) {
 		this.fixture = fixture;
 	}
 
 	@Before
 	public void setUp() {
-		this.setFixture(new PublicSalt2TreetaggerMapper());
+		this.setFixture(new Salt2TreetaggerMapper());
 		TreetaggerExporterProperties props = new TreetaggerExporterProperties();
 		props.addProperties(URI.createFileURI(propertyFilename));
 		getFixture().setProperties(props);
@@ -384,7 +384,7 @@ public class Salt2TreetaggerMapperTest {
 
 	/**
 	 * Test method for
-	 * {@link org.corpus_tools.peppermodules.treetagger.mapper.PublicSalt2TreetaggerMapper#addTokens(de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SDocumentGraph, de.hu_berlin.german.korpling.saltnpepper.misc.treetagger.Document)}
+	 * {@link org.corpus_tools.peppermodules.treetagger.mapper.Salt2TreetaggerMapper#addTokens(de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SDocumentGraph, de.hu_berlin.german.korpling.saltnpepper.misc.treetagger.Document)}
 	 * .
 	 */
 	@Test

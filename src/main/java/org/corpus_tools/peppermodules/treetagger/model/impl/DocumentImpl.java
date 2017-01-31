@@ -81,6 +81,6 @@ public class DocumentImpl extends AnnotatableElementImpl implements Document {
 
 	@Override
 	public String toString() {
-		return "DocumentImpl [name=" + name + ", tokens=" + tokens + "]";
+		return "document [name=" + name + tokens + "]";
 	}
 } // DocumentImpl
