@@ -66,4 +66,20 @@ public class RoundtripTest {
 		File expected = new File(in.toFileString() + "GUM_interview_ants.tt");
 		assertTrue("comparing '" + expected + "' with '" + actual + "'", FileUtils.contentEquals(expected, actual));
 	}
+	
+	@Test
+	public void whenProcessingRoundtripForCorpusWithSpans_SourceAndTargetCorpusMustBeEqual() throws IOException {
+		final URI in = URI.createFileURI(PepperTestUtil.getTestResources() + "/roundTrip/spans/");
+		final URI out = URI.createFileURI(PepperUtil.getTempTestFile("/roundTrip/").getAbsolutePath());
+		final TreetaggerImporter importer = new TreetaggerImporter();
+		importer.setCorpusDesc(new CorpusDesc.Builder().withCorpusPath(in).build());
+		final TreetaggerExporter exporter = new TreetaggerExporter();
+		exporter.setCorpusDesc(new CorpusDesc.Builder().withCorpusPath(out).build());
+		PepperTestUtil.runPepperForTest(importer, exporter);
+
+		File actual = new File(out.toFileString() + "/simple/repeated.tt");
+		File expected = new File(in.toFileString() + "repeated.tt");
+		assertTrue("comparing '" + expected + "' with '" + actual + "'", FileUtils.contentEquals(expected, actual));
+
+	}
 }
