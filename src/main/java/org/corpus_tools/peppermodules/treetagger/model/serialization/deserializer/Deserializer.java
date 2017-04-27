@@ -96,7 +96,7 @@ public class Deserializer {
 			String line = null;
 			lineNumber = 1;
 			while ((line = fileReader.readLine()) != null) {
-				mapLine(line);
+				mapLine(line, lineNumber);
 				lineNumber++;
 			}
 			endDocument();
@@ -120,7 +120,7 @@ public class Deserializer {
 		return location.lastSegment().split("[.]")[0];
 	}
 
-	private void mapLine(String line) {
+	private void mapLine(String line, long lineNr) {
 		if (line.trim().length() == 0) {
 			return;
 		}
@@ -146,7 +146,7 @@ public class Deserializer {
 			if (currentDocument == null) {
 				beginDocument(null);
 			}
-			final Token token = createTokenFromLine(line);
+			final Token token = createTokenFromLine(line, lineNr);
 			connectTokenWithOpenSpans(token);
 			currentDocument.getTokens().add(token);
 		}
@@ -264,10 +264,10 @@ public class Deserializer {
 		}
 	}
 
-	private Token createTokenFromLine(String line) {
+	private Token createTokenFromLine(String line, long lineNr) {
 		final String[] tuple = line.split(COLUMN_SEPARATOR);
 		doesTupleHasExpectedNumOfColumns(tuple);
-		final Token token = Treetagger.buildToken().withText(tuple[0].trim()).build();
+		final Token token = Treetagger.buildToken().withLine(lineNr).withText(tuple[0].trim()).build();
 		createAnnotationsForToken(token, tuple);
 		return token;
 	}

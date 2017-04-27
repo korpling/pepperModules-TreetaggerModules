@@ -64,6 +64,11 @@ public class Treetagger {
 	public static class TokenBuilder {
 		private final Token token = TreetaggerFactory.eINSTANCE.createToken();
 
+		public TokenBuilder withLine(long line) {
+			token.setLine(line);
+			return this;
+		}
+		
 		public TokenBuilder withText(String text) {
 			token.setText(text);
 			return this;

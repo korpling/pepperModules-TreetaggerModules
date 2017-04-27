@@ -31,7 +31,7 @@ import org.corpus_tools.peppermodules.treetagger.model.Token;
 public class TokenImpl extends AnnotatableElementImpl implements Token {
 
 	protected String text = null;
-	protected long line = 0;
+	protected long line = -1l;
 
 	protected List<Span> spans = new ArrayList<>();
 	protected Document document = null;
@@ -127,7 +127,7 @@ public class TokenImpl extends AnnotatableElementImpl implements Token {
 
 	@Override
 	public String toString() {
-		return text + super.toString();
+		return text + "@" + line + super.toString();
 	}
 
 } // TokenImpl
