@@ -77,7 +77,7 @@ public class RoundtripTest {
 		exporter.setCorpusDesc(new CorpusDesc.Builder().withCorpusPath(out).build());
 		PepperTestUtil.runPepperForTest(importer, exporter);
 
-		File actual = new File(out.toFileString() + "/simple/repeated.tt");
+		File actual = new File(out.toFileString() + "/spans/repeated.tt");
 		File expected = new File(in.toFileString() + "repeated.tt");
 		assertTrue("comparing '" + expected + "' with '" + actual + "'", FileUtils.contentEquals(expected, actual));
 
