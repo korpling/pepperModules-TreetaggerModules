@@ -40,6 +40,7 @@ import org.corpus_tools.salt.common.STextualRelation;
 import org.corpus_tools.salt.common.SToken;
 import org.corpus_tools.salt.core.SAnnotation;
 import org.corpus_tools.salt.core.SMetaAnnotation;
+import org.corpus_tools.salt.core.SRelation;
 import org.corpus_tools.salt.semantics.SLemmaAnnotation;
 import org.corpus_tools.salt.semantics.SPOSAnnotation;
 import org.corpus_tools.salt.util.SaltUtil;
@@ -49,17 +50,18 @@ import org.slf4j.LoggerFactory;
 
 /**
  * This class is for mapping Salt to Treetagger
- * 
+ *
  * @author hildebax
  * @author Florian Zipser
  */
 public class Salt2TreetaggerMapper extends PepperMapperImpl {
+
 	private static final Logger logger = LoggerFactory.getLogger(Salt2TreetaggerMapper.class);
 
 	// ---------------------------------------------------------------------------------------------
 	/**
 	 * Getter for Properties
-	 * 
+	 *
 	 * @return the Properties
 	 */
 	public TreetaggerExporterProperties getProps() {
@@ -67,7 +69,6 @@ public class Salt2TreetaggerMapper extends PepperMapperImpl {
 	}
 
 	// ---------------------------------------------------------------------------------------------
-
 	private int numOfSTokensWithMultiplePOSAnnos = 0;
 	private int numOfSTokensWithMultipleLemmaAnnos = 0;
 
@@ -97,17 +98,17 @@ public class Salt2TreetaggerMapper extends PepperMapperImpl {
 			this.addTokens(getDocument().getDocumentGraph(), getTTDocument());
 			if (this.numOfSTokensWithMultiplePOSAnnos > 0) {
 				logger.warn("There were " + this.numOfSTokensWithMultiplePOSAnnos
-						+ " tokens with more than one POS annotation in the document. The first one found for each token was used for it´s POS annotation; the remainder was used for ordinary annotations.");
+					+ " tokens with more than one POS annotation in the document. The first one found for each token was used for it´s POS annotation; the remainder was used for ordinary annotations.");
 			}
 			if (this.numOfSTokensWithMultipleLemmaAnnos > 0) {
 				logger.warn("There were " + this.numOfSTokensWithMultipleLemmaAnnos
-						+ " tokens with more than one lemma annotation in the document. The first one found for each token was used for it´s lemma annotation; the remainder was used for ordinary annotations.");
+					+ " tokens with more than one lemma annotation in the document. The first one found for each token was used for it´s lemma annotation; the remainder was used for ordinary annotations.");
 			}
 			try {
 				this.saveToFile(getResourceURI(), getTTDocument());
 			} catch (IOException e) {
 				throw new PepperConvertException("Cannot write document with id: '" + getDocument().getId() + "' to: '"
-						+ getResourceURI() + "'.", e);
+					+ getResourceURI() + "'.", e);
 			}
 		}
 		return (DOCUMENT_STATUS.COMPLETED);
@@ -116,7 +117,7 @@ public class Salt2TreetaggerMapper extends PepperMapperImpl {
 	private void saveToFile(URI uri, Document tDocument) throws IOException {
 		if (uri == null) {
 			throw new PepperModuleException(this,
-					"Cannot save o given uri, because its null for document '" + tDocument + "'.");
+				"Cannot save o given uri, because its null for document '" + tDocument + "'.");
 		}
 
 		final TabWriter writer = new TabWriter();
@@ -169,22 +170,29 @@ public class Salt2TreetaggerMapper extends PepperMapperImpl {
 		}
 
 		Hashtable<SSpan, Span> sSpan2SpanTable = new Hashtable<SSpan, Span>();
-		for (int i = 0; i < sDocumentGraph.getTextualRelations().size(); i++) {
-			STextualRelation sTexRel = sDocumentGraph.getTextualRelations().get(i);
-			Token token = TreetaggerFactory.eINSTANCE.createToken();
-			token.setText(sTexRel.getTarget().getText().substring(sTexRel.getStart(), sTexRel.getEnd()));
-			SToken sToken = sTexRel.getSource();
-			addTokenAnnotations(sToken, token);
-			tDocument.getTokens().add(token);
-			if (token2SpansTable.containsKey(sToken)) {
-				for (int j = 0; j < token2SpansTable.get(sToken).size(); j++) {
-					SSpan sSpan = token2SpansTable.get(sToken).get(j);
-					if (!sSpan2SpanTable.containsKey(sSpan)) {
-						sSpan2SpanTable.put(sSpan, this.createSpan(sSpan));
+		long tokenIndex = 0;
+		for (SToken sToken : sDocumentGraph.getSortedTokenByText()) {
+			for (SRelation rel : sToken.getOutRelations()) {
+				if (rel instanceof STextualRelation) {
+					STextualRelation sTexRel = (STextualRelation) rel;
+					Token token = TreetaggerFactory.eINSTANCE.createToken();
+					token.setLine(tokenIndex++);
+					token.setText(sTexRel.getTarget().getText().substring(sTexRel.getStart(), sTexRel.getEnd()));
+					
+					addTokenAnnotations(sToken, token);
+					
+					tDocument.getTokens().add(token);
+					if (token2SpansTable.containsKey(sToken)) {
+						for (int j = 0; j < token2SpansTable.get(sToken).size(); j++) {
+							SSpan sSpan = token2SpansTable.get(sToken).get(j);
+							if (!sSpan2SpanTable.containsKey(sSpan)) {
+								sSpan2SpanTable.put(sSpan, this.createSpan(sSpan));
+							}
+							Span tSpan = sSpan2SpanTable.get(sSpan);
+							token.getSpans().add(tSpan);
+							tSpan.getTokens().add(token);
+						}
 					}
-					Span tSpan = sSpan2SpanTable.get(sSpan);
-					token.getSpans().add(tSpan);
-					tSpan.getTokens().add(token);
 				}
 			}
 		}
@@ -221,9 +229,7 @@ public class Salt2TreetaggerMapper extends PepperMapperImpl {
 					this.numOfSTokensWithMultipleLemmaAnnos++;
 					tAnno = TreetaggerFactory.eINSTANCE.createAnyAnnotation();
 				}
-			}
-
-			else {
+			} else {
 				// try to set the right type of Annotation by SALT_SEMANTICS
 				if (SaltUtil.SEMANTICS_POS.equalsIgnoreCase(sAnno.getName())) {
 					if (!donePOSAnno) {
@@ -308,8 +314,9 @@ public class Salt2TreetaggerMapper extends PepperMapperImpl {
 
 		if ((sSpan.getName().startsWith("sSpan")) && (alternativeSpanName != null)) {
 
-			if (this.getProps().isReplaceGenericSpanNamesProperty())
+			if (this.getProps().isReplaceGenericSpanNamesProperty()) {
 				retVal.setName(alternativeSpanName);
+			}
 		}
 		return retVal;
 	}

@@ -37,4 +37,7 @@ public interface Token extends AnnotatableElement {
 	void setDocument(Document value);
 
 	List<Span> getSpans();
+	
+	long getLine();
+	void setLine(long line);
 }

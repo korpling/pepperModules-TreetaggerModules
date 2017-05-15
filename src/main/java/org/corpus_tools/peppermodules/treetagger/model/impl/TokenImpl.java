@@ -17,6 +17,7 @@
  */
 package org.corpus_tools.peppermodules.treetagger.model.impl;
 
+import com.google.common.base.Objects;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -30,9 +31,11 @@ import org.corpus_tools.peppermodules.treetagger.model.Token;
 public class TokenImpl extends AnnotatableElementImpl implements Token {
 
 	protected String text = null;
+	protected long line = -1l;
 
 	protected List<Span> spans = new ArrayList<>();
 	protected Document document = null;
+
 
 	protected TokenImpl() {
 		super();
@@ -48,6 +51,16 @@ public class TokenImpl extends AnnotatableElementImpl implements Token {
 		text = newText;
 	}
 
+	@Override
+	public long getLine() {
+		return line;
+	}
+
+	@Override
+	public void setLine(long line) {
+		this.line = line;
+	}
+	
 	@Override
 	public POSAnnotation getPosAnnotation() {
 		POSAnnotation posAnno = null;
@@ -95,32 +108,26 @@ public class TokenImpl extends AnnotatableElementImpl implements Token {
 
 	@Override
 	public int hashCode() {
-		final int prime = 31;
-		int result = super.hashCode();
-		result = prime * result + ((text == null) ? 0 : text.hashCode());
-		return result;
+		return Objects.hashCode(this.line, this.text, super.hashCode());
 	}
 
 	@Override
 	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (!super.equals(obj))
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		TokenImpl other = (TokenImpl) obj;
-		if (text == null) {
-			if (other.text != null)
-				return false;
-		} else if (!text.equals(other.text))
-			return false;
-		return true;
+		
+		if(obj == null) return false;
+		if(getClass() != obj.getClass()) return false;
+		if(!super.equals(obj)) return false;
+		
+		final TokenImpl other = (TokenImpl) obj;
+		
+		
+		return Objects.equal(this.line, other.line)
+			&& Objects.equal(this.text, other.text);
 	}
 
 	@Override
 	public String toString() {
-		return text + super.toString();
+		return text + "@" + line + super.toString();
 	}
 
 } // TokenImpl
