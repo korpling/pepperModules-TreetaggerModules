@@ -18,6 +18,7 @@
 package org.corpus_tools.peppermodules.treetagger;
 
 import org.corpus_tools.pepper.common.PepperConfiguration;
+import org.corpus_tools.pepper.core.SelfTestDesc;
 import org.corpus_tools.pepper.impl.PepperExporterImpl;
 import org.corpus_tools.pepper.modules.PepperExporter;
 import org.corpus_tools.pepper.modules.PepperMapper;
@@ -51,15 +52,24 @@ public class TreetaggerExporter extends PepperExporterImpl implements PepperExpo
 
 	}
 
+	@Override
+	public SelfTestDesc getSelfTestDesc() {
+		return new SelfTestDesc(
+				getResources().appendSegment("selfTests").appendSegment("treetaggerExporter").appendSegment("in"),
+				getResources().appendSegment("selfTests").appendSegment("treetaggerExporter")
+						.appendSegment("expected"));
+	}
+
 	/**
-	 * Creates a mapper of type {@link PAULA2SaltMapper}. {@inheritDoc
-	 * PepperModule#createPepperMapper(Identifier)}
+	 * Creates a mapper of type {@link PAULA2SaltMapper}.
+	 * {@inheritDoc PepperModule#createPepperMapper(Identifier)}
 	 */
 	@Override
-	public PepperMapper createPepperMapper(Identifier sElementId) {
+	public PepperMapper createPepperMapper(Identifier identifier) {
 		Salt2TreetaggerMapper mapper = new Salt2TreetaggerMapper();
-		if (sElementId.getIdentifiableElement() instanceof SDocument)
-			mapper.setResourceURI(getIdentifier2ResourceTable().get(sElementId));
+		if (identifier.getIdentifiableElement() instanceof SDocument) {
+			mapper.setResourceURI(getIdentifier2ResourceTable().get(identifier));
+		}
 		return (mapper);
 	}
 }

@@ -46,7 +46,7 @@ public class DocumentTest {
 				token.setText(String.format("token#%d.Text", i));
 				token.setDocument(docArray[docIndex]);
 				for (int j = 0; j < 2; j++) {
-					Annotation annotation = TreetaggerFactory.eINSTANCE.createAnnotation();
+					Annotation annotation = TreetaggerFactory.eINSTANCE.createAnyAnnotation();
 					annotation.setValue(String.format("token#%d.Annotation#%d", i, j));
 					annotation.setAnnotatableElement(token);
 				}

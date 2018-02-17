@@ -18,18 +18,22 @@
 package org.corpus_tools.peppermodules.treetagger;
 
 import java.util.List;
+import java.util.regex.Pattern;
 
 import org.corpus_tools.pepper.common.PepperConfiguration;
+import org.corpus_tools.pepper.core.SelfTestDesc;
 import org.corpus_tools.pepper.impl.PepperImporterImpl;
 import org.corpus_tools.pepper.modules.PepperImporter;
 import org.corpus_tools.pepper.modules.PepperMapper;
 import org.corpus_tools.peppermodules.treetagger.mapper.Treetagger2SaltMapper;
 import org.corpus_tools.peppermodules.treetagger.model.Document;
-import org.corpus_tools.peppermodules.treetagger.model.resources.TabReader;
+import org.corpus_tools.peppermodules.treetagger.model.impl.Treetagger;
 import org.corpus_tools.salt.common.SDocument;
 import org.corpus_tools.salt.graph.Identifier;
 import org.eclipse.emf.common.util.URI;
 import org.osgi.service.component.annotations.Component;
+
+import com.google.common.base.Strings;
 
 /**
  * This class imports data from Treetagger format to Salt
@@ -42,6 +46,7 @@ import org.osgi.service.component.annotations.Component;
 public class TreetaggerImporter extends PepperImporterImpl implements PepperImporter {
 	// ---------------------------------------------------------------------------------------
 	public static final String[] TREETAGGER_FILE_ENDINGS = { "treetagger", "tab", "tt", "txt" };
+	private static final Pattern TREETAGGER_MATCH_PATTERN = Pattern.compile("[a-zA-Z0-9]+(\t[a-zA-Z0-9]+)*");
 
 	public TreetaggerImporter() {
 		super();
@@ -61,16 +66,38 @@ public class TreetaggerImporter extends PepperImporterImpl implements PepperImpo
 		}
 	}
 
+	@Override
+	public Double isImportable(URI corpusPath) {
+		Double retValue = 0.0;
+		for (String content : sampleFileContent(corpusPath, TREETAGGER_FILE_ENDINGS)) {
+			if (Strings.isNullOrEmpty(content)) {
+				continue;
+			}
+			if (TREETAGGER_MATCH_PATTERN.matcher(content).find()) {
+				retValue = 1.0;
+				break;
+			}
+		}
+		return retValue;
+	}
+
+	@Override
+	public SelfTestDesc getSelfTestDesc() {
+		return new SelfTestDesc(
+				getResources().appendSegment("selfTests").appendSegment("treetaggerImporter").appendSegment("in"),
+				getResources().appendSegment("selfTests").appendSegment("treetaggerImporter")
+						.appendSegment("expected"));
+	}
+
 	/**
 	 * Creates a mapper of type {@link PAULA2SaltMapper}.
 	 * {@inheritDoc PepperModule#createPepperMapper(Identifier)}
 	 */
 	@Override
-	public PepperMapper createPepperMapper(Identifier sElementId) {
+	public PepperMapper createPepperMapper(Identifier identifier) {
 		Treetagger2SaltMapper mapper = new Treetagger2SaltMapper();
-
-		if (sElementId.getIdentifiableElement() instanceof SDocument) {
-			URI uri = getIdentifier2ResourceTable().get(sElementId);
+		if (identifier.getIdentifiableElement() instanceof SDocument) {
+			URI uri = getIdentifier2ResourceTable().get(identifier);
 			Document tDocument = this.loadFromFile(uri);
 			if (tDocument == null) {
 				mapper = null;
@@ -83,50 +110,20 @@ public class TreetaggerImporter extends PepperImporterImpl implements PepperImpo
 	}
 
 	private Document loadFromFile(URI uri) {
-		Document retVal = null;
-		if (uri != null) {
-
-			TabReader reader = new TabReader();
-			List<Document> documents = reader.load(uri, getProperties().getProperties());
-
-			if (!documents.isEmpty()) {
-				retVal = documents.get(0);
-			}
-
-			// // create resource set and resource
-			// ResourceSet resourceSet = new ResourceSetImpl();
-			//
-			// // Register XML resource factory
-			// resourceSet.getResourceFactoryRegistry().getExtensionToFactoryMap().put("treetagger",
-			// new XMIResourceFactoryImpl());
-			// TabResourceFactory tabResourceFactory = new TabResourceFactory();
-			// resourceSet.getResourceFactoryRegistry().getExtensionToFactoryMap().put("tab",
-			// tabResourceFactory);
-			// resourceSet.getResourceFactoryRegistry().getExtensionToFactoryMap().put("tt",
-			// tabResourceFactory);
-			// resourceSet.getResourceFactoryRegistry().getExtensionToFactoryMap().put("txt",
-			// tabResourceFactory);
-			// Resource resource = null;
-			// try {
-			// // load resource
-			// resource = resourceSet.createResource(uri);
-			//
-			// if (resource == null) {
-			// throw new PepperModuleException(this, "Cannot load The resource
-			// is null.");
-			// }
-			// resource.load(getProperties().getProperties());
-			// } catch (IOException e) {
-			// throw new PepperModuleException(this, "Cannot load resource '" +
-			// uri + "'.", e);
-			// } catch (NullPointerException e) {
-			// throw new PepperModuleException(this, "Cannot load resource '" +
-			// uri + "'.", e);
-			// }
-			// if (resource.getContents().size() > 0) {
-			// retVal = (Document) resource.getContents().get(0);
-			// }
+		if (uri == null) {
+			return null;
 		}
-		return (retVal);
+		final List<String> columnNames = ((TreetaggerImporterProperties) getProperties()).getColumnNames();
+		final String metaTag = getProperties().getProperty(TreetaggerImporterProperties.PROP_META_TAG).getValue()
+				.toString();
+		final String fileEncoding = getProperties().getProperty(TreetaggerImporterProperties.PROP_FILE_ENCODING)
+				.getValue().toString();
+		final List<Document> documents = Treetagger.deserialize().withFileEncoding(fileEncoding)
+				.withMetaTagName(metaTag).withColumnNames(columnNames).from(uri);
+
+		if (documents.isEmpty()) {
+			return null;
+		}
+		return (documents.get(0));
 	}
 }

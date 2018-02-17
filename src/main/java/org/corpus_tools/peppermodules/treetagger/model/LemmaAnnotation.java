@@ -18,4 +18,5 @@
 package org.corpus_tools.peppermodules.treetagger.model;
 
 public interface LemmaAnnotation extends Annotation {
+	public static final String NAME= "lemma";
 } // LemmaAnnotation

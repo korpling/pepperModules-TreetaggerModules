@@ -17,6 +17,7 @@
  */
 package org.corpus_tools.peppermodules.treetagger.model.impl;
 
+import com.google.common.base.Objects;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -30,9 +31,11 @@ import org.corpus_tools.peppermodules.treetagger.model.Token;
 public class TokenImpl extends AnnotatableElementImpl implements Token {
 
 	protected String text = null;
+	protected long line = -1l;
 
 	protected List<Span> spans = new ArrayList<>();
 	protected Document document = null;
+
 
 	protected TokenImpl() {
 		super();
@@ -48,6 +51,16 @@ public class TokenImpl extends AnnotatableElementImpl implements Token {
 		text = newText;
 	}
 
+	@Override
+	public long getLine() {
+		return line;
+	}
+
+	@Override
+	public void setLine(long line) {
+		this.line = line;
+	}
+	
 	@Override
 	public POSAnnotation getPosAnnotation() {
 		POSAnnotation posAnno = null;
@@ -93,46 +106,28 @@ public class TokenImpl extends AnnotatableElementImpl implements Token {
 		return spans;
 	}
 
-	/**
-	 * Checks this and given object for equality. Conditions for equality:
-	 * Object must be instance of Span, have the same name as this,
-	 * getSpans().size() must be equal, all Spans must correspond and
-	 * annotations must be equal.
-	 * 
-	 * @param obj
-	 *            An object
-	 * @return true or false
-	 */
+	@Override
+	public int hashCode() {
+		return Objects.hashCode(this.line, this.text, super.hashCode());
+	}
+
 	@Override
 	public boolean equals(Object obj) {
-		if (this == obj) {
-			return true;
-		}
-		if (!(obj instanceof Token)) {
-			return false;
-		}
-		Token tok = (Token) obj;
+		
+		if(obj == null) return false;
+		if(getClass() != obj.getClass()) return false;
+		if(!super.equals(obj)) return false;
+		
+		final TokenImpl other = (TokenImpl) obj;
+		
+		
+		return Objects.equal(this.line, other.line)
+			&& Objects.equal(this.text, other.text);
+	}
 
-		// ##### compare text #####
-		if (((this.getText() != null) && (!(this.getText().equals(tok.getText()))))
-				|| ((tok.getText() != null) && (!(tok.getText().equals(this.getText()))))) {
-			return false;
-		}
-
-		// ##### compare span count #####
-		if (this.getSpans().size() != tok.getSpans().size()) {
-			return false;
-		}
-
-		// ##### compare spans #####
-		for (int i = 0; i < this.getSpans().size(); i++) {
-			if (!(this.getSpans().get(i).equals(tok.getSpans().get(i)))) {
-				return false;
-			}
-		}
-
-		// okay fine, check super to compare Annotations
-		return super.equals(obj);
+	@Override
+	public String toString() {
+		return text + "@" + line + super.toString();
 	}
 
 } // TokenImpl

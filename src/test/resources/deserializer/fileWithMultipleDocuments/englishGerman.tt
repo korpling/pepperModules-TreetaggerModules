@@ -1,0 +1,18 @@
+<meta lang="en">
+The  	DT  	the 
+TreeTagger  	NP  	TreeTagger 
+is  	VBZ  	be 
+easy  	JJ  	easy 
+to  	TO  	to 
+use  	VB  	use 
+.  	SENT  	. 
+</meta>
+<meta lang="de">
+Der	NP	Der
+TreeTagger	NP	TreeTagger
+ist	NP	sein
+einfach	NP	einfach
+zu	NP	zu
+nutzen	NP	nutzen
+.	SENT	.
+</meta>
