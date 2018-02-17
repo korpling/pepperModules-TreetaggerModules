@@ -41,7 +41,7 @@ import org.osgi.service.component.annotations.Component;
 @Component(name = "TreetaggerImporterComponent", factory = "PepperImporterComponentFactory")
 public class TreetaggerImporter extends PepperImporterImpl implements PepperImporter {
 	// ---------------------------------------------------------------------------------------
-	public static final String[] TREETAGGER_FILE_ENDINGS = { "treetagger", "tab", "tt", "txt", "xml" };
+	public static final String[] TREETAGGER_FILE_ENDINGS = { "treetagger", "tab", "tt", "txt" };
 
 	public TreetaggerImporter() {
 		super();
@@ -56,18 +56,9 @@ public class TreetaggerImporter extends PepperImporterImpl implements PepperImpo
 		setProperties(new TreetaggerImporterProperties());
 		// adding all file endings to list of endings for documents (necessary
 		// for importCorpusStructure)
-                String extension = "";
-                //String extension = getProperties().getProperties().getProperty("treetagger.fileExtension");
-                //String extension = ((TreetaggerImporterProperties) super.getProperties()).getImportFileExtension();
-                //logger.info("The extension is: "+extension+"\n");
-                if (extension.length() > 1){
-                    this.getDocumentEndings().add(extension);                    
-                }
-                else{
-                    for (String ending : TREETAGGER_FILE_ENDINGS) {
-                            this.getDocumentEndings().add(ending);
-                    }
-                }
+		for (String ending : TREETAGGER_FILE_ENDINGS) {
+			this.getDocumentEndings().add(ending);
+		}
 	}
 
 	/**
@@ -78,10 +69,6 @@ public class TreetaggerImporter extends PepperImporterImpl implements PepperImpo
 	public PepperMapper createPepperMapper(Identifier sElementId) {
 		Treetagger2SaltMapper mapper = new Treetagger2SaltMapper();
 
-                //String extension = ((TreetaggerImporterProperties) super.getProperties()).getImportFileExtension();
-                //logger.info("The extension is: "+extension+"\n");
-
-                
 		if (sElementId.getIdentifiableElement() instanceof SDocument) {
 			URI uri = getIdentifier2ResourceTable().get(sElementId);
 			Document tDocument = this.loadFromFile(uri);
@@ -142,14 +129,4 @@ public class TreetaggerImporter extends PepperImporterImpl implements PepperImpo
 		}
 		return (retVal);
 	}
-        
-        @Override
-        public boolean isReadyToStart() {
-        
-            if  (this.getProperties() != null) {
-              String extension = ((TreetaggerImporterProperties) this.getProperties()).getImportFileExtension();
-              logger.info("The extension is: "+extension+"\n");
-            }
-            return true;
-        }
 }
