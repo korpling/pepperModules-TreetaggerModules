@@ -268,7 +268,14 @@ public class TabReader {
 	 * auxilliary method for processing input file
 	 */
 	private void setDocumentNames() {
-		String documentBaseName = location.lastSegment().split("[.]")[0];
+		//String documentBaseName = location.lastSegment().split("[.]")[0];
+                String documentBaseName = "";
+                if(location.lastSegment() != null && location.lastSegment().contains(".")) {
+                    documentBaseName = location.lastSegment().substring(0, location.lastSegment().lastIndexOf('.'));
+                }
+                else{
+                    documentBaseName = location.lastSegment();                    
+                }
 		int documentCount = documents.size();
 
 		switch (documentCount) {
