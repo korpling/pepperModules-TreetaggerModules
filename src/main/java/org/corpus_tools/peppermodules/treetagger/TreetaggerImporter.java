@@ -45,7 +45,7 @@ import com.google.common.base.Strings;
 @Component(name = "TreetaggerImporterComponent", factory = "PepperImporterComponentFactory")
 public class TreetaggerImporter extends PepperImporterImpl implements PepperImporter {
 	// ---------------------------------------------------------------------------------------
-	public static final String[] TREETAGGER_FILE_ENDINGS = { "treetagger", "tab", "tt", "txt" };
+	public static final String[] TREETAGGER_FILE_ENDINGS = { "treetagger", "tab", "tt", "txt", "xml" };
 	private static final Pattern TREETAGGER_MATCH_PATTERN = Pattern.compile("[a-zA-Z0-9]+(\t[a-zA-Z0-9]+)*");
 
 	public TreetaggerImporter() {
