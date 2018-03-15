@@ -99,6 +99,19 @@ The expected input file encoding defaults to "UTF-8" and is also definable in th
     </meta>
                     
 
+Span annotations may also be used to express pointing relations between spans. In this case, some attribute of each span must encode a unique identifier (`id` in the example below), and another attribute may be used to refer to this attribute to create the pointing relation (`head` in the example). A further attribute may specify an edge annotation (`func` in the example):
+
+<sent id="s1">
+<dep id="tok1" head="tok2" func="nsubj">
+I
+</dep>
+<dep id="tok2">
+read
+</dep>
+</sent>
+
+See the properties containing PointingRelation below for relevant configuration flags.
+
 ### Creating TreeTagger Representation
 
 The file´s content is converted to a TreeTagger document containing a list of tokens and spans. If there is a document marking SGML element in the input file, an annotation for each of it´s attribute-value-pairs is added to the TreeTagger document. For all other SGML elements, spans are created and annotations according to the element´s attribute-value-pairs are added. For each data row, a token is created. The token´s text attribute is set to the first column´s content. For each additional column, an annotation is created and added to the token. There are three different types of annotations: The POSAnnotation, used for part-of-speech annotations, the LemmaAnnotation, used for lemma annotations, and the AnyAnnotation, used for all user-defined annotations.
@@ -128,6 +141,8 @@ All the token´s forms, separated by space characters, will be contained in the 
 Each TreeTagger span is mapped to a SSpan, which is added to the SDocumentGraph. The SSpan´s name is set to the TreeTagger span´s name. The annotations on the TreeTagger span are mapped to SAnnotations and added to the SSpan. For each span, a SSpanningRelation between the span and all contained tokens is created. The SSpanningRelation is added to the SDocumentGraph as well.
 
 There are two switches concerning the annotations on the TreeTagger spans. The one of them concerns spans without any annotations and will add a SAnnotation, having the span´s name as name and as value, to the SSpan. The other one will do the same, but applies to all spans, regardless of the presence of annotations.
+
+Additionally, selected span attributes may be used to define annotated pointing relations with an id annotation, target annotation and optional annotation label.
 
 Properties
 ----------
@@ -196,13 +211,91 @@ The following table contains an overview of all usable properties to customize t
 <td align="left">String</td>
 <td align="left">optional</td>
 <td align="left">--</td>
+</tr>
 <tr class="odd">
 <td align="left">treetagger.input.replacementsInAnnos</td>
 <td align="left">Boolean</td>
 <td align="left">optional</td>
 <td align="left">true</td>
 </tr>
+
+
+<tr class="even">
+<td align="left">treetagger.input.makePointingRelations</td>
+<td align="left">Boolean</td>
+<td align="left">optional</td>
+<td align="left">false</td>
 </tr>
+<tr class="odd">
+<td align="left">treetagger.input.pointingRelationTargetAnnotation</td>
+<td align="left">String</td>
+<td align="left">optional</td>
+<td align="left">head</td>
+</tr>
+
+<tr class="even">
+<td align="left">treetagger.input.pointingRelationIDAnnotation</td>
+<td align="left">String</td>
+<td align="left">optional</td>
+<td align="left">id</td>
+</tr>
+
+<tr class="odd">
+<td align="left">treetagger.input.pointingRelationNamespace</td>
+<td align="left">String</td>
+<td align="left">optional</td>
+<td align="left">dep</td>
+</tr>
+
+<tr class="even">
+<td align="left">treetagger.input.pointingRelationType</td>
+<td align="left">String</td>
+<td align="left">optional</td>
+<td align="left">dep</td>
+</tr>
+
+<tr class="odd">
+<td align="left">treetagger.input.invertPointingRelations</td>
+<td align="left">Boolean</td>
+<td align="left">optional</td>
+<td align="left">true</td>
+</tr>
+
+<tr class="even">
+<td align="left">treetagger.input.pointingRelationEdgeAnnotation</td>
+<td align="left">String</td>
+<td align="left">optional</td>
+<td align="left">func</td>
+</tr>
+
+<tr class="odd">
+<td align="left">treetagger.input.pointingRelationSuppressID</td>
+<td align="left">Boolean</td>
+<td align="left">optional</td>
+<td align="left">true</td>
+</tr>
+
+<tr class="even">
+<td align="left">treetagger.input.pointingRelationSuppressTarget</td>
+<td align="left">Boolean</td>
+<td align="left">optional</td>
+<td align="left">true</td>
+</tr>
+
+<tr class="odd">
+<td align="left">treetagger.input.pointingRelationSuppressLabel</td>
+<td align="left">Boolean</td>
+<td align="left">optional</td>
+<td align="left">true</td>
+</tr>
+
+<tr class="even">
+<td align="left">treetagger.input.pointingRelationUseHash</td>
+<td align="left">Boolean</td>
+<td align="left">optional</td>
+<td align="left">true</td>
+</tr>
+
 
 </tbody>
 </table>
@@ -282,6 +375,50 @@ This property can be helpful including XML escapes in TT tokens. For example, if
 
 If true, make token replacement patterns apply to annotations as well. This means that a lemma like `&amp;` could be made to work in the same way as with treetagger.input.replaceTokens.
 
+
+#### treetagger.input.makePointingRelations
+
+If true, pointing relations will be considered for import based on the other pointing relation import settings below. Default: `FALSE`.
+
+#### treetagger.input.pointingRelationTargetAnnotation
+
+The span annotation marking the pointing relation target (or source if inverting). Default `head`.
+
+#### treetagger.input.pointingRelationIDAnnotation
+
+The span annotation marking the span ID to create pointing relations to (or from if inverting). Default `id`.
+
+#### treetagger.input.pointingRelationNamespace
+
+A namespace or Salt Layer name given to edges and their annotations. Default `dep`.
+
+#### treetagger.input.pointingRelationType
+
+The edge type to assign to pointing relations. Default `dep`.
+
+#### treetagger.input.invertPointingRelations
+
+If true, pointing relations are inverted (`head` -> `id` instead of `id` -> `head`). Since the most common application of pointing relations in TreeTagger format is dependency trees, this is set to **TRUE** by default. 
+
+#### treetagger.input.pointingRelationEdgeAnnotation
+
+A span annotation name marking an edge annotation. Default `func`.
+
+#### treetagger.input.pointingRelationSuppressID
+
+If true, the span annotation marking IDs is not imported as a span annotation, and is only used to determine pointing relation source/target. Default: `TRUE`.
+
+#### treetagger.input.pointingRelationSuppressTarget
+
+If true, the span annotation marking targets is not imported as a span annotation, and is only used to determine pointing relation source/target. Default: `TRUE`.
+
+#### treetagger.input.pointingRelationSuppressLabel
+
+If true, the span annotation marking edge label values is not imported as a span annotation, and is only used to determine pointing relation annotations. Default: `TRUE`.
+
+#### treetagger.input.pointingRelationUseHash
+
+If true, pointing relation targets starting with `#` will match IDs without the `#` (href style syntax); may be left on even if no hashtags are used. Default: `TRUE`.
 
 #<a name="details_ex"/>TreetaggerExporter
 Mapping to TreeTagger format
