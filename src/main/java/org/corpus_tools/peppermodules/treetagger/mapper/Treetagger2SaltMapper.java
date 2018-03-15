@@ -115,6 +115,7 @@ public class Treetagger2SaltMapper extends PepperMapperImpl implements PepperMap
 		String pointingEdgeAnno = this.getProps().getPointingEdgeAnno();
 		String pointingType = this.getProps().getPointingType();
 		String pointingNS = this.getProps().getPointingNS();
+		String spanAnnoNS = this.getProps().getSpanAnnotationNamespace();
 		boolean annotateAllSpansWithSpanName = this.getProps().getAnnotateAllSpansWithName();
 		boolean prefixSpanAnnotation = this.getProps().getPrefixSpanAnnotation();
 		String prefixSpanSeparator = this.getProps().getPrefixSpanSeparator();
@@ -179,12 +180,15 @@ public class Treetagger2SaltMapper extends PepperMapperImpl implements PepperMap
 					sSpan.setName(tSpan.getName());
 					List<Annotation> tAnnotations = tSpan.getAnnotations();
 					if ((annotateAllSpansWithSpanName) || ((tAnnotations.size() == 0) && (annotateUnannotatedSpans))) {
-						sSpan.createAnnotation(null, tSpan.getName().toLowerCase(), tSpan.getName().toLowerCase());
+						sSpan.createAnnotation(spanAnnoNS, tSpan.getName().toLowerCase(), tSpan.getName().toLowerCase());
 					}
 					for (int j = 0; j < tAnnotations.size(); j++) {
 						SAnnotation anno = this.createAnnotation(tSpan.getAnnotations().get(j));
 						if (prefixSpanAnnotation) {
 							anno.setName(tSpan.getName() + prefixSpanSeparator + anno.getName());
+						}
+						if (spanAnnoNS != null){
+							anno.setNamespace(spanAnnoNS);
 						}
 						// Create the span annotation, unless it is a pointing relation edge annotation
 						if (!(makePointingRelations && 

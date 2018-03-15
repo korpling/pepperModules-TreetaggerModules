@@ -296,6 +296,13 @@ The following table contains an overview of all usable properties to customize t
 <td align="left">true</td>
 </tr>
 
+<tr class="odd">
+<td align="left">treetagger.input.spanAnnotationNamespace</td>
+<td align="left">String</td>
+<td align="left">optional</td>
+<td align="left">--</td>
+</tr>
+
 
 </tbody>
 </table>
@@ -375,6 +382,10 @@ This property can be helpful including XML escapes in TT tokens. For example, if
 
 If true, make token replacement patterns apply to annotations as well. This means that a lemma like `&amp;` could be made to work in the same way as with treetagger.input.replaceTokens.
 
+
+#### treetagger.input.spanAnnotationNamespace
+
+Namespace to use for span annotations. Default `null` (if not set, defaults to built-in model behavior, e.g. `default_ns` in ANNISExporter).
 
 #### treetagger.input.makePointingRelations
 

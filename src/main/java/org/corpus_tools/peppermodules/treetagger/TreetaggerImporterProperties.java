@@ -57,6 +57,8 @@ public class TreetaggerImporterProperties extends PepperModuleProperties {
 
 	public static final String PROP_POINTING_RELATION_USE_HASHTAG = PREFIX + "pointingRelationUseHash";
 
+	public static final String PROP_SPAN_ANNO_NAMESPACE = PREFIX + "spanAnnotationNamespace";
+
 	public static final String PROP_ANNOTATE_ALL_SPANS_WITH_NAME = PREFIX + "annotateAllSpansWithSpanName";
 	/**
 	 * States the meta tag used to mark the TreeTagger document in the input
@@ -120,6 +122,8 @@ public class TreetaggerImporterProperties extends PepperModuleProperties {
 				false, false));
 		this.addProperty(new PepperModuleProperty<String>(PROP_META_TAG, String.class,
 				"States the meta tag used to mark the TreeTagger document in the input file(s).", "meta", false));
+		this.addProperty(new PepperModuleProperty<String>(PROP_SPAN_ANNO_NAMESPACE, String.class,
+				"Namespace to give to span annotations.", null, false));
 		this.addProperty(new PepperModuleProperty<String>(PROP_SEPARATOR_AFTER_TOKEN, String.class,
 				"Determines the separator which should be artificially added after a token, when mapping treetagger token to STextualDS in Salt. The default separator is a whitespace given by the character sequence \" \". Note, the separator sequence, must be surrunded by double quotes. To shut of the adding of a separator, just this property value to \"\"",
 				" ", false));
@@ -214,6 +218,10 @@ public class TreetaggerImporterProperties extends PepperModuleProperties {
 
 	public String getPointingType() {
 		return (String) this.getProperty(PROP_POINTING_RELATION_TYPE).getValue();
+	}
+
+	public String getSpanAnnotationNamespace() {
+		return (String) this.getProperty(PROP_SPAN_ANNO_NAMESPACE).getValue();
 	}
 
 	public String getPointingNS() {
