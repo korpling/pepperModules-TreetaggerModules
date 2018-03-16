@@ -35,6 +35,30 @@ public class TreetaggerImporterProperties extends PepperModuleProperties {
 
 	public static final String PROP_ANNOTATE_UNANNOTATED_SPANS = PREFIX + "annotateUnannotatedSpans";
 
+	public static final String PROP_MAKE_POINTING_RELATIONS = PREFIX + "makePointingRelations";
+
+	public static final String PROP_POINTING_RELATION_TARGET_ANNOTATION = PREFIX + "pointingRelationTargetAnnotation";
+	
+	public static final String PROP_POINTING_RELATION_ID_ANNOTATION = PREFIX + "pointingRelationIDAnnotation";
+	
+	public static final String PROP_POINTING_RELATION_NS = PREFIX + "pointingRelationNamespace";
+
+	public static final String PROP_POINTING_RELATION_TYPE = PREFIX + "pointingRelationType";
+
+	public static final String PROP_INVERT_POINTING_RELATIONS = PREFIX + "invertPointingRelations";
+
+	public static final String PROP_POINTING_RELATION_EDGE_ANNOTATION = PREFIX + "pointingRelationEdgeAnnotation";
+
+	public static final String PROP_POINTING_RELATION_SUPPRESS_ID = PREFIX + "pointingRelationSuppressID";
+
+	public static final String PROP_POINTING_RELATION_SUPPRESS_TARGET = PREFIX + "pointingRelationSuppressTarget";
+
+	public static final String PROP_POINTING_RELATION_SUPPRESS_LABEL = PREFIX + "pointingRelationSuppressLabel";
+
+	public static final String PROP_POINTING_RELATION_USE_HASHTAG = PREFIX + "pointingRelationUseHash";
+
+	public static final String PROP_SPAN_ANNO_NAMESPACE = PREFIX + "spanAnnotationNamespace";
+
 	public static final String PROP_ANNOTATE_ALL_SPANS_WITH_NAME = PREFIX + "annotateAllSpansWithSpanName";
 	/**
 	 * States the meta tag used to mark the TreeTagger document in the input
@@ -98,6 +122,8 @@ public class TreetaggerImporterProperties extends PepperModuleProperties {
 				false, false));
 		this.addProperty(new PepperModuleProperty<String>(PROP_META_TAG, String.class,
 				"States the meta tag used to mark the TreeTagger document in the input file(s).", "meta", false));
+		this.addProperty(new PepperModuleProperty<String>(PROP_SPAN_ANNO_NAMESPACE, String.class,
+				"Namespace to give to span annotations.", null, false));
 		this.addProperty(new PepperModuleProperty<String>(PROP_SEPARATOR_AFTER_TOKEN, String.class,
 				"Determines the separator which should be artificially added after a token, when mapping treetagger token to STextualDS in Salt. The default separator is a whitespace given by the character sequence \" \". Note, the separator sequence, must be surrunded by double quotes. To shut of the adding of a separator, just this property value to \"\"",
 				" ", false));
@@ -116,10 +142,94 @@ public class TreetaggerImporterProperties extends PepperModuleProperties {
 		this.addProperty(new PepperModuleProperty<String>(PROP_COLUMN_NAMES, String.class,
 				"Property to determine the column names. The value is a comma separated list, starting with the value 'tok'. The default value is 'tok, pos, lemma'.",
 				"tok, pos, lemma", false));
+		this.addProperty(new PepperModuleProperty<Boolean>(PROP_MAKE_POINTING_RELATIONS, Boolean.class,
+				"If set true, the importer attempts to read pointing relations from selected span annotations.",
+				false, false));
+		this.addProperty(new PepperModuleProperty<String>(PROP_POINTING_RELATION_TARGET_ANNOTATION, String.class,
+				"The name of a span annotation attribute containing an attribute encoding the id of target spans",
+				"head", false));
+		this.addProperty(new PepperModuleProperty<String>(PROP_POINTING_RELATION_ID_ANNOTATION, String.class,
+				"The name of a span annotation attribute containing the id referred to in target annotations",
+				"id", false));
+		this.addProperty(new PepperModuleProperty<String>(PROP_POINTING_RELATION_TYPE, String.class,
+				"The edge type to assign to pointing relations.",
+				"dep", false));
+		this.addProperty(new PepperModuleProperty<String>(PROP_POINTING_RELATION_NS, String.class,
+				"The namespace to assign to pointing relations.",
+				"dep", false));
+		this.addProperty(new PepperModuleProperty<String>(PROP_POINTING_RELATION_EDGE_ANNOTATION, String.class,
+				"The name of a span annotation attribute containing annotation labels to add as edge annotations to pointing relations",
+				"func", false));
+		this.addProperty(new PepperModuleProperty<Boolean>(PROP_INVERT_POINTING_RELATIONS, Boolean.class,
+				"If set true, pointing relations point towards spans with a pointing relation target annotation, instead of from them.",
+				true, false));
+		this.addProperty(new PepperModuleProperty<Boolean>(PROP_POINTING_RELATION_USE_HASHTAG, Boolean.class,
+				"If set true, pointing relations targets with hashtag are interpreted as href syntax (hashtag is ignored in target).",
+				true, false));
+		this.addProperty(new PepperModuleProperty<Boolean>(PROP_POINTING_RELATION_SUPPRESS_ID, Boolean.class,
+			"If set true, ID annotation of pointing relation markers is not imported as span annotation.",
+			true, false));
+
+		this.addProperty(new PepperModuleProperty<Boolean>(PROP_POINTING_RELATION_SUPPRESS_TARGET, Boolean.class,
+			"If set true, target annotation of pointing relation markers is not imported as span annotation.",
+			true, false));
+
+		this.addProperty(new PepperModuleProperty<Boolean>(PROP_POINTING_RELATION_SUPPRESS_LABEL, Boolean.class,
+			"If set true, label annotation of pointing relation markers is not imported as span annotation.",
+			true, false));
+
 	}
 
 	public Boolean getAnnotateUnannotatedSpans() {
 		return ((Boolean) this.getProperty(PROP_ANNOTATE_UNANNOTATED_SPANS).getValue());
+	}
+
+	public Boolean getMakePointingRelations() {
+		return ((Boolean) this.getProperty(PROP_MAKE_POINTING_RELATIONS).getValue());
+	}
+	
+	public Boolean getInvertPointingRelations() {
+		return ((Boolean) this.getProperty(PROP_INVERT_POINTING_RELATIONS).getValue());
+	}
+
+	public Boolean getSuppressPRID() {
+		return ((Boolean) this.getProperty(PROP_POINTING_RELATION_SUPPRESS_ID).getValue());
+	}
+
+	public Boolean getPRUseHash() {
+		return ((Boolean) this.getProperty(PROP_POINTING_RELATION_USE_HASHTAG).getValue());
+	}
+
+	public Boolean getSuppressPRTarget() {
+		return ((Boolean) this.getProperty(PROP_POINTING_RELATION_SUPPRESS_TARGET).getValue());
+	}
+
+	public Boolean getSuppressPRLabel() {
+		return ((Boolean) this.getProperty(PROP_POINTING_RELATION_SUPPRESS_LABEL).getValue());
+	}
+
+	public String getPointingTargetAnno() {
+		return (String) this.getProperty(PROP_POINTING_RELATION_TARGET_ANNOTATION).getValue();
+	}
+
+	public String getPointingIDAnno() {
+		return (String) this.getProperty(PROP_POINTING_RELATION_ID_ANNOTATION).getValue();
+	}
+
+	public String getPointingType() {
+		return (String) this.getProperty(PROP_POINTING_RELATION_TYPE).getValue();
+	}
+
+	public String getSpanAnnotationNamespace() {
+		return (String) this.getProperty(PROP_SPAN_ANNO_NAMESPACE).getValue();
+	}
+
+	public String getPointingNS() {
+		return (String) this.getProperty(PROP_POINTING_RELATION_NS).getValue();
+	}
+
+	public String getPointingEdgeAnno() {
+		return (String) this.getProperty(PROP_POINTING_RELATION_EDGE_ANNOTATION).getValue();
 	}
 
 	public Boolean getAnnotateAllSpansWithName() {
