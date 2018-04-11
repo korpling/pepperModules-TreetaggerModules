@@ -221,7 +221,7 @@ public class Deserializer {
 		final Map<String, String> attributeValuePairs = XMLUtils.extractAttributeValuePairs(tag);
 		for (Entry<String, String> attributeValuePair : attributeValuePairs.entrySet()) {
 			final Annotation annotation = TreetaggerFactory.eINSTANCE.createAnnotation(attributeValuePair.getKey(),
-					attributeValuePair.getValue());
+					attributeValuePair.getValue().replace("&lt;", "<").replace("&gt;",">").replace("&amp;","&"));
 			annotatableElement.getAnnotations().add(annotation);
 		}
 	}
