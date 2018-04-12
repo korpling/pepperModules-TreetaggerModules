@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
+import org.apache.commons.lang3.ArrayUtils;
 
 import org.corpus_tools.pepper.common.DOCUMENT_STATUS;
 import org.corpus_tools.pepper.impl.PepperMapperImpl;
@@ -119,6 +120,7 @@ public class Treetagger2SaltMapper extends PepperMapperImpl implements PepperMap
 		boolean annotateAllSpansWithSpanName = this.getProps().getAnnotateAllSpansWithName();
 		boolean prefixSpanAnnotation = this.getProps().getPrefixSpanAnnotation();
 		String prefixSpanSeparator = this.getProps().getPrefixSpanSeparator();
+		String[] separateSpanAnnoNames = this.getProps().getSeparateSpanAnnos();
 
 		// creating and adding STextualDS
 		STextualDS sText = SaltFactory.createSTextualDS();
@@ -264,13 +266,48 @@ public class Treetagger2SaltMapper extends PepperMapperImpl implements PepperMap
 					rel.setType(pointingType);
 					rel.addLayer(prLayer);
 					sDocument.getDocumentGraph().addRelation(rel);
-					if (true){
-						//throw new PepperModuleDataException(this,"Added rel:" + trgID +"->"+pointingNS+"::"+pointingEdgeAnno+"=" +edgeAnno);
-					}
 
 				}
 				else{
 					throw new PepperModuleDataException(this,"Input error: pointing relation target ID " + pointingTargetAnno + "=" + trgID + " refers to a non-existent span annotation "+pointingIDAnno+"="+ trgID +"\n" );
+				}
+			}
+		}
+		
+		if (separateSpanAnnoNames!=null){
+			for (SSpan span : spanTable.values()){
+				if (span.getAnnotations().size() > 1){
+					int newAnnoNameCounter = 0;
+					List<String[]> toRemove = new ArrayList<>();
+					for (SAnnotation anno : span.getAnnotations()){
+						if (true){
+						//throw new PepperModuleDataException(this,"Checking if " +anno.getName() + " is in " + separateSpanAnnoNames[0]);
+						}
+
+						if (ArrayUtils.contains(separateSpanAnnoNames,anno.getName())){
+							// Clone the span
+							newAnnoNameCounter++;
+							SSpan newSpan = SaltFactory.createSSpan();
+							newSpan.setGraph(sDocument.getDocumentGraph());
+							newSpan.setName(span.getName() + "_" + Integer.toString(newAnnoNameCounter));
+
+							// Add annotation to clone
+							newSpan.createAnnotation(anno.getNamespace(), anno.getName(), anno.getValue());
+							String[] rem = new String[]{anno.getNamespace(), anno.getName()};
+							toRemove.add(rem);
+							List<SToken> spanToks = span.getGraph().getOverlappedTokens(span);
+							for (SToken tok : spanToks){
+								SSpanningRelation sSpanningRelation = SaltFactory.createSSpanningRelation();
+								sSpanningRelation.setSource(newSpan);
+								sSpanningRelation.setTarget(tok);
+								sSpanningRelation.setGraph(sDocument.getDocumentGraph());
+							}
+						}
+					}
+					// Remove cloned annotations from original
+					for (String[] rem : toRemove){
+						span.removeLabel(rem[0], rem[1]);
+					}
 				}
 			}
 		}

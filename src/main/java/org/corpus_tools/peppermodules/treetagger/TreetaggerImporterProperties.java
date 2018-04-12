@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.regex.Pattern;
 
 import org.corpus_tools.pepper.modules.PepperModuleProperties;
@@ -58,6 +59,8 @@ public class TreetaggerImporterProperties extends PepperModuleProperties {
 	public static final String PROP_POINTING_RELATION_USE_HASHTAG = PREFIX + "pointingRelationUseHash";
 
 	public static final String PROP_SPAN_ANNO_NAMESPACE = PREFIX + "spanAnnotationNamespace";
+
+	public static final String PROP_SEPARATE_SPAN_ANNOS = PREFIX + "separateSpanAnnotations";
 
 	public static final String PROP_ANNOTATE_ALL_SPANS_WITH_NAME = PREFIX + "annotateAllSpansWithSpanName";
 	/**
@@ -124,6 +127,8 @@ public class TreetaggerImporterProperties extends PepperModuleProperties {
 				"States the meta tag used to mark the TreeTagger document in the input file(s).", "meta", false));
 		this.addProperty(new PepperModuleProperty<String>(PROP_SPAN_ANNO_NAMESPACE, String.class,
 				"Namespace to give to span annotations.", null, false));
+		this.addProperty(new PepperModuleProperty<String>(PROP_SEPARATE_SPAN_ANNOS, String.class,
+				"Comma separated list of span attribute names for which separate nodes should be generated", null, false));
 		this.addProperty(new PepperModuleProperty<String>(PROP_SEPARATOR_AFTER_TOKEN, String.class,
 				"Determines the separator which should be artificially added after a token, when mapping treetagger token to STextualDS in Salt. The default separator is a whitespace given by the character sequence \" \". Note, the separator sequence, must be surrunded by double quotes. To shut of the adding of a separator, just this property value to \"\"",
 				" ", false));
@@ -210,6 +215,15 @@ public class TreetaggerImporterProperties extends PepperModuleProperties {
 
 	public String getPointingTargetAnno() {
 		return (String) this.getProperty(PROP_POINTING_RELATION_TARGET_ANNOTATION).getValue();
+	}
+
+	public String[] getSeparateSpanAnnos() {
+		String annoList = (String) this.getProperty(PROP_SEPARATE_SPAN_ANNOS).getValue();
+		String[] annos = null;
+		if (annoList != null){
+			annos = annoList.split(",");
+		}
+		return annos;
 	}
 
 	public String getPointingIDAnno() {

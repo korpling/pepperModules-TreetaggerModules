@@ -303,6 +303,12 @@ The following table contains an overview of all usable properties to customize t
 <td align="left">--</td>
 </tr>
 
+<tr class="even">
+<td align="left">treetagger.input.separateSpanAnnotations</td>
+<td align="left">comma separated Strings</td>
+<td align="left">optional</td>
+<td align="left">--</td>
+</tr>
 
 </tbody>
 </table>
@@ -430,6 +436,11 @@ If true, the span annotation marking edge label values is not imported as a span
 #### treetagger.input.pointingRelationUseHash
 
 If true, pointing relation targets starting with `#` will match IDs without the `#` (href style syntax); may be left on even if no hashtags are used. Default: `TRUE`.
+
+#### treetagger.input.separateSpanAnnotations
+
+Optional comma separated list of span attribute names for which new spans will be created, resulting in separate nodes in the graph, each with their own annotation. Default: `null`.
+
 
 #<a name="details_ex"/>TreetaggerExporter
 Mapping to TreeTagger format
