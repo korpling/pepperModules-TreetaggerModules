@@ -143,6 +143,7 @@ public class Treetagger2SaltMapper extends PepperMapperImpl implements PepperMap
 		int start = 0;
 		int end = 0;
 		Map<String, String> replMap = ((TreetaggerImporterProperties) getProperties()).getReplacementMapping();
+		Map<String, SLayer> layerMap = new Hashtable<>();
 
 		// for (Token tToken: tTokens) {
 		for (int tokenIndex = 0; tokenIndex < tTokens.size(); tokenIndex++) {
@@ -177,6 +178,21 @@ public class Treetagger2SaltMapper extends PepperMapperImpl implements PepperMap
 				SSpan sSpan = null;
 				if (!spanTable.containsKey(tSpan)) {
 					sSpan = SaltFactory.createSSpan();
+					if (tSpan.getName().contains(":")) { // span has explicit namespace in tag name
+						String ns = tSpan.getName().split(":")[0];
+						SLayer lyr = null;
+						if (layerMap.containsKey(ns)){
+							lyr = layerMap.get(ns);
+						}
+						else{
+							lyr = SaltFactory.createSLayer();
+							lyr.setName(ns);
+							lyr.setGraph(getDocument().getDocumentGraph());
+							layerMap.put(ns, lyr);
+						}
+						sSpan.addLayer(lyr);
+					}
+					
 					spanTable.put(tSpan, sSpan);
 					sSpan.setGraph(sDocument.getDocumentGraph());
 					sSpan.setName(tSpan.getName());
