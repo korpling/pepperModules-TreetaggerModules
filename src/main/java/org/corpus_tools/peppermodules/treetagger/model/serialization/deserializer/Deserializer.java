@@ -117,13 +117,13 @@ public class Deserializer {
 	}
 
 	private String extractDocumentName(URI location) {
-		 String documentBaseName = "";
-         if(location.lastSegment() != null && location.lastSegment().contains(".")) {
-             documentBaseName = location.lastSegment().substring(0, location.lastSegment().lastIndexOf('.'));
-         }
-         else{
-             documentBaseName = location.lastSegment();
-         }
+		String documentBaseName = "";
+		if(location.lastSegment() != null && location.lastSegment().contains(".")) {
+			documentBaseName = location.lastSegment().substring(0, location.lastSegment().lastIndexOf('.'));
+		}
+		else{
+			documentBaseName = location.lastSegment();
+		}
 		return documentBaseName;
 	}
 
