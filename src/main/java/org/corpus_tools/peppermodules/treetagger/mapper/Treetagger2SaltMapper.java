@@ -18,7 +18,9 @@
 package org.corpus_tools.peppermodules.treetagger.mapper;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Hashtable;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import org.apache.commons.lang3.ArrayUtils;
@@ -106,16 +108,16 @@ public class Treetagger2SaltMapper extends PepperMapperImpl implements PepperMap
 	protected STextualDS createSTextualDS(List<Token> tTokens, SDocument sDocument) {
 		boolean annotateUnannotatedSpans = this.getProps().getAnnotateUnannotatedSpans();
 		boolean makePointingRelations = this.getProps().getMakePointingRelations();
-		boolean invertPointingRelations = this.getProps().getInvertPointingRelations();
+		List<Boolean> invertPointingRelationsList = this.getProps().getInvertPointingRelations();
 		boolean suppressPointingRelationID = this.getProps().getSuppressPRID();
 		boolean suppressPointingRelationTarget = this.getProps().getSuppressPRTarget();
 		boolean suppressPointingRelationLabel = this.getProps().getSuppressPRLabel();
 		boolean usePRHash = this.getProps().getPRUseHash();
-		String pointingTargetAnno = this.getProps().getPointingTargetAnno();
-		String pointingIDAnno = this.getProps().getPointingIDAnno();
-		String pointingEdgeAnno = this.getProps().getPointingEdgeAnno();
-		String pointingType = this.getProps().getPointingType();
-		String pointingNS = this.getProps().getPointingNS();
+		List<String> pointingTargetAnnoList = this.getProps().getPointingTargetAnno();
+		List<String> pointingIDAnnoList = this.getProps().getPointingIDAnno();
+		List<String> pointingEdgeAnnoList = this.getProps().getPointingEdgeAnno();
+		List<String> pointingTypeList = this.getProps().getPointingType();
+		List<String> pointingNSList = this.getProps().getPointingNS();
 		String spanAnnoNS = this.getProps().getSpanAnnotationNamespace();
 		boolean annotateAllSpansWithSpanName = this.getProps().getAnnotateAllSpansWithName();
 		boolean prefixSpanAnnotation = this.getProps().getPrefixSpanAnnotation();
@@ -126,17 +128,29 @@ public class Treetagger2SaltMapper extends PepperMapperImpl implements PepperMap
 		STextualDS sText = SaltFactory.createSTextualDS();
 		sDocument.getDocumentGraph().addNode(sText);
 
-		SLayer prLayer = SaltFactory.createSLayer();
+		List<SLayer> prLayers = new LinkedList<>();
+		List<String> prLayerNames = new LinkedList<>();
 		if (makePointingRelations){ // Create a layer to put PRs in
-            prLayer.setName(pointingNS);
-            prLayer.setGraph(getDocument().getDocumentGraph());
+			for (String lname : pointingNSList){
+				SLayer prLayer = SaltFactory.createSLayer();
+				prLayer.setName(lname);
+				prLayer.setGraph(getDocument().getDocumentGraph());
+				prLayers.add(prLayer);
+				prLayerNames.add(lname);
+			}
 		}
 		
 		Hashtable<Span, SSpan> spanTable = new Hashtable<Span, SSpan>();
 
-		
-		Hashtable<SSpan,String[]> prTable = new Hashtable<>(); // Maps SSpans to a list containing [target, edge-anno]
-		Hashtable<String,SSpan> id2span = new Hashtable<>(); // Maps ids to SSpan
+		// prTable is a list of Hashtables, one per type of pointing relation in comma-separated PR property values
+		List<Hashtable<SSpan,String[]>> prTableList = new LinkedList<>(); // Maps SSpans to a list containing [target, edge-anno]
+		List<Hashtable<String,SSpan>> id2spanList = new LinkedList<>(); // Maps ids to SSpan
+		for (int i=0;i<pointingTargetAnnoList.size();i++){
+				Hashtable<SSpan,String[]> tab = new Hashtable<>();
+				Hashtable<String,SSpan> spantab = new Hashtable<>();
+				prTableList.add(tab);
+				id2spanList.add(spantab);
+		}
 
 		
 		String text = null;
@@ -209,37 +223,48 @@ public class Treetagger2SaltMapper extends PepperMapperImpl implements PepperMap
 							anno.setNamespace(spanAnnoNS);
 						}
 						// Create the span annotation, unless it is a pointing relation edge annotation
-						if (!(makePointingRelations && 
-							((anno.getName().equals(pointingTargetAnno) && suppressPointingRelationTarget) || 
-							(anno.getName().equals(pointingEdgeAnno)&& suppressPointingRelationLabel)|| 
-							(anno.getName().equals(pointingIDAnno) && suppressPointingRelationID ))))
-						{
-							sSpan.addAnnotation(anno);
-						}
-						if (makePointingRelations && (anno.getName().equals(pointingTargetAnno) || 
-							anno.getName().equals(pointingEdgeAnno) || 
-							anno.getName().equals(pointingIDAnno) ))
-						{
-							if (!prTable.containsKey(sSpan)){ // Initialize PR entry for this sspan
-								String[] initPR = new String[2];
-								prTable.put(sSpan,initPR);
+						// Check for each set of pointing relation instructions if multiple comma separated values were specified
+						for (int k=0;k<pointingTargetAnnoList.size();k++){
+							String pointingTargetAnno = pointingTargetAnnoList.get(k);
+							String pointingEdgeAnno = pointingEdgeAnnoList.get(k);
+							String pointingIDAnno = pointingIDAnnoList.get(k);
+							Hashtable<SSpan,String[]> prTable = prTableList.get(k);
+							Hashtable<String,SSpan> id2span = id2spanList.get(k);
+							if (!
+								(makePointingRelations && 
+									((pointingTargetAnnoList.contains(anno.getName()) && suppressPointingRelationTarget) || 
+									(pointingEdgeAnnoList.contains(anno.getName())&& suppressPointingRelationLabel)|| 
+									(pointingIDAnnoList.contains(anno.getName()) && suppressPointingRelationID ))
+								)
+								)
+							{								
+								sSpan.addAnnotation(anno);
 							}
-							String[] prInfo = prTable.get(sSpan);							
-							if (anno.getName().equals(pointingTargetAnno)){ // Target marker
-								prInfo[0] = anno.getValue_STEXT();
-								if (prInfo[0].length() > 0){
-									if (usePRHash && prInfo[0].startsWith("#")){  // Trim # if using href syntax
-										prInfo[0] = prInfo[0].substring(1);
-									}
+							if (makePointingRelations && (anno.getName().equals(pointingTargetAnno) || 
+								anno.getName().equals(pointingEdgeAnno) || 
+								anno.getName().equals(pointingIDAnno) ))
+							{
+								if (!prTable.containsKey(sSpan)){ // Initialize PR entry for this sspan
+									String[] initPR = new String[2];
+									prTable.put(sSpan,initPR);
 								}
-								prTable.put(sSpan,prInfo);
-							}
-							else if (anno.getName().equals(pointingIDAnno)){ // ID marker
-								id2span.put(anno.getValue_STEXT(),sSpan);
-							}
-							else{ // Edge annotation
-								prInfo[1] = anno.getValue_STEXT();
-								prTable.put(sSpan,prInfo);								
+								String[] prInfo = prTable.get(sSpan);							
+								if (anno.getName().equals(pointingTargetAnno)){ // Target marker
+									prInfo[0] = anno.getValue_STEXT();
+									if (prInfo[0].length() > 0){
+										if (usePRHash && prInfo[0].startsWith("#")){  // Trim # if using href syntax
+											prInfo[0] = prInfo[0].substring(1);
+										}
+									}
+									prTable.put(sSpan,prInfo);
+								}
+								else if (anno.getName().equals(pointingIDAnno)){ // ID marker
+									id2span.put(anno.getValue_STEXT(),sSpan);
+								}
+								else{ // Edge annotation
+									prInfo[1] = anno.getValue_STEXT();
+									prTable.put(sSpan,prInfo);								
+								}
 							}
 						}
 					}
@@ -256,50 +281,62 @@ public class Treetagger2SaltMapper extends PepperMapperImpl implements PepperMap
 			sDocument.getDocumentGraph().addRelation(sTextRel);
 		}
 
-		for (SSpan src : prTable.keySet()){
-			String[] prInfo = prTable.get(src);
-			String trgID = prInfo[0];
-			String edgeAnno = prInfo[1];
-			if (trgID != null){
-				if (id2span.containsKey(trgID)){
-					SSpan trg = id2span.get(trgID);
-					SPointingRelation rel = SaltFactory.createSPointingRelation();
-					if (edgeAnno != null && edgeAnno.length() > 0){
-						SAnnotation anno = SaltFactory.createSAnnotation();
-						anno.setName(pointingEdgeAnno);
-						anno.setValue(edgeAnno);
-						anno.setNamespace(pointingNS);
-						rel.addAnnotation(anno);
-					}
-					if (!invertPointingRelations){
-						rel.setSource(src);
-						rel.setTarget(trg);
+		// Check prTable by each pr instruction set (possibly multiple sets were specified with comma-separated property values)
+		for (int i=0;i<pointingTargetAnnoList.size();i++){
+			String pointingTargetAnno = pointingTargetAnnoList.get(i);
+			String pointingEdgeAnno = pointingEdgeAnnoList.get(i);
+			String pointingIDAnno = pointingIDAnnoList.get(i);
+			Hashtable<SSpan,String[]> prTable = prTableList.get(i);
+			Hashtable<String,SSpan> id2span = id2spanList.get(i);
+			String pointingNS = "";
+			SLayer prLayer = null;
+			if (prLayerNames.size() > i){
+				pointingNS = prLayerNames.get(i);
+				prLayer = prLayers.get(i);
+			}
+			String pointingType = pointingTypeList.get(i);
+			boolean invertPointingRelations = invertPointingRelationsList.get(i);
+
+			for (SSpan src : prTable.keySet()){
+				String[] prInfo = prTable.get(src);
+				String trgID = prInfo[0];
+				String edgeAnno = prInfo[1];
+				if (trgID != null){
+					if (id2span.containsKey(trgID)){
+						SSpan trg = id2span.get(trgID);
+						SPointingRelation rel = SaltFactory.createSPointingRelation();
+						if (edgeAnno != null && edgeAnno.length() > 0){
+							SAnnotation anno = SaltFactory.createSAnnotation();
+							anno.setName(pointingEdgeAnno);
+							anno.setValue(edgeAnno);
+							anno.setNamespace(pointingNS);
+							rel.addAnnotation(anno);
+						}
+						if (!invertPointingRelations){
+							rel.setSource(src);
+							rel.setTarget(trg);
+						}
+						else{
+							rel.setSource(trg);
+							rel.setTarget(src);
+						}
+						rel.setType(pointingType);
+						rel.addLayer(prLayer);
+						sDocument.getDocumentGraph().addRelation(rel);
+
 					}
 					else{
-						rel.setSource(trg);
-						rel.setTarget(src);
+						throw new PepperModuleDataException(this,"Input error: pointing relation target ID " + pointingTargetAnno + "=" + trgID + " refers to a non-existent span annotation "+pointingIDAnno+"="+ trgID +"\n" );
 					}
-					rel.setType(pointingType);
-					rel.addLayer(prLayer);
-					sDocument.getDocumentGraph().addRelation(rel);
-
-				}
-				else{
-					throw new PepperModuleDataException(this,"Input error: pointing relation target ID " + pointingTargetAnno + "=" + trgID + " refers to a non-existent span annotation "+pointingIDAnno+"="+ trgID +"\n" );
 				}
 			}
 		}
-		
 		if (separateSpanAnnoNames!=null){
 			for (SSpan span : spanTable.values()){
 				if (span.getAnnotations().size() > 1){
 					int newAnnoNameCounter = 0;
 					List<String[]> toRemove = new ArrayList<>();
 					for (SAnnotation anno : span.getAnnotations()){
-						if (true){
-						//throw new PepperModuleDataException(this,"Checking if " +anno.getName() + " is in " + separateSpanAnnoNames[0]);
-						}
-
 						if (ArrayUtils.contains(separateSpanAnnoNames,anno.getName())){
 							// Clone the span
 							newAnnoNameCounter++;
