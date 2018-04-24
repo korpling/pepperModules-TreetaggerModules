@@ -117,7 +117,14 @@ public class Deserializer {
 	}
 
 	private String extractDocumentName(URI location) {
-		return location.lastSegment().split("[.]")[0];
+		 String documentBaseName = "";
+         if(location.lastSegment() != null && location.lastSegment().contains(".")) {
+             documentBaseName = location.lastSegment().substring(0, location.lastSegment().lastIndexOf('.'));
+         }
+         else{
+             documentBaseName = location.lastSegment();
+         }
+		return documentBaseName;
 	}
 
 	private void mapLine(String line, long lineNr) {
