@@ -149,6 +149,8 @@ Properties
 
 The following table contains an overview of all usable properties to customize the behavior of this pepper module. The following section contains a brief description to each single property and describes the resulting differences in the mapping to the Salt model.
 
+Note that if any comma separated properties are used to generate multiple types of pointing relations (e.g. dependencies **and** coreference annotations in the same document), then all pointing relation properties that can carry comma separated values must contain **exactly the same number** of comma separated values.
+
 <table>
 <caption>properties to customize importer behavior</caption>
 <col width="32%" />
@@ -228,42 +230,42 @@ The following table contains an overview of all usable properties to customize t
 </tr>
 <tr class="odd">
 <td align="left">treetagger.input.pointingRelationTargetAnnotation</td>
-<td align="left">String</td>
+<td align="left">comma separated Strings</td>
 <td align="left">optional</td>
 <td align="left">head</td>
 </tr>
 
 <tr class="even">
 <td align="left">treetagger.input.pointingRelationIDAnnotation</td>
-<td align="left">String</td>
+<td align="left">comma separated Strings</td>
 <td align="left">optional</td>
 <td align="left">id</td>
 </tr>
 
 <tr class="odd">
 <td align="left">treetagger.input.pointingRelationNamespace</td>
-<td align="left">String</td>
+<td align="left">comma separated Strings</td>
 <td align="left">optional</td>
 <td align="left">dep</td>
 </tr>
 
 <tr class="even">
 <td align="left">treetagger.input.pointingRelationType</td>
-<td align="left">String</td>
+<td align="left">comma separated Strings</td>
 <td align="left">optional</td>
 <td align="left">dep</td>
 </tr>
 
 <tr class="odd">
 <td align="left">treetagger.input.invertPointingRelations</td>
-<td align="left">Boolean</td>
+<td align="left">comma separated booleans</td>
 <td align="left">optional</td>
 <td align="left">true</td>
 </tr>
 
 <tr class="even">
 <td align="left">treetagger.input.pointingRelationEdgeAnnotation</td>
-<td align="left">String</td>
+<td align="left">comma separated Strings</td>
 <td align="left">optional</td>
 <td align="left">func</td>
 </tr>
@@ -388,7 +390,6 @@ This property can be helpful including XML escapes in TT tokens. For example, if
 
 If true, make token replacement patterns apply to annotations as well. This means that a lemma like `&amp;` could be made to work in the same way as with treetagger.input.replaceTokens.
 
-
 #### treetagger.input.spanAnnotationNamespace
 
 Namespace to use for span annotations. Default `null` (if not set, defaults to built-in model behavior, e.g. `default_ns` in ANNISExporter).
@@ -399,27 +400,27 @@ If true, pointing relations will be considered for import based on the other poi
 
 #### treetagger.input.pointingRelationTargetAnnotation
 
-The span annotation marking the pointing relation target (or source if inverting). Default `head`.
+The span annotation marking the pointing relation target (or source if inverting). If creating multiple types of pointing relations, use comma separated values (e.g. `head,target`). Default `head`.
 
 #### treetagger.input.pointingRelationIDAnnotation
 
-The span annotation marking the span ID to create pointing relations to (or from if inverting). Default `id`.
+The span annotation marking the span ID to create pointing relations to (or from if inverting). If creating multiple types of pointing relations, use comma separated values (e.g. `id,xml:id`). Default `id`.
 
 #### treetagger.input.pointingRelationNamespace
 
-A namespace or Salt Layer name given to edges and their annotations. Default `dep`.
+A namespace or Salt Layer name given to edges and their annotations. If creating multiple types of pointing relations, use comma separated values (e.g. `dep,coref`). Default `dep`.
 
 #### treetagger.input.pointingRelationType
 
-The edge type to assign to pointing relations. Default `dep`.
+The edge type to assign to pointing relations. If creating multiple types of pointing relations, use comma separated values (e.g. `dep,coref`). Default `dep`.
 
 #### treetagger.input.invertPointingRelations
 
-If true, pointing relations are inverted (`head` -> `id` instead of `id` -> `head`). Since the most common application of pointing relations in TreeTagger format is dependency trees, this is set to **TRUE** by default. 
+If true, pointing relations are inverted (`head` -> `id` instead of `id` -> `head`). Since the most common application of pointing relations in TreeTagger format is dependency trees, this is set to **TRUE** by default. If creating multiple types of pointing relations, use comma separated values (e.g. `TRUE,FALSE`). 
 
 #### treetagger.input.pointingRelationEdgeAnnotation
 
-A span annotation name marking an edge annotation. Default `func`.
+A span annotation name marking an edge annotation. If creating multiple types of pointing relations, use comma separated values (e.g. `func,type`). Default `func`.
 
 #### treetagger.input.pointingRelationSuppressID
 

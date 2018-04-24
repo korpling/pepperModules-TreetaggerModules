@@ -19,6 +19,7 @@ package org.corpus_tools.peppermodules.treetagger;
 
 import java.util.ArrayList;
 import java.util.Hashtable;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -165,9 +166,9 @@ public class TreetaggerImporterProperties extends PepperModuleProperties {
 		this.addProperty(new PepperModuleProperty<String>(PROP_POINTING_RELATION_EDGE_ANNOTATION, String.class,
 				"The name of a span annotation attribute containing annotation labels to add as edge annotations to pointing relations",
 				"func", false));
-		this.addProperty(new PepperModuleProperty<Boolean>(PROP_INVERT_POINTING_RELATIONS, Boolean.class,
-				"If set true, pointing relations point towards spans with a pointing relation target annotation, instead of from them.",
-				true, false));
+		this.addProperty(new PepperModuleProperty<String>(PROP_INVERT_POINTING_RELATIONS, String.class,
+				"If set to 'true', pointing relations point towards spans with a pointing relation target annotation, instead of from them.",
+				"true", false));
 		this.addProperty(new PepperModuleProperty<Boolean>(PROP_POINTING_RELATION_USE_HASHTAG, Boolean.class,
 				"If set true, pointing relations targets with hashtag are interpreted as href syntax (hashtag is ignored in target).",
 				true, false));
@@ -193,8 +194,19 @@ public class TreetaggerImporterProperties extends PepperModuleProperties {
 		return ((Boolean) this.getProperty(PROP_MAKE_POINTING_RELATIONS).getValue());
 	}
 	
-	public Boolean getInvertPointingRelations() {
-		return ((Boolean) this.getProperty(PROP_INVERT_POINTING_RELATIONS).getValue());
+	public List<Boolean> getInvertPointingRelations() {
+		List<Boolean> bools = new LinkedList<>();
+		String propVal = (String) this.getProperty(PROP_INVERT_POINTING_RELATIONS).getValue();
+		List<String> sepProps = splitStringByAndTrim(propVal, ",");
+		for (String prop : sepProps){
+			if (prop.toLowerCase().equals("true")){
+				bools.add(Boolean.TRUE);
+			}
+			else{
+				bools.add(Boolean.FALSE);
+			}
+		}
+		return bools;
 	}
 
 	public Boolean getSuppressPRID() {
@@ -213,8 +225,10 @@ public class TreetaggerImporterProperties extends PepperModuleProperties {
 		return ((Boolean) this.getProperty(PROP_POINTING_RELATION_SUPPRESS_LABEL).getValue());
 	}
 
-	public String getPointingTargetAnno() {
-		return (String) this.getProperty(PROP_POINTING_RELATION_TARGET_ANNOTATION).getValue();
+	public List<String> getPointingTargetAnno() {
+		String propVal = (String) this.getProperty(PROP_POINTING_RELATION_TARGET_ANNOTATION).getValue();
+		List<String> sepProps = splitStringByAndTrim(propVal, ",");
+		return sepProps;
 	}
 
 	public String[] getSeparateSpanAnnos() {
@@ -226,24 +240,32 @@ public class TreetaggerImporterProperties extends PepperModuleProperties {
 		return annos;
 	}
 
-	public String getPointingIDAnno() {
-		return (String) this.getProperty(PROP_POINTING_RELATION_ID_ANNOTATION).getValue();
+	public List<String> getPointingIDAnno() {
+		String propVal = (String) this.getProperty(PROP_POINTING_RELATION_ID_ANNOTATION).getValue();
+		List<String> sepProps = splitStringByAndTrim(propVal, ",");
+		return sepProps;
 	}
 
-	public String getPointingType() {
-		return (String) this.getProperty(PROP_POINTING_RELATION_TYPE).getValue();
+	public List<String>  getPointingType() {
+		String propVal = (String) this.getProperty(PROP_POINTING_RELATION_TYPE).getValue();
+		List<String> sepProps = splitStringByAndTrim(propVal, ",");
+		return sepProps;
 	}
 
 	public String getSpanAnnotationNamespace() {
 		return (String) this.getProperty(PROP_SPAN_ANNO_NAMESPACE).getValue();
 	}
 
-	public String getPointingNS() {
-		return (String) this.getProperty(PROP_POINTING_RELATION_NS).getValue();
+	public List<String> getPointingNS() {
+		String propVal = (String) this.getProperty(PROP_POINTING_RELATION_NS).getValue();
+		List<String> sepProps = splitStringByAndTrim(propVal, ",");
+		return sepProps;
 	}
 
-	public String getPointingEdgeAnno() {
-		return (String) this.getProperty(PROP_POINTING_RELATION_EDGE_ANNOTATION).getValue();
+	public List<String>  getPointingEdgeAnno() {
+		String propVal = (String) this.getProperty(PROP_POINTING_RELATION_EDGE_ANNOTATION).getValue();
+		List<String> sepProps = splitStringByAndTrim(propVal, ",");
+		return sepProps;
 	}
 
 	public Boolean getAnnotateAllSpansWithName() {
