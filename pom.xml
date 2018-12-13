@@ -24,6 +24,17 @@
 		<connection>scm:git:git://github.com/korpling/pepperModules-TreetaggerModules.git</connection>
 		<developerConnection>scm:git:git@github.com:korpling/pepperModules-TreetaggerModules.git</developerConnection>
 		<url>https://github.com/korpling/pepperModules-TreetaggerModules</url>
-	  <tag>HEAD</tag>
-  </scm>
+		<tag>HEAD</tag>
+  	</scm>
+	<build>
+		<plugins>
+			<plugin>
+                                <groupId>org.apache.maven.plugins</groupId>
+                                <artifactId>maven-javadoc-plugin</artifactId>
+                                <configuration>
+                                        <additionalparam>-Xdoclint:none</additionalparam>
+                                </configuration>
+                        </plugin>
+		</plugins>
+	</build>
 </project>
