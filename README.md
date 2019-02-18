@@ -316,7 +316,7 @@ Note that if any comma separated properties are used to generate multiple types 
 <td align="left">treetagger.input.textName</td>
 <td align="left">String</td>
 <td align="left">optional</td>
-<td align="left"--></td>
+<td align="left">--</td>
 </tr>
 
 </tbody>
@@ -338,13 +338,15 @@ If set true, this switch will cause the module to annotate all spans with their 
 
 Determines the separator which should be artificially added after a token, when mapping TreeTagger token to STextualDS in Salt. The default separator is a whitespace given by the character sequence \\" \\".
 
+> **Note**
+>
+> The separator sequence, must be surrounded by double quotes. To shut of the adding of a separator, just this property value to "".
+
 ### treetagger.input.textName
 
 If set to a non-empty value, this allows to set a name for the STextualDS which is created.
 
-> **Note**
->
-> The separator sequence, must be surrounded by double quotes. To shut of the adding of a separator, just this property value to "".
+
 
 ### treetagger.input.prefixElementToAttributes
 
