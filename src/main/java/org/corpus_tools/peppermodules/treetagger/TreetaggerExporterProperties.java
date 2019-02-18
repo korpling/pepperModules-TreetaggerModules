@@ -43,6 +43,9 @@ public class TreetaggerExporterProperties extends PepperModuleProperties {
 	 * file(s).
 	 **/
 	public static final String PROP_META_TAG = "treetagger.output.metaTag";
+	
+	/** Choose a segmentation instead of exporting all tokens */
+	public static final String PROP_SEG_NAME = "treetagger.segmentation.name";
 
 	public TreetaggerExporterProperties() {
 		this.addProperty(new PepperModuleProperty<String>(PROP_FILE_EXTENSION, String.class, "This property determines the ending of TreeTagger files, which are exported. The default value is '" + FILE_ENDING + "'.", FILE_ENDING, false));
@@ -50,6 +53,7 @@ public class TreetaggerExporterProperties extends PepperModuleProperties {
 		this.addProperty(new PepperModuleProperty<Boolean>(PROP_FLATTEN, Boolean.class, "If set true, the output directory structure is flat: all documents are put in the output root 	directory.", false, false));
 		this.addProperty(new PepperModuleProperty<Boolean>(PROP_REPLACE_GENERIC_SPAN_NAMES, Boolean.class, "If set true, generic span names like 'sSpan123' will be replaced with the first annotation 	of the span found. If the span has no annotations, the generic name will not be replaced.", false, false));
 		this.addProperty(new PepperModuleProperty<String>(PROP_META_TAG, String.class, "Sets the meta tag used to mark the TreeTagger document in the output file(s).", "meta", false));
+		this.addProperty(PepperModuleProperty.create().withName(PROP_SEG_NAME).withType(String.class).withDescription("Choose a segmentation instead of exporting all tokens").withDefaultValue(null).build());
 	}
 
 	/** Returns file ending for eported files. **/
@@ -87,5 +91,14 @@ public class TreetaggerExporterProperties extends PepperModuleProperties {
 
 	public Boolean isReplaceGenericSpanNamesProperty() {
 		return ((Boolean) this.getProperty(PROP_REPLACE_GENERIC_SPAN_NAMES).getValue());
+	}
+	
+	/**
+	 * Get segmentation name for segmentation to choose.
+	 * @return null if no name provided, else segmentation name
+	 */
+	public String getSegmentationName() {
+		Object segName = getProperty(PROP_SEG_NAME).getValue();
+		return segName == null? null : (String) segName;
 	}
 }
