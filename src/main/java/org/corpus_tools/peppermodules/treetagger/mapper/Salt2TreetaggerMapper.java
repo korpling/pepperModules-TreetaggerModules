@@ -19,9 +19,12 @@ package org.corpus_tools.peppermodules.treetagger.mapper;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.corpus_tools.pepper.common.DOCUMENT_STATUS;
 import org.corpus_tools.pepper.exceptions.PepperConvertException;
@@ -35,11 +38,13 @@ import org.corpus_tools.peppermodules.treetagger.model.Token;
 import org.corpus_tools.peppermodules.treetagger.model.TreetaggerFactory;
 import org.corpus_tools.peppermodules.treetagger.model.serialization.TabWriter;
 import org.corpus_tools.salt.common.SDocumentGraph;
+import org.corpus_tools.salt.common.SOrderRelation;
 import org.corpus_tools.salt.common.SSpan;
 import org.corpus_tools.salt.common.STextualRelation;
 import org.corpus_tools.salt.common.SToken;
 import org.corpus_tools.salt.core.SAnnotation;
 import org.corpus_tools.salt.core.SMetaAnnotation;
+import org.corpus_tools.salt.core.SNode;
 import org.corpus_tools.salt.core.SRelation;
 import org.corpus_tools.salt.semantics.SLemmaAnnotation;
 import org.corpus_tools.salt.semantics.SPOSAnnotation;
@@ -171,7 +176,29 @@ public class Salt2TreetaggerMapper extends PepperMapperImpl {
 
 		Hashtable<SSpan, Span> sSpan2SpanTable = new Hashtable<SSpan, Span>();
 		long tokenIndex = 0;
-		for (SToken sToken : sDocumentGraph.getSortedTokenByText()) {
+		String segmentationName = getProps().getSegmentationName();	
+		List<SToken> relevantTokens;
+		if (segmentationName == null) {	
+			relevantTokens = sDocumentGraph.getSortedTokenByText();
+		} else {
+			List<SOrderRelation> orderRels = sDocumentGraph.getOrderRelations();
+			Set<SToken> tokens = new HashSet<>();
+			for (SOrderRelation rel : orderRels) {
+				SNode from = rel.getSource();
+				SNode to = rel.getTarget();
+				SNode[] nodes = {from, to};
+				for (SNode node : nodes) {
+					if (node instanceof SSpan) {
+						sDocumentGraph.getOverlappedTokens(node).stream().forEach(tokens::add);
+					} 
+					else if (from instanceof SToken) {
+						tokens.add((SToken) node);
+					}
+				}
+			}
+			relevantTokens = sDocumentGraph.getSortedTokenByText(new ArrayList<SToken>(tokens));
+		}
+		for (SToken sToken : relevantTokens) {
 			for (SRelation rel : sToken.getOutRelations()) {
 				if (rel instanceof STextualRelation) {
 					STextualRelation sTexRel = (STextualRelation) rel;
