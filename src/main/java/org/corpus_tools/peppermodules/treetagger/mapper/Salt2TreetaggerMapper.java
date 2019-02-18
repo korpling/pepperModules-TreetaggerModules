@@ -181,7 +181,7 @@ public class Salt2TreetaggerMapper extends PepperMapperImpl {
 		if (segmentationName == null) {	
 			relevantTokens = sDocumentGraph.getSortedTokenByText();
 		} else {
-			List<SOrderRelation> orderRels = sDocumentGraph.getOrderRelations();
+			List<SOrderRelation> orderRels = sDocumentGraph.getOrderRelations().stream().filter((SOrderRelation r) -> segmentationName.equals(r.getType())).collect(Collectors.toList());
 			Set<SToken> tokens = new HashSet<>();
 			for (SOrderRelation rel : orderRels) {
 				SNode from = rel.getSource();
