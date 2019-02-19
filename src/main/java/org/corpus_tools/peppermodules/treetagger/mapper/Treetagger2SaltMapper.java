@@ -126,6 +126,10 @@ public class Treetagger2SaltMapper extends PepperMapperImpl implements PepperMap
 
 		// creating and adding STextualDS
 		STextualDS sText = SaltFactory.createSTextualDS();
+		String textName = getProps().getTextName();
+		if(textName != null && !textName.isEmpty()) {
+			sText.setName(textName);
+		}
 		sDocument.getDocumentGraph().addNode(sText);
 
 		List<SLayer> prLayers = new LinkedList<>();

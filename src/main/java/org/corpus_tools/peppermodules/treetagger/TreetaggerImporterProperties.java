@@ -40,9 +40,9 @@ public class TreetaggerImporterProperties extends PepperModuleProperties {
 	public static final String PROP_MAKE_POINTING_RELATIONS = PREFIX + "makePointingRelations";
 
 	public static final String PROP_POINTING_RELATION_TARGET_ANNOTATION = PREFIX + "pointingRelationTargetAnnotation";
-	
+
 	public static final String PROP_POINTING_RELATION_ID_ANNOTATION = PREFIX + "pointingRelationIDAnnotation";
-	
+
 	public static final String PROP_POINTING_RELATION_NS = PREFIX + "pointingRelationNamespace";
 
 	public static final String PROP_POINTING_RELATION_TYPE = PREFIX + "pointingRelationType";
@@ -64,6 +64,8 @@ public class TreetaggerImporterProperties extends PepperModuleProperties {
 	public static final String PROP_SEPARATE_SPAN_ANNOS = PREFIX + "separateSpanAnnotations";
 
 	public static final String PROP_ANNOTATE_ALL_SPANS_WITH_NAME = PREFIX + "annotateAllSpansWithSpanName";
+
+	public static final String PROP_TEXT_NAME = PREFIX + "textName";
 	/**
 	 * States the meta tag used to mark the TreeTagger document in the input
 	 * file(s).
@@ -76,19 +78,18 @@ public class TreetaggerImporterProperties extends PepperModuleProperties {
 	public static final String PROP_FILE_ENCODING = "treetagger.input.fileEncoding";
 
 	/**
-	 * property to determine the column names. The value is a comma separated
-	 * list, starting with the value 'tok'. The default value is 'tok, pos,
-	 * lemma'.
+	 * property to determine the column names. The value is a comma separated list,
+	 * starting with the value 'tok'. The default value is 'tok, pos, lemma'.
 	 */
 	public static final String PROP_COLUMN_NAMES = "columnNames";
 	public static final String COLUMN_NAMES_SEPARATOR = ",";
 	public static final String COLUMN_NAMES_TOK = "tok";
 	/**
 	 * Name of property to determine the separator which should be artificially
-	 * added after a token, when mapping treetagger token to STextualDS in Salt.
-	 * The default separator is a whitespace given by the character sequence "
-	 * ". Note, the separator sequence, must be surrounded by double quotes. To
-	 * shut of the adding of a separator, just this property value to "".
+	 * added after a token, when mapping treetagger token to STextualDS in Salt. The
+	 * default separator is a whitespace given by the character sequence " ". Note,
+	 * the separator sequence, must be surrounded by double quotes. To shut of the
+	 * adding of a separator, just this property value to "".
 	 *
 	 */
 	public static final String PROP_SEPARATOR_AFTER_TOKEN = PREFIX + "separatorAfterToken";
@@ -98,16 +99,16 @@ public class TreetaggerImporterProperties extends PepperModuleProperties {
 	private static final String DEFAULT_LEMMA_NAME = "lemma";
 
 	/**
-	 * Set to true to add the element name as a prefix to all span element
-	 * attribute annotations.
+	 * Set to true to add the element name as a prefix to all span element attribute
+	 * annotations.
 	 *
 	 */
 	public static final String PROP_PREFIX_SPAN_ANNOS_WITH_ELEMENT = PREFIX + "prefixElementToAttributes";
 	public static final String PROP_PREFIX_ELEMENT_SEPARATOR = PREFIX + "prefixElementSeparator";
 
 	/**
-	 * Property of find+replace string pairs to alter specific token values.
-	 * Useful for incorporating XML escapes into an imported file's tokens.
+	 * Property of find+replace string pairs to alter specific token values. Useful
+	 * for incorporating XML escapes into an imported file's tokens.
 	 */
 	public static final String PROP_TOKEN_REPLACEMENTS = PREFIX + "replaceTokens";
 
@@ -129,7 +130,8 @@ public class TreetaggerImporterProperties extends PepperModuleProperties {
 		this.addProperty(new PepperModuleProperty<String>(PROP_SPAN_ANNO_NAMESPACE, String.class,
 				"Namespace to give to span annotations.", null, false));
 		this.addProperty(new PepperModuleProperty<String>(PROP_SEPARATE_SPAN_ANNOS, String.class,
-				"Comma separated list of span attribute names for which separate nodes should be generated", null, false));
+				"Comma separated list of span attribute names for which separate nodes should be generated", null,
+				false));
 		this.addProperty(new PepperModuleProperty<String>(PROP_SEPARATOR_AFTER_TOKEN, String.class,
 				"Determines the separator which should be artificially added after a token, when mapping treetagger token to STextualDS in Salt. The default separator is a whitespace given by the character sequence \" \". Note, the separator sequence, must be surrunded by double quotes. To shut of the adding of a separator, just this property value to \"\"",
 				" ", false));
@@ -149,20 +151,18 @@ public class TreetaggerImporterProperties extends PepperModuleProperties {
 				"Property to determine the column names. The value is a comma separated list, starting with the value 'tok'. The default value is 'tok, pos, lemma'.",
 				"tok, pos, lemma", false));
 		this.addProperty(new PepperModuleProperty<Boolean>(PROP_MAKE_POINTING_RELATIONS, Boolean.class,
-				"If set true, the importer attempts to read pointing relations from selected span annotations.",
-				false, false));
+				"If set true, the importer attempts to read pointing relations from selected span annotations.", false,
+				false));
 		this.addProperty(new PepperModuleProperty<String>(PROP_POINTING_RELATION_TARGET_ANNOTATION, String.class,
 				"The name of a span annotation attribute containing an attribute encoding the id of target spans",
 				"head", false));
 		this.addProperty(new PepperModuleProperty<String>(PROP_POINTING_RELATION_ID_ANNOTATION, String.class,
-				"The name of a span annotation attribute containing the id referred to in target annotations",
-				"id", false));
+				"The name of a span annotation attribute containing the id referred to in target annotations", "id",
+				false));
 		this.addProperty(new PepperModuleProperty<String>(PROP_POINTING_RELATION_TYPE, String.class,
-				"The edge type to assign to pointing relations.",
-				"dep", false));
+				"The edge type to assign to pointing relations.", "dep", false));
 		this.addProperty(new PepperModuleProperty<String>(PROP_POINTING_RELATION_NS, String.class,
-				"The namespace to assign to pointing relations.",
-				"dep", false));
+				"The namespace to assign to pointing relations.", "dep", false));
 		this.addProperty(new PepperModuleProperty<String>(PROP_POINTING_RELATION_EDGE_ANNOTATION, String.class,
 				"The name of a span annotation attribute containing annotation labels to add as edge annotations to pointing relations",
 				"func", false));
@@ -173,16 +173,19 @@ public class TreetaggerImporterProperties extends PepperModuleProperties {
 				"If set true, pointing relations targets with hashtag are interpreted as href syntax (hashtag is ignored in target).",
 				true, false));
 		this.addProperty(new PepperModuleProperty<Boolean>(PROP_POINTING_RELATION_SUPPRESS_ID, Boolean.class,
-			"If set true, ID annotation of pointing relation markers is not imported as span annotation.",
-			true, false));
+				"If set true, ID annotation of pointing relation markers is not imported as span annotation.", true,
+				false));
 
 		this.addProperty(new PepperModuleProperty<Boolean>(PROP_POINTING_RELATION_SUPPRESS_TARGET, Boolean.class,
-			"If set true, target annotation of pointing relation markers is not imported as span annotation.",
-			true, false));
+				"If set true, target annotation of pointing relation markers is not imported as span annotation.", true,
+				false));
 
 		this.addProperty(new PepperModuleProperty<Boolean>(PROP_POINTING_RELATION_SUPPRESS_LABEL, Boolean.class,
-			"If set true, label annotation of pointing relation markers is not imported as span annotation.",
-			true, false));
+				"If set true, label annotation of pointing relation markers is not imported as span annotation.", true,
+				false));
+
+		this.addProperty(PepperModuleProperty.create().withName(PROP_TEXT_NAME).withType(String.class)
+				.withDescription("Name of the text").isRequired(false).withDefaultValue(null).build());
 
 	}
 
@@ -193,16 +196,15 @@ public class TreetaggerImporterProperties extends PepperModuleProperties {
 	public Boolean getMakePointingRelations() {
 		return ((Boolean) this.getProperty(PROP_MAKE_POINTING_RELATIONS).getValue());
 	}
-	
+
 	public List<Boolean> getInvertPointingRelations() {
 		List<Boolean> bools = new LinkedList<>();
 		String propVal = (String) this.getProperty(PROP_INVERT_POINTING_RELATIONS).getValue();
 		List<String> sepProps = splitStringByAndTrim(propVal, ",");
-		for (String prop : sepProps){
-			if (prop.toLowerCase().equals("true")){
+		for (String prop : sepProps) {
+			if (prop.toLowerCase().equals("true")) {
 				bools.add(Boolean.TRUE);
-			}
-			else{
+			} else {
 				bools.add(Boolean.FALSE);
 			}
 		}
@@ -234,7 +236,7 @@ public class TreetaggerImporterProperties extends PepperModuleProperties {
 	public String[] getSeparateSpanAnnos() {
 		String annoList = (String) this.getProperty(PROP_SEPARATE_SPAN_ANNOS).getValue();
 		String[] annos = null;
-		if (annoList != null){
+		if (annoList != null) {
 			annos = annoList.split(",");
 		}
 		return annos;
@@ -246,7 +248,7 @@ public class TreetaggerImporterProperties extends PepperModuleProperties {
 		return sepProps;
 	}
 
-	public List<String>  getPointingType() {
+	public List<String> getPointingType() {
 		String propVal = (String) this.getProperty(PROP_POINTING_RELATION_TYPE).getValue();
 		List<String> sepProps = splitStringByAndTrim(propVal, ",");
 		return sepProps;
@@ -262,7 +264,7 @@ public class TreetaggerImporterProperties extends PepperModuleProperties {
 		return sepProps;
 	}
 
-	public List<String>  getPointingEdgeAnno() {
+	public List<String> getPointingEdgeAnno() {
 		String propVal = (String) this.getProperty(PROP_POINTING_RELATION_EDGE_ANNOTATION).getValue();
 		List<String> sepProps = splitStringByAndTrim(propVal, ",");
 		return sepProps;
@@ -301,10 +303,10 @@ public class TreetaggerImporterProperties extends PepperModuleProperties {
 	/**
 	 * Returns a map of Strings to be escaped and the corresponding replacement
 	 * Strings. This map is computed from the property
-	 * {@link #PROP_TOKEN_REPLACEMENTS}, which has the form: \"REPLACED_STRING\"
-	 * : \"REPLACEMENT\" (, \"REPLACED_STRING\" : \"REPLACEMENT\"). It is
-	 * applied to token values, and if {@link #PROP_ANNO_REPLACEMENTS} is true,
-	 * then also to annotation values.
+	 * {@link #PROP_TOKEN_REPLACEMENTS}, which has the form: \"REPLACED_STRING\" :
+	 * \"REPLACEMENT\" (, \"REPLACED_STRING\" : \"REPLACEMENT\"). It is applied to
+	 * token values, and if {@link #PROP_ANNO_REPLACEMENTS} is true, then also to
+	 * annotation values.
 	 *
 	 * @return
 	 */
@@ -335,6 +337,11 @@ public class TreetaggerImporterProperties extends PepperModuleProperties {
 
 	public Boolean getReplaceInAnnos() {
 		return ((Boolean) this.getProperty(PROP_ANNO_REPLACEMENTS).getValue());
+	}
+
+	public String getTextName() {
+		Object val = this.getProperty(PROP_TEXT_NAME).getValue();
+		return val instanceof String ? (String) val : null;
 	}
 
 	/**

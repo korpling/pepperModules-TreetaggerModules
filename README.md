@@ -312,6 +312,13 @@ Note that if any comma separated properties are used to generate multiple types 
 <td align="left">--</td>
 </tr>
 
+<tr class="odd">
+<td align="left">treetagger.input.textName</td>
+<td align="left">String</td>
+<td align="left">optional</td>
+<td align="left">--</td>
+</tr>
+
 </tbody>
 </table>
 
@@ -334,6 +341,12 @@ Determines the separator which should be artificially added after a token, when 
 > **Note**
 >
 > The separator sequence, must be surrounded by double quotes. To shut of the adding of a separator, just this property value to "".
+
+### treetagger.input.textName
+
+If set to a non-empty value, this allows to set a name for the STextualDS which is created.
+
+
 
 ### treetagger.input.prefixElementToAttributes
 
